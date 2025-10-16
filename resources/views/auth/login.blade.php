@@ -5,18 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Arsip Disnaker</title>
+    <title>Sirekap Pasmi | Auth Login</title>
     @vite('resources/css/app.css')
 </head>
 
-<body class="min-h-screen font-manrope text-neutral-700 bg- antialiased">
+<body class="min-h-screen font-inter text-neutral-700 bg- antialiased">
     <main class="flex min-h-screen items-center justify-center">
         <div class="relative w-full overflow-hidden bg-white">
             <div class="grid gap-0 lg:grid-cols-2">
                 <section
                     class="relative col-span-1 flex h-screen flex-col justify-between overflow-hidden bg-gradient-to-t from-sky-600 from-20% via-sky-400 via-20% to-sky-500 px-8 py-10 sm:px-12 lg:px-14">
                     <div class="space-y-4 text-white">
-                        <span class="text-xs font-semibold uppercase tracking-wide text-sky-200">Dinas Tenaga Kerja</span>
+                        <span class="text-xs font-semibold uppercase tracking-wide text-sky-200">Sirekap Pasmi</span>
                         <h2 class="text-2xl font-semibold">Portal Arsip dan Pencatatan</h2>
 
                     </div>
@@ -64,7 +64,7 @@
                             </div>
 
                             <button type="submit"
-                                class="flex w-full py-2 px-2 font-manrope font-semibold text-white items-center justify-center gap-2 rounded-md bg-sky-500 hover:bg-sky-600 active:outline-none ease-out transition-all ">
+                                class="flex w-full py-2 px-2 font-inter font-semibold text-white items-center justify-center gap-2 rounded-md bg-sky-500 hover:bg-sky-600 active:outline-none ease-out transition-all ">
                                 Login
                             </button>
                         </form>

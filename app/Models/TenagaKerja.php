@@ -9,13 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TenagaKerja extends Model
 {
-    /** @use HasFactory<\Database\Factories\TenagaKerjaFactory> */
     use HasFactory;
 
     protected $fillable = [
         'nama',
-        'nomor_induk',
-        'jenis_kelamin',
+        'nik',
+        'gender',
         'tempat_lahir',
         'tanggal_lahir',
         'email',
@@ -23,25 +22,30 @@ class TenagaKerja extends Model
         'kecamatan',
         'alamat_lengkap',
         'pendidikan_id',
-        'agensi_lowongan_id',
+        'lowongan_id',
     ];
 
-    protected $casts = [
-        'tanggal_lahir' => 'date',
-    ];
-
+    /**
+     * Pendidikan terakhir tenaga kerja.
+     */
     public function pendidikan(): BelongsTo
     {
         return $this->belongsTo(Pendidikan::class);
     }
 
-    public function agensiLowongan(): BelongsTo
+    /**
+     * Lowongan yang sedang diikuti.
+     */
+    public function lowongan(): BelongsTo
     {
-        return $this->belongsTo(AgensiLowongan::class);
+        return $this->belongsTo(Lowongan::class);
     }
 
-    public function registrasiTenagaKerjas(): HasMany
+    /**
+     * Riwayat rekap untuk tenaga kerja ini.
+     */
+    public function rekaps(): HasMany
     {
-        return $this->hasMany(RegistrasiTenagaKerja::class);
+        return $this->hasMany(Rekap::class);
     }
 }

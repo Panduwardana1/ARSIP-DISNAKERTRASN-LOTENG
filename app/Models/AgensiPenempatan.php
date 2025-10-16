@@ -6,21 +6,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Pendidikan extends Model
+class AgensiPenempatan extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'kode',
         'nama',
-        'level'
+        'lokasi',
+        'icon',
+        'is_aktif',
     ];
 
     /**
-     * Tenaga kerja dengan pendidikan ini.
+     * Lowongan yang ditawarkan oleh agensi ini.
      */
-    public function tenagaKerja(): HasMany
+    public function lowongans(): HasMany
     {
-        return $this->hasMany(TenagaKerja::class);
+        return $this->hasMany(Lowongan::class, 'agensi_id');
     }
 }

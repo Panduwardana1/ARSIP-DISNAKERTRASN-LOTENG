@@ -8,8 +8,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                inter: ["Inter", "sans-serif"],
-                manrope: ["Manrope", "sans-serif"],
+                inter: ["Inter Tight", "sans-serif"],
             },
         },
     },

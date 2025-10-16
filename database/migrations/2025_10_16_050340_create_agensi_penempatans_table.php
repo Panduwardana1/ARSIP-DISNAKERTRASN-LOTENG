@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('agensi_penempatans', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama', 150);
+            $table->text('lokasi')->nullable();
+            $table->string('icon')->nullable();
+            $table->enum('is_aktif', ['aktif', 'non_aktif'])->default('aktif')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('agensi_penempatans');
+    }
+};
