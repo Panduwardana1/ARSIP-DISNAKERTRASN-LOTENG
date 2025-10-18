@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama', 150);
             $table->text('lokasi')->nullable();
-            $table->string('icon')->nullable();
+            $table->string('gambar')->nullable();
             $table->enum('is_aktif', ['aktif', 'non_aktif'])->default('aktif')->nullable();
             $table->timestamps();
         });

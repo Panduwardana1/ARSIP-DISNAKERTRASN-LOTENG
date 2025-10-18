@@ -10,9 +10,19 @@ class AgensiPenempatanController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = AgensiPenempatan::query();
+        $cari = $request->input('keyword') ?? $request->input('seacrch');
+
+        if ($cari) {
+            $query->where(function ($subQuery) use ($cari) {
+                $subQuery->where('nama', 'like', '%' . $cari . '%');
+            });
+        }
+
+        $agensiPenempatan = $query->latest()->paginate(10)->withQueryString();
+        return view('cruds.agensi_penempatan.index', compact(['agensi' => $agensiPenempatan]));
     }
 
     /**
@@ -20,7 +30,7 @@ class AgensiPenempatanController extends Controller
      */
     public function create()
     {
-        //
+        return view('cruds.agensi_penempatan.create');
     }
 
     /**

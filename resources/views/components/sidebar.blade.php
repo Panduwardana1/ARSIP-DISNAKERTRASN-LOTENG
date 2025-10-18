@@ -6,32 +6,32 @@
             <x-nav-link :active="request()->routeIs('sirekap.dashboard')" href="{{ route('sirekap.dashboard') }}">
                 <div class="py-[3px] px-2 rounded-md">
                     <ul class="flex items-center gap-2 font-inter font-medium">
-                        <li><x-heroicon-o-home class="h-6 w-6"></x-heroicon-o-home></li>
+                        <li><x-heroicon-o-home class="h-5 w-5"></x-heroicon-o-home></li>
                         <li>Dashboard</li>
                     </ul>
                 </div>
             </x-nav-link>
             <span class="font-semibold text-sm font-inter py-1.5 text-zinc-500/80">Master</span>
-            <x-nav-link :active="request()->routeIs('sirekap.cpmi.create')" href="{{ route('sirekap.cpmi.create') }}">
+            <x-nav-link :active="request()->routeIs('sirekap.cpmi.index')" href="{{ route('sirekap.cpmi.index') }}">
                 <div class="py-[3px] px-2 rounded-md">
                     <ul class="flex items-center gap-2 font-inter font-medium">
-                        <li><x-heroicon-o-identification class="h-6 w-6" />
+                        <li><x-heroicon-o-identification class="h-5 w-5" />
                         <li>CPMI</li>
                     </ul>
                 </div>
             </x-nav-link>
-            <x-nav-link :active="request()->routeIs('sirekap.dashboard')" href="{{ route('sirekap.dashboard') }}">
+            <x-nav-link :active="request()->routeIs('sirekap.perusahaan.index')" href="{{ route('sirekap.perusahaan.index') }}">
                 <div class="py-[3px] px-2 rounded-md">
                     <ul class="flex items-center gap-2 font-inter font-medium">
-                        <li><x-heroicon-o-building-library class="h-6 w-6" />
+                        <li><x-heroicon-o-building-library class="h-5 w-5" />
                         <li>P3MI</li>
                     </ul>
                 </div>
             </x-nav-link>
-            <x-nav-link :active="request()->routeIs('sirekap.dashboard')" href="{{ route('sirekap.dashboard') }}">
+            <x-nav-link :active="request()->routeIs('sirekap.agensi.index')" href="{{ route('sirekap.agensi.index') }}">
                 <div class="py-[3px] px-2 rounded-md">
                     <ul class="flex items-center gap-2 font-inter font-medium">
-                        <li><x-heroicon-o-home class="h-6 w-6"></x-heroicon-o-home></li>
+                        <li><x-heroicon-o-building-office class="h-5 w-5"/></li>
                         <li>Agensi</li>
                     </ul>
                 </div>
@@ -40,7 +40,7 @@
             <x-nav-link :active="request()->routeIs('sirekap.dashboard')" href="{{ route('sirekap.dashboard') }}">
                 <div class="py-[3px] px-2 rounded-md">
                     <ul class="flex items-center gap-2 font-inter font-medium">
-                        <li><x-heroicon-o-home class="h-6 w-6"></x-heroicon-o-home></li>
+                        <li><x-heroicon-o-home class="h-5 w-5"></x-heroicon-o-home></li>
                         <li>Dashboard</li>
                     </ul>
                 </div>
@@ -48,7 +48,7 @@
             <x-nav-link :active="request()->routeIs('sirekap.dashboard')" href="{{ route('sirekap.dashboard') }}">
                 <div class="py-[3px] px-2 rounded-md">
                     <ul class="flex items-center gap-2 font-inter font-medium">
-                        <li><x-heroicon-o-home class="h-6 w-6"></x-heroicon-o-home></li>
+                        <li><x-heroicon-o-home class="h-5 w-5"></x-heroicon-o-home></li>
                         <li>Dashboard</li>
                     </ul>
                 </div>
@@ -57,14 +57,14 @@
             <x-nav-link :active="request()->routeIs('sirekap.dashboard')" href="{{ route('sirekap.dashboard') }}">
                 <div class="py-[3px] px-2 rounded-md">
                     <ul class="flex items-center gap-2 font-inter font-medium">
-                        <li><x-heroicon-o-home class="h-6 w-6"></x-heroicon-o-home></li>
+                        <li><x-heroicon-o-home class="h-5 w-5"></x-heroicon-o-home></li>
                         <li>Dashboard</li>
                     </ul>
                 </div>
             </x-nav-link><x-nav-link :active="request()->routeIs('sirekap.dashboard')" href="{{ route('sirekap.dashboard') }}">
                 <div class="py-[3px] px-2 rounded-md">
                     <ul class="flex items-center gap-2 font-inter font-medium">
-                        <li><x-heroicon-o-home class="h-6 w-6"></x-heroicon-o-home></li>
+                        <li><x-heroicon-o-home class="h-5 w-5"></x-heroicon-o-home></li>
                         <li>Dashboard</li>
                     </ul>
                 </div>

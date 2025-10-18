@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AgensiPenempatanController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Dashboard;
+use App\Http\Controllers\PerusahaanIndonesiaController;
 use App\Http\Controllers\TenagaKerjaController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +20,6 @@ Route::prefix('/sirekappasmi')->name('sirekap.')->group(function () {
     Route::post('pekerja/import', [TenagaKerjaController::class, 'import'])->name('pekerja.import');
     // ? CRUD
     Route::resource('/cpmi', TenagaKerjaController::class);
-
-
-
+    Route::resource('/perusahaan', PerusahaanIndonesiaController::class);
+    Route::resource('/agensi', AgensiPenempatanController::class);
 });
