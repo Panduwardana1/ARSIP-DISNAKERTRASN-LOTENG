@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\File;
 
 class UpdatePerusahaanIndonesiaRequest extends FormRequest
 {
@@ -28,7 +29,12 @@ class UpdatePerusahaanIndonesiaRequest extends FormRequest
             'nomor_hp' => ['nullable', 'string', 'max:20'],
             'alamat' => ['nullable', 'string'],
             'icon' => ['nullable', 'string', 'max:255'],
-            'gambar' => ['nullable', 'image', 'mimes:png,jpg', 'max:2048'],
+            'gambar' => [
+                'nullable',
+                File::image()
+                    ->types(['jpg', 'jpeg', 'png', 'svg'])
+                    ->max(2048),
+            ],
         ];
     }
 }

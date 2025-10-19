@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('nama');
             $table->string('kode', 3)->unique();
             $table->string('benua')->nullable();
-            $table->string('icon')->nullable();
             $table->timestamps();
         });
     }

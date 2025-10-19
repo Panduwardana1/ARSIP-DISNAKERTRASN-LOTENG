@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('pageTitle', 'SIREKAP - PASMI | Perusahaan | Tambah Data')
 @section('titleContent', 'Tambah Data Perusahaan')
@@ -93,7 +93,7 @@
                                 Upload Logo (opsional)
                                 <input type="file" name="gambar"
                                     class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 transition file:mr-2 file:rounded-md file:border-0 file:bg-zinc-100 file:px-3 file:py-1 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                                <span class="mt-1 block text-xs text-zinc-400">Format gambar (JPG, PNG, SVG) maksimal 2 MB.</span>
+                                <span class="mt-1 block text-xs text-zinc-400">Format gambar (JPG/JPEG, PNG, atau SVG) maksimal 2 MB.</span>
                                 @error('gambar')
                                     <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                                 @enderror

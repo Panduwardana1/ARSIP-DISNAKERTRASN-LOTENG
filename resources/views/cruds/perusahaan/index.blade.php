@@ -2,7 +2,7 @@
 
 @section('pageTitle', 'SIREKAP - PASMI | Perusahaan | Disnakertrans')
 @section('titleContent', 'Daftar Perusahaan Indonesia')
-@vite('resources/css/app.css')
+
 @section('content')
     <div class="flex h-full flex-col">
         <div class="border-b bg-white">

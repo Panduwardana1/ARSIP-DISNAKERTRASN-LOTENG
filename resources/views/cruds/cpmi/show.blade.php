@@ -23,11 +23,11 @@
                         <x-heroicon-o-arrow-left class="mr-2 h-4 w-4" />
                         Kembali
                     </a>
-                    <a href="{{ route('sirekap.cpmi.edit', $tenagaKerja) }}"
+                    {{-- <a href="{{ route('sirekap.cpmi.edit', $tenagaKerja) }}"
                         class="inline-flex items-center rounded-xl border border-amber-500 bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1">
                         <x-heroicon-o-pencil-square class="mr-2 h-4 w-4" />
                         Ubah Data
-                    </a>
+                    </a> --}}
                 </div>
             </div>
 
@@ -39,7 +39,8 @@
                                 <h3 class="font-inter text-lg font-semibold text-zinc-800">Data Pribadi</h3>
                                 <p class="text-sm text-zinc-500">Identitas utama calon pekerja.</p>
                             </div>
-                            <span class="inline-flex items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-500">
+                            <span
+                                class="inline-flex items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-500">
                                 {{ $tenagaKerja->gender }}
                             </span>
                         </header>
@@ -134,13 +135,13 @@
                             <div class="flex items-start justify-between">
                                 <dt class="text-zinc-500">Dibuat</dt>
                                 <dd class="text-right text-zinc-700">
-                                    {{ $tenagaKerja->created_at->translatedFormat('d M Y H:i') }}
+                                    {{-- {{ $tenagaKerja->created_at->translatedFormat('d M Y H:i') }} --}}
                                 </dd>
                             </div>
                             <div class="flex items-start justify-between">
                                 <dt class="text-zinc-500">Pembaharuan</dt>
                                 <dd class="text-right text-zinc-700">
-                                    {{ $tenagaKerja->updated_at->translatedFormat('d M Y H:i') }}
+                                    {{-- {{ $tenagaKerja->updated_at->translatedFormat('d M Y H:i') }} --}}
                                 </dd>
                             </div>
                         </dl>
@@ -157,6 +158,11 @@
                                     <div class="font-medium text-zinc-700">
                                         {{ optional($rekap->lowongan)->nama ?? 'Lowongan tidak diketahui' }}
                                     </div>
+                                    @if ($rekap->lowongan?->perusahaan)
+                                        <div class="text-[11px] text-zinc-500">
+                                            {{ $rekap->lowongan->perusahaan->nama }}
+                                        </div>
+                                    @endif
                                     @if ($rekap->lowongan?->agensi)
                                         <div class="text-[11px] text-zinc-500">
                                             {{ $rekap->lowongan->agensi->nama }}
@@ -167,7 +173,8 @@
                                     </div>
                                 </li>
                             @empty
-                                <li class="rounded-2xl border border-dashed border-zinc-200 px-4 py-5 text-center text-xs text-zinc-400">
+                                <li
+                                    class="rounded-2xl border border-dashed border-zinc-200 px-4 py-5 text-center text-xs text-zinc-400">
                                     Belum ada riwayat rekap untuk tenaga kerja ini.
                                 </li>
                             @endforelse

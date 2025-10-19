@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('lowongans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama', 100);
-            $table->foreignId('agensi_id')->constrained('agensi_penempatans')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignId('perusahaan_id')->constrained('perusahaan_indonesias')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->unsignedSmallInteger('kontrak_kerja')->unique();
-            $table->foreignId('destinasis_id')->constrained('destinasis')->cascadeOnDelete()->cascadeOnDelete();
+            $table->string('nama', 150);
+            $table->foreignId('agensi_id')->constrained('agensi_penempatans')->cascadeOnDelete();
+            $table->foreignId('perusahaan_id')->constrained('perusahaan_indonesias')->cascadeOnDelete();
+            $table->foreignId('destinasi_id')->constrained('destinasis')->cascadeOnDelete();
+            $table->unsignedSmallInteger('kontrak_kerja');
             $table->enum('is_aktif', ['aktif', 'non_aktif'])->default('aktif');
+            $table->string('catatan')->nullable();
+            $table->unique(['agensi_id', 'perusahaan_id', 'kontrak_kerja']);
             $table->timestamps();
         });
     }

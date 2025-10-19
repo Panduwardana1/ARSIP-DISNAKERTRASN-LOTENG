@@ -2,35 +2,59 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreTenagaKerjaRequest;
-use App\Http\Requests\UpdateTenagaKerjaRequest;
+use Throwable;
 use App\Models\Lowongan;
 use App\Models\Pendidikan;
 use App\Models\TenagaKerja;
+use Illuminate\Http\Request;
+use App\Http\Requests\StoreTenagaKerjaRequest;
+use App\Http\Requests\UpdateTenagaKerjaRequest;
 
 class TenagaKerjaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tenagaKerjaQuery = TenagaKerja::with(['pendidikan', 'lowongan.agensi'])
-            ->latest();
+        $filters = [
+            'keyword' => trim((string) $request->input('keyword', '')),
+            'gender' => $request->input('gender'),
+            'pendidikan' => $request->input('pendidikan'),
+            'lowongan' => $request->input('lowongan'),
+        ];
 
-        if ($keyword = request('keyword')) {
-            $tenagaKerjaQuery->where(function ($query) use ($keyword) {
-                $query
-                    ->where('nama', 'like', '%' . $keyword . '%')
-                    ->orWhere('nik', 'like', '%' . $keyword . '%')
-                    ->orWhere('desa', 'like', '%' . $keyword . '%')
-                    ->orWhere('kecamatan', 'like', '%' . $keyword . '%');
+        $tenagaKerjas = TenagaKerja::with(['pendidikan', 'lowongan.agensi', 'lowongan.perusahaan'])
+            ->filter($filters)
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        $genderOptions = TenagaKerja::genderOptions();
+
+        $daftarPendidikan = Pendidikan::orderBy('level')
+            ->orderBy('nama')
+            ->pluck('nama', 'id');
+
+        $daftarLowongan = Lowongan::with('perusahaan')
+            ->orderBy('nama')
+            ->get()
+            ->mapWithKeys(function (Lowongan $lowongan) {
+                $label = $lowongan->nama;
+                if ($lowongan->perusahaan?->nama) {
+                    $label .= ' - ' . $lowongan->perusahaan->nama;
+                }
+
+                return [$lowongan->id => $label];
             });
-        }
 
-        $tenagaKerjas = $tenagaKerjaQuery->paginate(15)->withQueryString();
-
-        return view('cruds.cpmi.index', compact('tenagaKerjas'));
+        return view('cruds.cpmi.index', compact(
+            'tenagaKerjas',
+            'filters',
+            'genderOptions',
+            'daftarPendidikan',
+            'daftarLowongan'
+        ));
     }
 
     /**
@@ -38,10 +62,7 @@ class TenagaKerjaController extends Controller
      */
     public function create()
     {
-        $pendidikans = Pendidikan::orderBy('level')->orderBy('nama')->get();
-        $lowongans = Lowongan::with(['agensi'])->where('is_aktif', 'aktif')->orderBy('nama')->get();
-
-        return view('cruds.cpmi.create', compact('pendidikans', 'lowongans'));
+        return view('cruds.cpmi.create', $this->formDependencies());
     }
 
     /**
@@ -82,13 +103,10 @@ class TenagaKerjaController extends Controller
     {
         $tenagaKerja->load(['pendidikan', 'lowongan']);
 
-        $pendidikans = Pendidikan::orderBy('level')->orderBy('nama')->get();
-        $lowongans = Lowongan::with(['agensi'])
-            ->where('is_aktif', 'aktif')
-            ->orderBy('nama')
-            ->get();
-
-        return view('cruds.cpmi.edit', compact('tenagaKerja', 'pendidikans', 'lowongans'));
+        return view('cruds.cpmi.edit', array_merge(
+            ['tenagaKerja' => $tenagaKerja],
+            $this->formDependencies($tenagaKerja)
+        ));
     }
 
     /**
@@ -114,10 +132,43 @@ class TenagaKerjaController extends Controller
             ]);
         }
 
-        $tenagaKerja->delete();
+        try {
+            $tenagaKerja->delete();
 
-        return redirect()
-            ->route('sirekap.cpmi.index')
-            ->with('success', 'Data tenaga kerja berhasil dihapus.');
+            return redirect()
+                ->route('sirekap.cpmi.index')
+                ->with('success', 'Data tenaga kerja berhasil dihapus.');
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return back()->withErrors([
+                'destroy' => 'Data tenaga kerja tidak dapat dihapus saat ini. Silakan coba lagi.',
+            ]);
+        }
+    }
+
+    private function formDependencies(?TenagaKerja $tenagaKerja = null): array
+    {
+        $pendidikans = Pendidikan::orderBy('level')
+            ->orderBy('nama')
+            ->get();
+
+        $lowongans = Lowongan::with(['agensi', 'perusahaan'])
+            ->when($tenagaKerja && $tenagaKerja->lowongan, function ($query) use ($tenagaKerja) {
+                $query->where(function ($sub) use ($tenagaKerja) {
+                    $sub->where('is_aktif', Lowongan::STATUS_AKTIF)
+                        ->orWhere('id', $tenagaKerja->lowongan_id);
+                });
+            }, function ($query) {
+                $query->where('is_aktif', Lowongan::STATUS_AKTIF);
+            })
+            ->orderBy('nama')
+            ->get();
+
+        return [
+            'pendidikans' => $pendidikans,
+            'lowongans' => $lowongans,
+        ];
     }
 }
+

@@ -2,17 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDestinasiRequest;
+use App\Http\Requests\UpdateDestinasiRequest;
 use App\Models\Destinasi;
 use Illuminate\Http\Request;
+use Throwable;
 
 class DestinasiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Destinasi::query();
+        $keyword = trim((string) $request->input('keyword', ''));
+        $benua = $request->input('benua');
+
+        if ($keyword !== '') {
+            $query->where(function ($subQuery) use ($keyword) {
+                $subQuery
+                    ->where('nama', 'like', '%' . $keyword . '%')
+                    ->orWhere('kode', 'like', '%' . strtoupper($keyword) . '%');
+            });
+        }
+
+        if ($benua !== null && $benua !== '') {
+            $query->where('benua', $benua);
+        }
+
+        $destinasis = $query->orderBy('nama')->paginate(10)->withQueryString();
+        $availableBenua = Destinasi::query()
+            ->whereNotNull('benua')
+            ->distinct()
+            ->orderBy('benua')
+            ->pluck('benua');
+
+        return view('cruds.destinasi.index', [
+            'destinasis' => $destinasis,
+            'filters' => [
+                'keyword' => $keyword,
+                'benua' => $benua,
+            ],
+            'availableBenua' => $availableBenua,
+        ]);
     }
 
     /**
@@ -20,15 +53,21 @@ class DestinasiController extends Controller
      */
     public function create()
     {
-        //
+        return view('cruds.destinasi.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreDestinasiRequest $request)
     {
-        //
+        $data = $request->validated();
+
+        $destinasi = Destinasi::create($data);
+
+        return redirect()
+            ->route('sirekap.destinasi.show', $destinasi)
+            ->with('success', 'Negara tujuan berhasil ditambahkan.');
     }
 
     /**
@@ -36,7 +75,7 @@ class DestinasiController extends Controller
      */
     public function show(Destinasi $destinasi)
     {
-        //
+        return view('cruds.destinasi.show', compact('destinasi'));
     }
 
     /**
@@ -44,15 +83,21 @@ class DestinasiController extends Controller
      */
     public function edit(Destinasi $destinasi)
     {
-        //
+        return view('cruds.destinasi.edit', compact('destinasi'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Destinasi $destinasi)
+    public function update(UpdateDestinasiRequest $request, Destinasi $destinasi)
     {
-        //
+        $data = $request->validated();
+
+        $destinasi->update($data);
+
+        return redirect()
+            ->route('sirekap.destinasi.show', $destinasi)
+            ->with('success', 'Negara tujuan berhasil diperbarui.');
     }
 
     /**
@@ -60,6 +105,18 @@ class DestinasiController extends Controller
      */
     public function destroy(Destinasi $destinasi)
     {
-        //
+        try {
+            $destinasi->delete();
+
+            return redirect()
+                ->route('sirekap.destinasi.index')
+                ->with('success', 'Negara tujuan berhasil dihapus.');
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return back()->withErrors([
+                'destroy' => 'Data destinasi tidak dapat dihapus saat ini. Silakan coba lagi.',
+            ]);
+        }
     }
 }

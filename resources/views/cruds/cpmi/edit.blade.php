@@ -191,8 +191,11 @@
                                         <option value="{{ $lowongan->id }}"
                                             {{ (string) old('lowongan_id', $tenagaKerja->lowongan_id) === (string) $lowongan->id ? 'selected' : '' }}>
                                             {{ $lowongan->nama }}
+                                            @if (optional($lowongan->perusahaan)->nama)
+                                                &mdash; {{ $lowongan->perusahaan->nama }}
+                                            @endif
                                             @if (optional($lowongan->agensi)->nama)
-                                                &mdash; {{ $lowongan->agensi->nama }}
+                                                (Agensi: {{ $lowongan->agensi->nama }})
                                             @endif
                                         </option>
                                     @empty
