@@ -78,9 +78,6 @@
                                         <tr>
                                             <td class="px-6 py-4 align-top">
                                                 <div class="font-semibold text-zinc-800">{{ $lowongan->nama }}</div>
-                                                <div class="text-xs text-zinc-400">Dibuat:
-                                                    {{ $lowongan->created_at?->format('d M Y') ?? '-' }}
-                                                </div>
                                             </td>
                                             <td class="px-6 py-4 align-top">
                                                 <div class="text-sm text-zinc-700">{{ $lowongan->agensi->nama ?? '-' }}</div>

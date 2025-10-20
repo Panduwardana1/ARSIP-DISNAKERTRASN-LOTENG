@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tenaga_kerjas', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->char('nik', 16)->unique();
+            $table->char('nik', 16)->unique()->index();
             $table->enum('gender', ['Laki-laki', 'Perempuan']);
             $table->string('tempat_lahir', 100);
             $table->date('tanggal_lahir');
@@ -22,8 +22,8 @@ return new class extends Migration
             $table->string('desa', 100);
             $table->string('kecamatan', 100);
             $table->text('alamat_lengkap');
-            $table->foreignId('pendidikan_id')->constrained('pendidikans')->cascadeOnDelete();
-            $table->foreignId('lowongan_id')->constrained('lowongans')->cascadeOnDelete();
+            $table->foreignId('pendidikan_id')->constrained()->restrictOnDelete();
+            $table->foreignId('lowongan_id')->constrained()->restrictOnDelete();
             $table->timestamps();
         });
     }

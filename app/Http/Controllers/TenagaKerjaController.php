@@ -2,58 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use Throwable;
 use App\Models\Lowongan;
 use App\Models\Pendidikan;
 use App\Models\TenagaKerja;
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreTenagaKerjaRequest;
 use App\Http\Requests\UpdateTenagaKerjaRequest;
+use App\Http\Requests\Request\Index\TenagaKerjaIndexRequest;
 
 class TenagaKerjaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(TenagaKerjaIndexRequest $request)
     {
-        $filters = [
-            'keyword' => trim((string) $request->input('keyword', '')),
-            'gender' => $request->input('gender'),
-            'pendidikan' => $request->input('pendidikan'),
-            'lowongan' => $request->input('lowongan'),
-        ];
-
-        $tenagaKerjas = TenagaKerja::with(['pendidikan', 'lowongan.agensi', 'lowongan.perusahaan'])
+        $filters = $request->filters();
+        $tenagaKerjas = TenagaKerja::query()
+            ->with([
+                'pendidikan:id,nama',
+                'lowongan' => fn ($query) => $query
+                    ->select('id', 'nama', 'perusahaan_id', 'agensi_id')
+                    ->with([
+                        'perusahaan:id,nama',
+                        'agensi:id,nama',
+                    ]),
+            ])
             ->filter($filters)
-            ->latest()
-            ->paginate(15)
+            ->latest('id')
+            ->paginate(10)
             ->withQueryString();
 
-        $genderOptions = TenagaKerja::genderOptions();
+        $pendidikans = Pendidikan::select('id', 'nama')->orderBy('nama')->get();
+        $lowongans = Lowongan::select('id', 'nama')->orderBy('nama')->get();
 
-        $daftarPendidikan = Pendidikan::orderBy('level')
-            ->orderBy('nama')
-            ->pluck('nama', 'id');
-
-        $daftarLowongan = Lowongan::with('perusahaan')
-            ->orderBy('nama')
-            ->get()
-            ->mapWithKeys(function (Lowongan $lowongan) {
-                $label = $lowongan->nama;
-                if ($lowongan->perusahaan?->nama) {
-                    $label .= ' - ' . $lowongan->perusahaan->nama;
-                }
-
-                return [$lowongan->id => $label];
-            });
-
-        return view('cruds.cpmi.index', compact(
+        return view('cruds.tenaga_kerja.index', compact(
             'tenagaKerjas',
-            'filters',
-            'genderOptions',
-            'daftarPendidikan',
-            'daftarLowongan'
+            'pendidikans',
+            'lowongans',
+            'filters'
         ));
     }
 
@@ -62,7 +48,13 @@ class TenagaKerjaController extends Controller
      */
     public function create()
     {
-        return view('cruds.cpmi.create', $this->formDependencies());
+        return view('cruds.tenaga_kerja.create', [
+            'pendidikans' => Pendidikan::select('id', 'nama')->orderBy('nama')->get(),
+            'lowongans' => Lowongan::with([
+                'perusahaan:id,nama',
+                'agensi:id,nama',
+            ])->orderBy('nama')->get(['id', 'nama', 'perusahaan_id', 'agensi_id']),
+        ]);
     }
 
     /**
@@ -70,11 +62,13 @@ class TenagaKerjaController extends Controller
      */
     public function store(StoreTenagaKerjaRequest $request)
     {
-        $tenagaKerja = TenagaKerja::create($request->validated());
+        $data = $request->validated();
+
+        TenagaKerja::create($data);
 
         return redirect()
-            ->route('sirekap.cpmi.show', $tenagaKerja)
-            ->with('success', 'Data tenaga kerja berhasil disimpan.');
+            ->route('sirekap.tenaga-kerja.index')
+            ->with('success', 'Data baru berhasil ditambahkan.');
     }
 
     /**
@@ -82,17 +76,9 @@ class TenagaKerjaController extends Controller
      */
     public function show(TenagaKerja $tenagaKerja)
     {
-        $tenagaKerja->load(['pendidikan', 'lowongan.agensi', 'lowongan.perusahaan']);
-
-        $riwayatRekap = $tenagaKerja->rekaps()
-            ->with(['lowongan.agensi'])
-            ->latest('created_at')
-            ->limit(10)
-            ->get();
-
-        return view('cruds.cpmi.show', [
+        $tenagaKerja->load(['pendidikan:id,nama', 'lowongan:id,nama']);
+        return view('cruds.tenaga_kerja.show', [
             'tenagaKerja' => $tenagaKerja,
-            'riwayatRekap' => $riwayatRekap,
         ]);
     }
 
@@ -101,12 +87,14 @@ class TenagaKerjaController extends Controller
      */
     public function edit(TenagaKerja $tenagaKerja)
     {
-        $tenagaKerja->load(['pendidikan', 'lowongan']);
-
-        return view('cruds.cpmi.edit', array_merge(
-            ['tenagaKerja' => $tenagaKerja],
-            $this->formDependencies($tenagaKerja)
-        ));
+        return view('cruds.tenaga_kerja.edit', [
+            'tenagaKerja' => $tenagaKerja->load(['pendidikan:id,nama', 'lowongan:id,nama']),
+            'pendidikans' => Pendidikan::select('id', 'nama')->orderBy('nama')->get(),
+            'lowongans'   => Lowongan::with([
+                'perusahaan:id,nama',
+                'agensi:id,nama',
+            ])->orderBy('nama')->get(['id', 'nama', 'perusahaan_id', 'agensi_id']),
+        ]);
     }
 
     /**
@@ -114,11 +102,13 @@ class TenagaKerjaController extends Controller
      */
     public function update(UpdateTenagaKerjaRequest $request, TenagaKerja $tenagaKerja)
     {
-        $tenagaKerja->update($request->validated());
+        $data = $request->validated();
+
+        $tenagaKerja->update($data);
 
         return redirect()
-            ->route('sirekap.cpmi.show', $tenagaKerja)
-            ->with('success', 'Data CPMI berhasil diperbarui.');
+            ->route('sirekap.tenaga-kerja.show', $tenagaKerja)
+            ->with('success', 'Data tenaga kerja berhasil diperbarui.');
     }
 
     /**
@@ -126,49 +116,10 @@ class TenagaKerjaController extends Controller
      */
     public function destroy(TenagaKerja $tenagaKerja)
     {
-        if ($tenagaKerja->rekaps()->exists()) {
-            return back()->withErrors([
-                'destroy' => 'Tidak bisa menghapus karena tenaga kerja sudah memiliki riwayat rekap.',
-            ]);
-        }
+        $tenagaKerja->delete();
 
-        try {
-            $tenagaKerja->delete();
-
-            return redirect()
-                ->route('sirekap.cpmi.index')
-                ->with('success', 'Data tenaga kerja berhasil dihapus.');
-        } catch (Throwable $exception) {
-            report($exception);
-
-            return back()->withErrors([
-                'destroy' => 'Data tenaga kerja tidak dapat dihapus saat ini. Silakan coba lagi.',
-            ]);
-        }
-    }
-
-    private function formDependencies(?TenagaKerja $tenagaKerja = null): array
-    {
-        $pendidikans = Pendidikan::orderBy('level')
-            ->orderBy('nama')
-            ->get();
-
-        $lowongans = Lowongan::with(['agensi', 'perusahaan'])
-            ->when($tenagaKerja && $tenagaKerja->lowongan, function ($query) use ($tenagaKerja) {
-                $query->where(function ($sub) use ($tenagaKerja) {
-                    $sub->where('is_aktif', Lowongan::STATUS_AKTIF)
-                        ->orWhere('id', $tenagaKerja->lowongan_id);
-                });
-            }, function ($query) {
-                $query->where('is_aktif', Lowongan::STATUS_AKTIF);
-            })
-            ->orderBy('nama')
-            ->get();
-
-        return [
-            'pendidikans' => $pendidikans,
-            'lowongans' => $lowongans,
-        ];
+        return redirect()
+            ->route('sirekap.tenaga-kerja.index')
+            ->with('success', 'Data tenaga kerja berhasil dihapus.');
     }
 }
-

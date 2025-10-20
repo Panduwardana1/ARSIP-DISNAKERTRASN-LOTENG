@@ -18,13 +18,12 @@
 </style>
 
 <body class="antialiased bg-slate-100 text-slate-900 min-h-screen">
-    <div x-data="{ sidebarOpen: true }" x-cloak class="flex min-h-screen h-screen bg-slate-100 text-slate-900">
+    <div class="flex min-h-screen h-screen bg-slate-100 text-slate-900">
         <aside
-            class="flex h-screen flex-col border-r border-zinc-200 bg-white shadow-sm transition-all duration-300 ease-in"
-            :class="sidebarOpen ? 'w-64' : 'w-16'">
+            class="flex h-screen flex-col rounded-md border w-[14rem] border-zinc-100 bg-zinc-100 shadow-sm transition-all duration-300 ease-in">
             <x-sidebar />
         </aside>
-        {{-- Main --}}
+
         <div
             class="flex min-h-screen flex-1 flex-col transition-all duration-300 ease-in-out bg-white selection:bg-amber-600 selection:text-white">
             <header class="flex h-[4rem] items-center justify-between border-b border-zinc-200 px-4 py-4 shadow-sm">
