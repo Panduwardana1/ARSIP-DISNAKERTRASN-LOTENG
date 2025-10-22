@@ -31,6 +31,12 @@ class AgensiPenempatan extends Model
         'gambar_url',
     ];
 
+    public function rekomendasiItems()
+    {
+        return $this->hasMany(RekomendasiItem::class, 'agensi_id');
+    }
+
+
     /**
      * Lowongan yang ditawarkan oleh agensi ini.
      */

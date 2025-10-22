@@ -1,5 +1,6 @@
 <?php
 
+use App\Exports\TenagaKerjaExport;
 use App\Http\Controllers\AgensiPenempatanController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Dashboard;
@@ -21,9 +22,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('/sirekappasmi')->name('sirekap.')->group(function () {
     Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard');
-    Route::get('pekerja/import', [TenagaKerjaImportController::class, 'form'])->name('pekerja.form');
+    // Inport & Export
     Route::post('pekerja/import', [TenagaKerjaImportController::class, 'import'])->name('pekerja.import');
-    // ? CRUD
+    Route::get('cpmi/export/data', [TenagaKerjaController::class, 'exportMonthly'])->name('cpmi.export');
+    // CRUD Data
     Route::resource('/tenaga-kerja', TenagaKerjaController::class);
     Route::resource('/perusahaan', PerusahaanIndonesiaController::class);
     Route::resource('/agensi', AgensiPenempatanController::class);

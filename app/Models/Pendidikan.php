@@ -23,4 +23,9 @@ class Pendidikan extends Model
     {
         return $this->hasMany(TenagaKerja::class);
     }
+
+    public function rekomendasiItems()
+    {
+        return $this->hasMany(RekomendasiItem::class, 'pendidikan_id');
+    }
 }

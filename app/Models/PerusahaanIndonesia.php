@@ -22,7 +22,7 @@ class PerusahaanIndonesia extends Model
     ];
 
     protected $appends = [
-        'icon_url',
+        'gambar',
     ];
 
     /**
@@ -31,5 +31,15 @@ class PerusahaanIndonesia extends Model
     public function lowongans(): HasMany
     {
         return $this->hasMany(Lowongan::class, 'perusahaan_id');
+    }
+
+    public function rekomendasi()
+    {
+        return $this->hasMany(Rekomendasi::class);
+    }
+
+    public function rekomendasiItems()
+    {
+        return $this->hasMany(RekomendasiItem::class, 'perusahaan_id');
     }
 }

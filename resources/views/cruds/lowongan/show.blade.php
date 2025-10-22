@@ -66,15 +66,9 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div>
-                                <span class="text-xs font-semibold uppercase text-zinc-400">Destinasi</span>
-                                <p class="mt-1">{{ $lowongan->destinasi->nama ?? '-' }}</p>
-                            </div>
-                            <div>
-                                <span class="text-xs font-semibold uppercase text-zinc-400">Nomor Kontrak</span>
-                                <p class="mt-1 font-mono text-sm uppercase text-zinc-700">{{ $lowongan->kontrak_kerja }}</p>
-                            </div>
+                        <div>
+                            <span class="text-xs font-semibold uppercase text-zinc-400">Destinasi</span>
+                            <p class="mt-1">{{ $lowongan->destinasi->nama ?? '-' }}</p>
                         </div>
 
                         <div>

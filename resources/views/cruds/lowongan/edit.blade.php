@@ -99,16 +99,6 @@
                             </label>
 
                             <label class="block text-sm font-medium text-zinc-700">
-                                Nomor Kontrak Kerja <span class="text-rose-500">*</span>
-                                <input type="number" name="kontrak_kerja"
-                                    value="{{ old('kontrak_kerja', $lowongan->kontrak_kerja) }}" min="1" max="65535" required
-                                    class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                                @error('kontrak_kerja')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-
-                            <label class="block text-sm font-medium text-zinc-700">
                                 Status Lowongan <span class="text-rose-500">*</span>
                                 <select name="is_aktif" required
                                     class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">

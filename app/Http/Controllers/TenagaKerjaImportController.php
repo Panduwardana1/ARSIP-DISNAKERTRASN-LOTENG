@@ -32,27 +32,51 @@ class TenagaKerjaImportController extends Controller
             return back()->withErrors($e->errors())->with('schema_errors', $e->failures());
         }
 
-        // Feedback JUJUR berdasarkan angka yang dihitung import
-        $ok  = $import->successCount();
-        $bad = $import->failureCount();
+        $ok         = $import->successCount();
+        $bad        = $import->failureCount();
+        $failures   = $import->failures();
+        $hasFail    = $bad > 0;
+        $hasSuccess = $ok > 0;
 
         if ($dryRun) {
+            $message = "Preview selesai. Valid: {$ok} baris";
+            $message .= $hasFail ? " | Bermasalah: {$bad}" : ". Semua baris valid.";
+
             return back()->with([
-                'info'     => "Preview selesai. Siap diimpor: {$ok} baris • Bermasalah: {$bad}",
-                'failures' => $import->failures(),
+                'info'            => $message,
+                'failures'        => $failures,
+                'import_context'  => true,
             ]);
         }
 
-        if ($ok === 0) {
+        if (!$hasSuccess && !$hasFail) {
             return back()->with([
-                'warning'  => "Tidak ada baris yang disimpan. Cek error/format file.",
-                'failures' => $import->failures(),
+                'warning'         => 'File tidak memuat data yang dapat diproses.',
+                'failures'        => $failures,
+                'import_context'  => true,
+            ]);
+        }
+
+        if (!$hasSuccess && $hasFail) {
+            return back()->with([
+                'error'           => 'Import gagal. Data tidak masuk karena terjadi kesalahan (data tidak sesuai atau NIK sudah ada).',
+                'failures'        => $failures,
+                'import_context'  => true,
+            ]);
+        }
+
+        if ($hasSuccess && $hasFail) {
+            return back()->with([
+                'warning'         => "Import selesai sebagian. Berhasil: {$ok} baris | Gagal: {$bad} baris. Cek detail kesalahan di bawah.",
+                'failures'        => $failures,
+                'import_context'  => true,
             ]);
         }
 
         return back()->with([
-            'success'  => "Import selesai. Tersimpan: {$ok} • Gagal: {$bad}",
-            'failures' => $import->failures(),
+            'success'         => "Import selesai. Berhasil menyimpan {$ok} baris.",
+            'failures'        => $failures,
+            'import_context'  => true,
         ]);
     }
 }

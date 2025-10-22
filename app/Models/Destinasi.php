@@ -31,6 +31,12 @@ class Destinasi extends Model
         return $this->hasMany(Rekap::class);
     }
 
+    public function rekomendasiItems()
+    {
+        return $this->hasMany(RekomendasiItem::class, 'destinasi_id');
+    }
+
+
     protected function kode(): Attribute
     {
         return Attribute::make(

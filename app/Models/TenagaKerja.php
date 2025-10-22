@@ -64,6 +64,11 @@ class TenagaKerja extends Model
         return $this->hasMany(Rekap::class);
     }
 
+    public function rekomendasiItems()
+    {
+        return $this->hasMany(RekomendasiItem::class);
+    }
+
     public function scopeSearch(Builder $query, ?string $raw): Builder
     {
         $keyword = trim((string) $raw);

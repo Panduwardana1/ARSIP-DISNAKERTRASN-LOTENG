@@ -25,6 +25,10 @@ return new class extends Migration
             $table->foreignId('pendidikan_id')->constrained()->restrictOnDelete();
             $table->foreignId('lowongan_id')->constrained()->restrictOnDelete();
             $table->timestamps();
+
+            $table->index('created_at');
+            $table->index('nik');
+            $table->index('lowongan_id');
         });
     }
 

@@ -6,40 +6,15 @@
 @section('content')
     <div class="flex h-full w-full flex-col">
         <div class="border-b bg-white py-2">
-            {{-- <x-navbar-crud>
-                <a href="{{ route('sirekap.tenaga-kerja.create') }}"
-                    class="inline-flex items-center justify-center rounded-md border border-amber-500 bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1">
-                    <x-heroicon-o-plus class="mr-2 h-4 w-4" />
-                    Tambah CPMI
-                </a>
-            </x-navbar-crud> --}}
+            <a href="{{ route('sirekap.tenaga-kerja.create') }}" class="p-2 border">BUAT</a>
         </div>
-        <div class="mx-auto max-w-3xl p-4">
-            <h1 class="text-xl font-semibold mb-4">Import Data TKI (Excel)</h1>
+        {{-- ! modal --}}
+    @section('content')
+        <div class="max-w-3xl mx-auto p-4 font-inter">
+            <h1 class="text-xl font-semibold mb-4">Export Rekap TKI Per Bulan</h1>
 
-            {{-- Flash alerts --}}
-            @if (session('success'))
-                <div class="mb-3 rounded border border-green-200 bg-green-50 text-green-800 px-3 py-2">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('info'))
-                <div class="mb-3 rounded border border-blue-200 bg-blue-50 text-blue-800 px-3 py-2">
-                    {{ session('info') }}
-                </div>
-            @endif
-
-            @if (session('warning'))
-                <div class="mb-3 rounded border border-yellow-200 bg-yellow-50 text-yellow-800 px-3 py-2">
-                    {{ session('warning') }}
-                </div>
-            @endif
-
-            {{-- Validation errors (file, header, dll.) --}}
             @if ($errors->any())
                 <div class="mb-3 rounded border border-red-200 bg-red-50 text-red-800 px-3 py-2">
-                    <div class="font-medium">Terjadi kesalahan:</div>
                     <ul class="list-disc pl-5 text-sm">
                         @foreach ($errors->all() as $err)
                             <li>{{ $err }}</li>
@@ -48,99 +23,71 @@
                 </div>
             @endif
 
-            {{-- Form upload --}}
-            <form action="{{ route('sirekap.pekerja.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                @csrf
+            <form method="GET" action="{{ route('sirekap.cpmi.export') }}" class="grid sm:grid-cols-2 gap-4">
+                @php
+                    $now = now();
+                @endphp
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">File Excel (.xlsx/.xls)</label>
-                    <input type="file" name="file" accept=".xlsx,.xls" required
-                        class="w-full rounded border px-3 py-2">
-                    <p class="mt-1 text-xs text-zinc-600">
-                        Gunakan header: <code>nama, nik, gender, tempat_lahir, tanggal_lahir, email, desa, kecamatan,
-                            alamat_lengkap, pendidikan, lowongan</code>
-                    </p>
+                    <label class="block text-sm font-medium mb-1">Bulan</label>
+                    <select name="month" class="w-full rounded border px-3 py-2">
+                        @for ($m = 1; $m <= 12; $m++)
+                            <option value="{{ $m }}" @selected($m == $now->month)>
+                                {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}</option>
+                        @endfor
+                    </select>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Mode simpan</label>
-                        <select name="mode" class="w-full rounded border px-3 py-2">
-                            <option value="upsert" selected>Upsert by NIK (rekomendasi)</option>
-                            <option value="insert">Insert only (skip jika NIK sudah ada)</option>
-                        </select>
-                    </div>
-
-                    <label class="flex items-center gap-2 mt-6 sm:mt-8">
-                        <input type="checkbox" name="dry_run" value="1" class="h-4 w-4" checked>
-                        <span class="text-sm">Preview saja (cek dulu, tidak menyimpan ke database)</span>
-                    </label>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Tahun</label>
+                    <input type="number" name="year" class="w-full rounded border px-3 py-2" value="{{ $now->year }}"
+                        min="2000" max="2100">
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <button class="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-                        Jalankan
+                {{-- Filter opsional --}}
+                <div>
+                    <label class="block text-sm font-medium mb-1">Agensi (opsional)</label>
+                    <select name="agensi_id" class="w-full rounded border px-3 py-2">
+                        <option value="">Semua</option>
+                        @foreach (\App\Models\AgensiPenempatan::orderBy('nama')->get() as $a)
+                            <option value="{{ $a->id }}">{{ $a->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Perusahaan (opsional)</label>
+                    <select name="perusahaan_id" class="w-full rounded border px-3 py-2">
+                        <option value="">Semua</option>
+                        @foreach (\App\Models\PerusahaanIndonesia::orderBy('nama')->get() as $p)
+                            <option value="{{ $p->id }}">{{ $p->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Destinasi (opsional)</label>
+                    <select name="destinasi_id" class="w-full rounded border px-3 py-2">
+                        <option value="">Semua</option>
+                        @foreach (\App\Models\Destinasi::orderBy('nama')->get() as $d)
+                            <option value="{{ $d->id }}">{{ $d->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <button class="rounded bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">
+                        Export Excel
                     </button>
-                    {{-- <a href="{{ route('tki.template') }}"
-                        class="rounded bg-slate-700 px-4 py-2 text-white hover:bg-slate-800">
-                        Download Template
-                    </a> --}}
                 </div>
             </form>
-
-            {{-- Daftar baris gagal (hasil dari import/preview) --}}
-            @if (session('failures') && count(session('failures')) > 0)
-                <div class="mt-6">
-                    <h2 class="font-semibold mb-2">Baris yang gagal</h2>
-                    <div class="overflow-x-auto rounded border">
-                        <table class="min-w-full text-sm">
-                            <thead class="bg-zinc-100">
-                                <tr>
-                                    <th class="px-3 py-2 text-left">Baris</th>
-                                    <th class="px-3 py-2 text-left">Pesan</th>
-                                    <th class="px-3 py-2 text-left">Cuplikan Nilai</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (session('failures') as $failure)
-                                    <tr class="border-t">
-                                        <td class="px-3 py-2 align-top">Baris {{ $failure->row() }}</td>
-                                        <td class="px-3 py-2 align-top">
-                                            <ul class="list-disc pl-5">
-                                                @foreach ($failure->errors() as $msg)
-                                                    <li>{{ $msg }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </td>
-                                        <td class="px-3 py-2 align-top">
-                                            @php
-                                                // tampilkan 4-6 kolom penting saja biar ringkas
-                                                $vals = $failure->values();
-                                                $previewKeys = ['nama', 'nik', 'gender', 'pendidikan', 'lowongan'];
-                                                $parts = [];
-                                                foreach ($previewKeys as $k) {
-                                                    if (isset($vals[$k]) && $vals[$k] !== null && $vals[$k] !== '') {
-                                                        $parts[] = $k . ': ' . $vals[$k];
-                                                    }
-                                                }
-                                                echo e(implode(' | ', $parts));
-                                            @endphp
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    <p class="mt-2 text-xs text-zinc-600">
-                        * Perbaiki baris-baris ini di Excel lalu jalankan ulang. Jika ingin menyimpan ke database, matikan
-                        opsi “Preview saja”.
-                    </p>
-                </div>
-            @endif
+        </div>
+        <div class="hidden">
+            @include('partials._modal-import')
         </div>
         <div class="flex w-full overflow-y-auto px-4 py-6 font-inter">
             <div class="w-full space-y-4">
-                @if (session('success'))
+                @if (session('success') && !session('import_context'))
                     <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-700">
                         {{ session('success') }}
                     </div>
@@ -241,11 +188,11 @@
                                             <td class="px-4 py-3 text-right">
                                                 <div class="flex flex-wrap justify-end gap-2">
                                                     <a href="{{ route('sirekap.tenaga-kerja.show', $tenagaKerja) }}"
-                                                        class="inline-flex items-center rounded-xl bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200">
+                                                        class="inline-flex items-center rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200">
                                                         Detail
                                                     </a>
                                                     <a href="{{ route('sirekap.tenaga-kerja.edit', $tenagaKerja) }}"
-                                                        class="inline-flex items-center rounded-xl bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-200">
+                                                        class="inline-flex items-center rounded-md bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-200">
                                                         Ubah
                                                     </a>
                                                     <x-modal-delete :action="route('sirekap.tenaga-kerja.destroy', $tenagaKerja)" title="Hapus Data">

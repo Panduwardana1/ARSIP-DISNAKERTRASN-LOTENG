@@ -9,7 +9,7 @@
             <div
                 class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 font-inter sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex w-full flex-col gap-3 sm:max-w-xl sm:flex-row sm:items-center sm:gap-4">
-                    <x-search-data class="w-full" :action="route('sirekap.lowongan.index')" placeholder="Cari nama atau nomor kontrak"
+                    <x-search-data class="w-full" :action="route('sirekap.lowongan.index')" placeholder="Cari nama lowongan"
                         name="keyword" :value="$filters['keyword'] ?? ''" />
 
                     <form action="{{ route('sirekap.lowongan.index') }}" method="GET"
@@ -68,7 +68,6 @@
                                         <th class="px-6 py-4">Agensi</th>
                                         <th class="px-6 py-4">Perusahaan</th>
                                         <th class="px-6 py-4">Destinasi</th>
-                                        <th class="px-6 py-4">Kontrak</th>
                                         <th class="px-6 py-4">Status</th>
                                         <th class="px-6 py-4 text-right">Aksi</th>
                                     </tr>
@@ -87,9 +86,6 @@
                                             </td>
                                             <td class="px-6 py-4 align-top">
                                                 <div class="text-sm text-zinc-700">{{ $lowongan->destinasi->nama ?? '-' }}</div>
-                                            </td>
-                                            <td class="px-6 py-4 align-top font-inter font-semibold text-xs uppercase text-zinc-600">
-                                                {{ $lowongan->kontrak_kerja }} Tahun
                                             </td>
                                             <td class="px-6 py-4 align-top">
                                                 <span
@@ -140,7 +136,6 @@
                                     <div class="flex justify-between gap-3">
                                         <div>
                                             <p class="text-base font-semibold text-zinc-800">{{ $lowongan->nama }}</p>
-                                            <p class="text-xs text-zinc-500">Kontrak: {{ $lowongan->kontrak_kerja }}</p>
                                         </div>
                                         <span
                                             @class([

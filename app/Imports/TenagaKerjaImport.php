@@ -4,17 +4,21 @@ namespace App\Imports;
 
 use Carbon\Carbon;
 use App\Models\Lowongan;
+use App\Models\Destinasi;
 use App\Models\Pendidikan;
 use Maatwebsite\Excel\Row;
 use App\Models\TenagaKerja;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Models\AgensiPenempatan;
+use App\Models\PerusahaanIndonesia;
 use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -28,18 +32,23 @@ class TenagaKerjaImport implements
     WithBatchInserts,
     WithChunkReading,
     SkipsOnFailure,
-    SkipsOnError
+    SkipsOnError,
+    SkipsEmptyRows
 {
     use SkipsFailures, SkipsErrors;
 
     protected array $pendidikanByNama;
     protected array $pendidikanByKode;
     protected array $lowonganByNama;
+    protected array $lowonganByComposite;
+    protected array $agensiByNama;
+    protected array $perusahaanByNama;
+    protected array $destinasiByNama;
+    protected array $destinasiByKode;
     protected string $mode;
     protected bool $dryRun;
     protected int $ok = 0;
 
-    /** Header wajib & alias yang diterima */
     protected array $requiredHeaders = [
         'nama',
         'nik',
@@ -51,11 +60,25 @@ class TenagaKerjaImport implements
         'kecamatan',
         'alamat_lengkap',
         'pendidikan',
+        'agensi',
+        'perusahaan',
+        'destinasi',
         'lowongan'
     ];
     protected array $headerAliases = [
         'alamat' => 'alamat_lengkap',
         'tgl_lahir' => 'tanggal_lahir',
+        'alamat_lengkap_tki' => 'alamat_lengkap',
+        'p3mi' => 'agensi',
+        'agensi_penempatan' => 'agensi',
+        'perusahaan_indonesia' => 'perusahaan',
+        'perusahaan_asal' => 'perusahaan',
+        'negara' => 'destinasi',
+        'negara_tujuan' => 'destinasi',
+        'destinasi_negara' => 'destinasi',
+        'tujuan' => 'destinasi',
+        'destination' => 'destinasi',
+        'kode_destinasi' => 'destinasi',
     ];
 
     public function __construct(string $mode = 'upsert', bool $dryRun = false)
@@ -63,18 +86,43 @@ class TenagaKerjaImport implements
         $this->mode   = $mode;
         $this->dryRun = $dryRun;
 
-        // Preload kamus relasi untuk lookup cepat
         $this->pendidikanByNama = Pendidikan::pluck('id', 'nama')
             ->mapWithKeys(fn($v, $k) => [Str::upper(trim($k)) => $v])->all();
 
         $this->pendidikanByKode = Pendidikan::pluck('id', 'kode')
             ->mapWithKeys(fn($v, $k) => [Str::upper(trim($k)) => $v])->all();
 
-        $this->lowonganByNama   = Lowongan::pluck('id', 'nama')
+        $lowongans = Lowongan::select(['id', 'nama', 'agensi_id', 'perusahaan_id', 'destinasi_id'])->get();
+        $this->lowonganByNama = [];
+        $this->lowonganByComposite = [];
+        foreach ($lowongans as $lowongan) {
+            $nameKey = Str::upper(trim((string) $lowongan->nama));
+            if ($nameKey === '') {
+                continue;
+            }
+            $this->lowonganByNama[$nameKey][] = $lowongan->id;
+            $compositeKey = $this->composeLowonganKey(
+                $lowongan->nama,
+                $lowongan->agensi_id,
+                $lowongan->perusahaan_id,
+                $lowongan->destinasi_id
+            );
+            $this->lowonganByComposite[$compositeKey] = $lowongan->id;
+        }
+
+        $this->agensiByNama = AgensiPenempatan::pluck('id', 'nama')
+            ->mapWithKeys(fn($v, $k) => [Str::upper(trim($k)) => $v])->all();
+
+        $this->perusahaanByNama = PerusahaanIndonesia::pluck('id', 'nama')
+            ->mapWithKeys(fn($v, $k) => [Str::upper(trim($k)) => $v])->all();
+
+        $this->destinasiByNama = Destinasi::pluck('id', 'nama')
+            ->mapWithKeys(fn($v, $k) => [Str::upper(trim($k)) => $v])->all();
+
+        $this->destinasiByKode = Destinasi::pluck('id', 'kode')
             ->mapWithKeys(fn($v, $k) => [Str::upper(trim($k)) => $v])->all();
     }
 
-    /** 2.1 Validasi SCHEMA (header) sebelum proses baris */
     public function registerEvents(): array
     {
         return [
@@ -114,13 +162,49 @@ class TenagaKerjaImport implements
             '*.nik'            => ['required', 'digits:16'],
             '*.gender'         => ['required', Rule::in($genderList)],
             '*.tempat_lahir'   => ['nullable', 'string', 'max:100'],
-            '*.tanggal_lahir'  => ['nullable'],  // diparse manual
+            '*.tanggal_lahir'  => ['nullable'],
             '*.email'          => ['nullable', 'email'],
             '*.desa'           => ['nullable', 'string', 'max:100'],
             '*.kecamatan'      => ['nullable', 'string', 'max:100'],
             '*.alamat_lengkap' => ['nullable', 'string', 'max:255'],
 
             // Pendidikan & Lowongan: validasi via closure agar sesuai kamus (nama atau kode)
+            '*.agensi' => [
+                'required',
+                'string',
+                'max:150',
+                function ($attr, $value, $fail) {
+                    $key = Str::upper(trim((string) $value));
+                    if ($key === '' || !isset($this->agensiByNama[$key])) {
+                        $fail('Agensi penempatan tidak ditemukan. Pastikan sesuai data master.');
+                    }
+                },
+            ],
+            '*.perusahaan' => [
+                'required',
+                'string',
+                'max:150',
+                function ($attr, $value, $fail) {
+                    $key = Str::upper(trim((string) $value));
+                    if ($key === '' || !isset($this->perusahaanByNama[$key])) {
+                        $fail('Perusahaan asal tidak ditemukan. Gunakan nama yang terdaftar.');
+                    }
+                },
+            ],
+            '*.destinasi' => [
+                'required',
+                'string',
+                'max:150',
+                function ($attr, $value, $fail) {
+                    $key = Str::upper(trim((string) $value));
+                    if (
+                        $key === ''
+                        || (!isset($this->destinasiByNama[$key]) && !isset($this->destinasiByKode[$key]))
+                    ) {
+                        $fail('Destinasi tidak ditemukan. Gunakan nama negara atau kode yang valid.');
+                    }
+                },
+            ],
             '*.pendidikan' => [
                 'required',
                 'string',
@@ -134,12 +218,13 @@ class TenagaKerjaImport implements
             '*.lowongan' => [
                 'required',
                 'string',
+                'max:150',
                 function ($attr, $value, $fail) {
                     $key = Str::upper(trim((string)$value));
-                    if (!isset($this->lowonganByNama[$key])) {
-                        $fail('Lowongan tidak ditemukan (harus sesuai nama yang ada).');
+                    if ($key === '' || !array_key_exists($key, $this->lowonganByNama)) {
+                        $fail('Lowongan tidak ditemukan. Pastikan nama sesuai data master.');
                     }
-                }
+                },
             ],
         ];
     }
@@ -149,21 +234,57 @@ class TenagaKerjaImport implements
     {
         $raw = $row->toArray();
 
-        // --- Normalisasi awal
         $data = $this->normalize($raw);
 
-        // --- Mapping relasi setelah normalisasi
-        $pendKey   = Str::upper($data['pendidikan'] ?? '');
-        $lowKey    = Str::upper($data['lowongan'] ?? '');
-        $pendId    = $this->pendidikanByNama[$pendKey] ?? $this->pendidikanByKode[$pendKey] ?? null;
-        $lowId     = $this->lowonganByNama[$lowKey] ?? null;
+        $pendKey = Str::upper($data['pendidikan'] ?? '');
+        $pendId  = $this->pendidikanByNama[$pendKey] ?? $this->pendidikanByKode[$pendKey] ?? null;
 
-        // Kalau mapping gagal, anggap failure (ini backup jika lolos rules karena header case)
-        if (!$data['gender'] || !$pendId || !$lowId) {
+        $agensiKey      = Str::upper($data['agensi'] ?? '');
+        $perusahaanKey  = Str::upper($data['perusahaan'] ?? '');
+        $destinasiKey   = Str::upper($data['destinasi'] ?? '');
+        $lowonganName   = $data['lowongan'] ?? null;
+        $lowonganKey    = Str::upper(trim((string) $lowonganName));
+
+        $agensiId     = $this->agensiByNama[$agensiKey] ?? null;
+        $perusahaanId = $this->perusahaanByNama[$perusahaanKey] ?? null;
+        $destinasiId  = $this->destinasiByNama[$destinasiKey] ?? $this->destinasiByKode[$destinasiKey] ?? null;
+
+        $errors = [];
+
+        if (!$data['gender']) {
+            $errors[] = 'Gender tidak valid.';
+        }
+        if (!$pendId) {
+            $errors[] = 'Pendidikan tidak dikenali.';
+        }
+        if (!$agensiId) {
+            $errors[] = 'Agensi penempatan tidak ditemukan.';
+        }
+        if (!$perusahaanId) {
+            $errors[] = 'Perusahaan asal tidak ditemukan.';
+        }
+        if (!$destinasiId) {
+            $errors[] = 'Destinasi tidak dikenali.';
+        }
+
+        $lowonganId = null;
+        if ($lowonganKey === '') {
+            $errors[] = 'Lowongan wajib diisi.';
+        } elseif (!array_key_exists($lowonganKey, $this->lowonganByNama)) {
+            $errors[] = 'Lowongan tidak ditemukan di data master.';
+        } elseif ($agensiId && $perusahaanId && $destinasiId) {
+            $compositeKey = $this->composeLowonganKey($lowonganName, $agensiId, $perusahaanId, $destinasiId);
+            $lowonganId = $this->lowonganByComposite[$compositeKey] ?? null;
+            if (!$lowonganId) {
+                $errors[] = 'Lowongan tidak cocok dengan agensi, perusahaan, dan destinasi yang diberikan.';
+            }
+        }
+
+        if (!empty($errors)) {
             $this->failures()->push(new Failure(
                 $row->getIndex(),
                 'kolom',
-                ['Gender/pendidikan/lowongan tidak valid.'],
+                array_values(array_unique($errors)),
                 $raw
             ));
             return;
@@ -181,17 +302,15 @@ class TenagaKerjaImport implements
             'kecamatan'       => $data['kecamatan'] ?? null,
             'alamat_lengkap'  => $data['alamat_lengkap'] ?? null,
             'pendidikan_id'   => $pendId,
-            'lowongan_id'     => $lowId,
+            'lowongan_id'     => $lowonganId,
             'updated_at'      => now(),
         ];
 
-        // Dry-run: jangan simpan, tapi hitung sebagai baris valid
         if ($this->dryRun) {
             $this->ok++;
             return;
         }
 
-        // Mode penyimpanan
         if ($this->mode === 'insert') {
             if (!TenagaKerja::where('nik', $data['nik'])->exists()) {
                 $payload['created_at'] = now();
@@ -212,6 +331,18 @@ class TenagaKerjaImport implements
         }
     }
 
+    protected function composeLowonganKey(?string $nama, ?int $agensiId, ?int $perusahaanId, ?int $destinasiId): string
+    {
+        $namaKey = Str::upper(trim((string) $nama));
+
+        return implode('|', [
+            $namaKey,
+            $agensiId ? (string) $agensiId : '0',
+            $perusahaanId ? (string) $perusahaanId : '0',
+            $destinasiId ? (string) $destinasiId : '0',
+        ]);
+    }
+
     /** Normalisasi semua field agar konsisten sebelum validasi/DB */
     protected function normalize(array $r): array
     {
@@ -226,6 +357,13 @@ class TenagaKerjaImport implements
         // Tanggal
         $tgl = $this->parseTanggal($r['tanggal_lahir'] ?? null);
 
+        $alamat = $r['alamat_lengkap'] ?? ($r['alamat'] ?? null);
+        $pendidikan = isset($r['pendidikan']) ? trim((string) $r['pendidikan']) : null;
+        $lowongan = isset($r['lowongan']) ? trim((string) $r['lowongan']) : null;
+        $agensi = $r['agensi'] ?? ($r['p3mi'] ?? ($r['agensi_penempatan'] ?? null));
+        $perusahaan = $r['perusahaan'] ?? ($r['perusahaan_indonesia'] ?? null);
+        $destinasiRaw = $r['destinasi'] ?? ($r['negara'] ?? ($r['negara_tujuan'] ?? ($r['tujuan'] ?? $r['destination'] ?? null)));
+
         return [
             'nama'            => $nama,
             'nik'             => $nik,
@@ -235,9 +373,12 @@ class TenagaKerjaImport implements
             'email'           => $r['email'] ?? null,
             'desa'            => $r['desa'] ?? null,
             'kecamatan'       => $r['kecamatan'] ?? null,
-            'alamat_lengkap'  => $r['alamat_lengkap'] ?? ($r['alamat'] ?? null), // dukung alias
-            'pendidikan'      => $r['pendidikan'] ?? null,
-            'lowongan'        => $r['lowongan'] ?? null,
+            'alamat_lengkap'  => $alamat !== null ? trim((string) $alamat) : null,
+            'pendidikan'      => $pendidikan,
+            'agensi'          => $agensi !== null ? trim((string) $agensi) : null,
+            'perusahaan'      => $perusahaan !== null ? trim((string) $perusahaan) : null,
+            'destinasi'       => $destinasiRaw !== null ? trim((string) $destinasiRaw) : null,
+            'lowongan'        => $lowongan,
         ];
     }
 
@@ -246,7 +387,7 @@ class TenagaKerjaImport implements
         // normalisasi: trim string, biar spasi doang dianggap kosong
         $row = array_map(fn($v) => is_string($v) ? trim($v) : $v, $row);
 
-        $keysWajib = ['nama', 'nik', 'gender', 'pendidikan', 'lowongan'];
+        $keysWajib = ['nama', 'nik', 'gender', 'pendidikan', 'lowongan', 'agensi', 'perusahaan', 'destinasi'];
         foreach ($keysWajib as $k) {
             if (!empty($row[$k])) {
                 return false;
@@ -255,7 +396,6 @@ class TenagaKerjaImport implements
         return true;
     }
 
-    /** Parser tanggal: dukung serial Excel & string umum */
     protected function parseTanggal($value): ?string
     {
         if (blank($value)) return null;
@@ -271,7 +411,7 @@ class TenagaKerjaImport implements
         }
     }
 
-    // Performa
+
     public function chunkSize(): int
     {
         return 1000;

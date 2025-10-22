@@ -9,8 +9,8 @@
             <div
                 class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 font-inter sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex w-full flex-col gap-3 sm:max-w-xl sm:flex-row sm:items-center sm:gap-4">
-                    <x-search-data class="w-full" :action="route('sirekap.agensi.index')" placeholder="Cari nama agensi"
-                        name="keyword" :value="$filters['keyword'] ?? ''" />
+                    <x-search-data class="w-full" :action="route('sirekap.agensi.index')" placeholder="Cari nama agensi" name="keyword"
+                        :value="$filters['keyword'] ?? ''" />
 
                     <form action="{{ route('sirekap.agensi.index') }}" method="GET"
                         class="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-600 transition focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400/20">
@@ -86,12 +86,11 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4">
-                                                <span
-                                                    @class([
-                                                        'items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold',
-                                                        'bg-emerald-100 text-emerald-700' => $agensi->is_aktif === 'aktif',
-                                                        'bg-rose-100 text-rose-700' => $agensi->is_aktif === 'non_aktif',
-                                                    ])>
+                                                <span @class([
+                                                    'items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold',
+                                                    'bg-emerald-100 text-emerald-700' => $agensi->is_aktif === 'aktif',
+                                                    'bg-rose-100 text-rose-700' => $agensi->is_aktif === 'non_aktif',
+                                                ])>
                                                     <span class="h-2.5 w-2.5 rounded-full"
                                                         @class([
                                                             'bg-emerald-500' => $agensi->is_aktif === 'aktif',
@@ -104,7 +103,8 @@
                                                 {{ $agensi->created_at?->format('d M Y') ?? '-' }}
                                             </td>
                                             <td class="px-6 py-4">
-                                                <div class="flex items-center justify-end gap-2">
+                                                <x-action :show-url="route('sirekap.agensi.show', $agensi)" :edit-url="route('sirekap.agensi.edit', $agensi)" :delete-url="route('sirekap.agensi.destroy', $agensi)" />
+                                                {{-- <div class="flex items-center justify-end gap-2">
                                                     <a href="{{ route('sirekap.agensi.show', $agensi) }}"
                                                         class="inline-flex items-center rounded-md border border-transparent bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:bg-zinc-200">
                                                         Detail
@@ -123,7 +123,7 @@
                                                             Hapus
                                                         </button>
                                                     </form>
-                                                </div>
+                                                </div> --}}
                                             </td>
                                         </tr>
                                     @endforeach
@@ -135,21 +135,19 @@
                             @foreach ($agensiPenempatan as $agensi)
                                 <article class="rounded-lg border border-zinc-200 p-4">
                                     <div class="flex flex-wrap items-start justify-between gap-3">
-                                    <div>
+                                        <div>
                                             <p class="text-base font-semibold text-zinc-800">{{ $agensi->nama }}</p>
                                             <p class="text-xs text-zinc-500">ID: {{ $agensi->id }}</p>
                                         </div>
-                                        <span
-                                            @class([
-                                                'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold',
-                                                'bg-emerald-100 text-emerald-700' => $agensi->is_aktif === 'aktif',
-                                                'bg-rose-100 text-rose-700' => $agensi->is_aktif === 'non_aktif',
-                                            ])>
-                                            <span class="h-2.5 w-2.5 rounded-full"
-                                                @class([
-                                                    'bg-emerald-500' => $agensi->is_aktif === 'aktif',
-                                                    'bg-rose-500' => $agensi->is_aktif === 'non_aktif',
-                                                ])></span>
+                                        <span @class([
+                                            'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold',
+                                            'bg-emerald-100 text-emerald-700' => $agensi->is_aktif === 'aktif',
+                                            'bg-rose-100 text-rose-700' => $agensi->is_aktif === 'non_aktif',
+                                        ])>
+                                            <span class="h-2.5 w-2.5 rounded-full" @class([
+                                                'bg-emerald-500' => $agensi->is_aktif === 'aktif',
+                                                'bg-rose-500' => $agensi->is_aktif === 'non_aktif',
+                                            ])></span>
                                             {{ ucfirst(str_replace('_', ' ', $agensi->is_aktif)) }}
                                         </span>
                                     </div>
@@ -185,8 +183,7 @@
                                             Ubah
                                         </a>
                                         <form action="{{ route('sirekap.agensi.destroy', $agensi) }}" method="POST"
-                                            class="inline-flex"
-                                            onsubmit="return confirm('Hapus data agensi ini?')">
+                                            class="inline-flex" onsubmit="return confirm('Hapus data agensi ini?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"

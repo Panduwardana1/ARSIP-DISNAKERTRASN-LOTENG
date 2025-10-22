@@ -11,7 +11,7 @@
                     <h2 class="font-inter text-xl font-semibold text-zinc-800">Perbarui Informasi CPMI</h2>
                     <p class="text-sm text-zinc-500">Periksa dan sesuaikan data jika terdapat perubahan.</p>
                 </div>
-                <a href="{{ route('sirekap.cpmi.show', $tenagaKerja) }}"
+                <a href="{{ route('sirekap.tenaga-kerja.show', $tenagaKerja) }}"
                     class="inline-flex items-center justify-center rounded-xl border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:border-amber-400 hover:text-amber-600">
                     <x-heroicon-o-arrow-left class="mr-2 h-4 w-4" />
                     Kembali ke detail
@@ -32,13 +32,14 @@
             @php
                 $tanggalLahirValue = old(
                     'tanggal_lahir',
-                    $tenagaKerja->tanggal_lahir
-                        ? \Illuminate\Support\Carbon::parse($tenagaKerja->tanggal_lahir)->format('Y-m-d')
-                        : null,
+                    $tenagaKerja->tanggal_lahir ? $tenagaKerja->tanggal_lahir->format('Y-m-d') : null,
                 );
+                $selectedLowongan = $lowongans->firstWhere('id', (int) old('lowongan_id', $tenagaKerja->lowongan_id));
+                $initialPerusahaan = $selectedLowongan?->perusahaan?->nama ?? '';
+                $initialAgensi = $selectedLowongan?->agensi?->nama ?? '';
             @endphp
 
-            <form action="{{ route('sirekap.cpmi.update', $tenagaKerja) }}" method="POST"
+            <form action="{{ route('sirekap.tenaga-kerja.update', $tenagaKerja) }}" method="POST"
                 class="rounded-3xl border border-zinc-100 bg-white shadow-sm">
                 @csrf
                 @method('PUT')
@@ -71,20 +72,17 @@
                             <div class="md:col-span-2">
                                 <span class="block text-sm font-medium text-zinc-700">Jenis Kelamin</span>
                                 <div class="mt-2 grid grid-cols-2 gap-3 md:max-w-md">
-                                    @php
-                                        $selectedGender = old('gender', $tenagaKerja->gender);
-                                    @endphp
-                                    @forelse (($genderOptions ?? []) as $value => $label)
+                                    @foreach (\App\Models\TenagaKerja::GENDERS as $gender)
+                                        @php
+                                            $isChecked = old('gender', $tenagaKerja->gender) === $gender;
+                                        @endphp
                                         <label
-                                            class="flex cursor-pointer items-center justify-between rounded-2xl border px-4 py-2 text-sm transition {{ $selectedGender === $value ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-zinc-200 text-zinc-600 hover:border-amber-400 hover:text-amber-600' }}">
-                                            <span>{{ $label }}</span>
-                                            <input type="radio" name="gender" value="{{ $value }}"
-                                                class="h-4 w-4 border-zinc-300 text-amber-500 focus:ring-amber-500"
-                                                {{ $selectedGender === $value ? 'checked' : '' }}>
+                                            class="flex cursor-pointer items-center justify-between rounded-2xl border px-4 py-2 text-sm transition {{ $isChecked ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-zinc-200 text-zinc-600 hover:border-amber-400 hover:text-amber-600' }}">
+                                            <span>{{ $gender }}</span>
+                                            <input type="radio" name="gender" value="{{ $gender }}" @checked($isChecked)
+                                                class="h-4 w-4 border-zinc-300 text-amber-500 focus:ring-amber-500">
                                         </label>
-                                    @empty
-                                        <span class="text-sm text-zinc-500">Data gender belum tersedia.</span>
-                                    @endforelse
+                                    @endforeach
                                 </div>
                                 @error('gender')
                                     <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
@@ -108,25 +106,25 @@
                                     <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                                 @enderror
                             </label>
+
+                            <label class="block text-sm font-medium text-zinc-700 md:col-span-2">
+                                Alamat Email
+                                <input type="email" name="email" value="{{ old('email', $tenagaKerja->email) }}"
+                                    class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                                    placeholder="contoh: nama@email.com">
+                                @error('email')
+                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
+                                @enderror
+                            </label>
                         </div>
                     </section>
 
                     <section class="space-y-6">
                         <div class="space-y-1">
-                            <h3 class="font-inter text-lg font-semibold text-zinc-800">Kontak & Domisili</h3>
-                            <p class="text-sm text-zinc-500">Detail tempat tinggal dan informasi kontak.</p>
+                            <h3 class="font-inter text-lg font-semibold text-zinc-800">Domisili</h3>
+                            <p class="text-sm text-zinc-500">Lengkapi informasi lokasi domisili saat ini.</p>
                         </div>
                         <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <label class="block text-sm font-medium text-zinc-700">
-                                Email (Opsional)
-                                <input type="email" name="email" value="{{ old('email', $tenagaKerja->email) }}"
-                                    class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition placeholder:text-zinc-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-                                    placeholder="nama@email.com">
-                                @error('email')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-
                             <label class="block text-sm font-medium text-zinc-700">
                                 Desa/Kelurahan
                                 <input type="text" name="desa" value="{{ old('desa', $tenagaKerja->desa) }}" required
@@ -169,41 +167,50 @@
                                     class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
                                     <option value="" disabled {{ old('pendidikan_id', $tenagaKerja->pendidikan_id) ? '' : 'selected' }}>Pilih pendidikan
                                         terakhir</option>
-                                    @php
-                                        $daftarPendidikan = collect($daftarPendidikan ?? []);
-                                    @endphp
-                                    @forelse ($daftarPendidikan as $id => $nama)
-                                        <option value="{{ $id }}"
-                                            {{ (string) old('pendidikan_id', $tenagaKerja->pendidikan_id) === (string) $id ? 'selected' : '' }}>
-                                            {{ $nama }}
+                                    @foreach ($pendidikans as $pendidikan)
+                                        <option value="{{ $pendidikan->id }}"
+                                            {{ (string) old('pendidikan_id', $tenagaKerja->pendidikan_id) === (string) $pendidikan->id ? 'selected' : '' }}>
+                                            {{ $pendidikan->nama }}
                                         </option>
-                                    @empty
-                                        <option value="" disabled>Data pendidikan belum tersedia</option>
-                                    @endforelse
+                                    @endforeach
                                 </select>
                                 @error('pendidikan_id')
                                     <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                                 @enderror
                             </label>
 
-                            <label class="block text-sm font-medium text-zinc-700">
+                            <label class="block text-sm font-medium text-zinc-700"
+                                x-data="{
+                                    selectedPerusahaan: @js($initialPerusahaan),
+                                    selectedAgensi: @js($initialAgensi),
+                                    sync(event) {
+                                        const option = event.target.selectedOptions[0];
+                                        this.selectedPerusahaan = option?.dataset.perusahaan || '';
+                                        this.selectedAgensi = option?.dataset.agensi || '';
+                                    }
+                                }">
                                 Lowongan Aktif
-                                <select name="lowongan_id" required
+                                <select name="lowongan_id" required x-ref="lowongan" x-on:change="sync($event)"
                                     class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
                                     <option value="" disabled {{ old('lowongan_id', $tenagaKerja->lowongan_id) ? '' : 'selected' }}>Pilih lowongan tujuan
                                     </option>
-                                    @php
-                                        $daftarLowongan = collect($daftarLowongan ?? []);
-                                    @endphp
-                                    @forelse ($daftarLowongan as $id => $nama)
-                                        <option value="{{ $id }}"
-                                            {{ (string) old('lowongan_id', $tenagaKerja->lowongan_id) === (string) $id ? 'selected' : '' }}>
-                                            {{ $nama }}
+                                    @foreach ($lowongans as $lowongan)
+                                        <option value="{{ $lowongan->id }}"
+                                            @selected(old('lowongan_id', $tenagaKerja->lowongan_id) == $lowongan->id)
+                                            data-perusahaan="{{ $lowongan->perusahaan->nama ?? '' }}"
+                                            data-agensi="{{ $lowongan->agensi->nama ?? '' }}">
+                                            {{ $lowongan->nama }}
                                         </option>
-                                    @empty
-                                        <option value="" disabled>Data lowongan belum tersedia</option>
-                                    @endforelse
+                                    @endforeach
                                 </select>
+
+                                <div class="mt-3 space-y-1 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 text-xs text-zinc-600">
+                                    <p><span class="font-semibold text-zinc-700">Perusahaan:</span> <span
+                                            x-text="selectedPerusahaan || '-'"></span></p>
+                                    <p><span class="font-semibold text-zinc-700">Agensi:</span> <span
+                                            x-text="selectedAgensi || '-'"></span></p>
+                                </div>
+
                                 @error('lowongan_id')
                                     <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                                 @enderror
@@ -213,7 +220,7 @@
                 </div>
 
                 <div class="flex flex-col gap-3 border-t border-zinc-100 bg-zinc-50 px-6 py-5 md:flex-row md:items-center md:justify-between md:px-10">
-                    <a href="{{ route('sirekap.cpmi.show', $tenagaKerja) }}"
+                    <a href="{{ route('sirekap.tenaga-kerja.show', $tenagaKerja) }}"
                         class="inline-flex items-center justify-center rounded-xl border border-transparent bg-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-300">
                         Batalkan
                     </a>

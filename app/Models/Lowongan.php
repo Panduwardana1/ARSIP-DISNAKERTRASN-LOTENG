@@ -20,13 +20,8 @@ class Lowongan extends Model
         'agensi_id',
         'perusahaan_id',
         'destinasi_id',
-        'kontrak_kerja',
         'catatan',
         'is_aktif',
-    ];
-
-    protected $casts = [
-        'kontrak_kerja' => 'integer',
     ];
 
     /**
@@ -36,6 +31,12 @@ class Lowongan extends Model
     {
         return $this->belongsTo(AgensiPenempatan::class, 'agensi_id');
     }
+
+    public function rekomendasiItems()
+    {
+        return $this->hasMany(RekomendasiItem::class);
+    }
+
 
     /**
      * Perusahaan asal yang membutuhkan tenaga kerja.
@@ -93,10 +94,7 @@ class Lowongan extends Model
 
         $query
             ->when($keyword !== '', function (Builder $subQuery) use ($keyword) {
-                $subQuery->where(function (Builder $inner) use ($keyword) {
-                    $inner->where('nama', 'like', '%' . $keyword . '%')
-                        ->orWhere('kontrak_kerja', 'like', '%' . $keyword . '%');
-                });
+                $subQuery->where('nama', 'like', '%' . $keyword . '%');
             })
             ->when(static::isValidStatus($status), function (Builder $subQuery) use ($status) {
                 $subQuery->where('is_aktif', $status);

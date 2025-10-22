@@ -137,28 +137,27 @@ class TenagaKerjaController extends Controller
             ->with('success', 'Data tenaga kerja berhasil dihapus.');
     }
 
-    public function exportBulanan(Request $request)
+    public function exportMonthly(Request $request)
     {
         $validated = $request->validate([
-            'month'     => ['required', 'integer', 'between:1,12'],
+            'month' => ['required', 'integer', 'between:1,12'],
             'year'  => ['required', 'integer', 'min:2000', 'max:2100'],
-            'agensi_id' => ['nullable', 'integer', 'exists:agensi_penempatans, id'],
+            'agensi_id'     => ['nullable', 'integer', 'exists:agensi_penempatans,id'],
             'perusahaan_id' => ['nullable', 'integer', 'exists:perusahaan_indonesias,id'],
             'destinasi_id'  => ['nullable', 'integer', 'exists:destinasis,id'],
         ]);
 
         $start = Carbon::createFromDate($validated['year'], $validated['month'], 1)->startOfMonth();
-        $end = $start->copy()->endOfMonth();
+        $end   = $start->copy()->endOfMonth();
 
         $filters = [
-            'agensi_id' => $validated['agensi_id'] ?? null,
+            'agensi_id'     => $validated['agensi_id']     ?? null,
             'perusahaan_id' => $validated['perusahaan_id'] ?? null,
-            'destinasi_id'  => $validated['destinasi_id'] ?? null,
+            'destinasi_id'  => $validated['destinasi_id']  ?? null,
         ];
 
-        // Format nama file
         $fileName = sprintf('REKAP_CPMI_%04d_%02d.xlsx', $validated['year'], $validated['month']);
-        return Excel::download(new TenagaKerjaExport($start, $end, $filters), $fileName);
 
+        return Excel::download(new TenagaKerjaExport($start, $end, $filters), $fileName);
     }
 }
