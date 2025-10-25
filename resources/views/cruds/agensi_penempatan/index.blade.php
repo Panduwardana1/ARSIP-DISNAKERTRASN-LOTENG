@@ -102,28 +102,10 @@
                                             <td class="px-6 py-4">
                                                 {{ $agensi->created_at?->format('d M Y') ?? '-' }}
                                             </td>
-                                            <td class="px-6 py-4">
-                                                <x-action :show-url="route('sirekap.agensi.show', $agensi)" :edit-url="route('sirekap.agensi.edit', $agensi)" :delete-url="route('sirekap.agensi.destroy', $agensi)" />
-                                                {{-- <div class="flex items-center justify-end gap-2">
-                                                    <a href="{{ route('sirekap.agensi.show', $agensi) }}"
-                                                        class="inline-flex items-center rounded-md border border-transparent bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:bg-zinc-200">
-                                                        Detail
-                                                    </a>
-                                                    <a href="{{ route('sirekap.agensi.edit', $agensi) }}"
-                                                        class="inline-flex items-center rounded-md border border-transparent bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-200">
-                                                        Ubah
-                                                    </a>
-                                                    <form action="{{ route('sirekap.agensi.destroy', $agensi) }}"
-                                                        method="POST" class="inline-flex"
-                                                        onsubmit="return confirm('Hapus data agensi ini?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            class="inline-flex items-center rounded-md border border-transparent bg-rose-100 px-3 py-1.5 text-xs font-medium text-rose-700 transition hover:bg-rose-200">
-                                                            Hapus
-                                                        </button>
-                                                    </form>
-                                                </div> --}}
+                                            <td class="px-6 py-4 text-right align-top">
+                                                <x-action :show-url="route('sirekap.agensi.show', $agensi)"
+                                                    :edit-url="route('sirekap.agensi.edit', $agensi)"
+                                                    :delete-url="route('sirekap.agensi.destroy', $agensi)" />
                                             </td>
                                         </tr>
                                     @endforeach
@@ -173,24 +155,10 @@
                                         @endif
                                     </div>
 
-                                    <div class="mt-4 flex flex-wrap gap-2 text-xs">
-                                        <a href="{{ route('sirekap.agensi.show', $agensi) }}"
-                                            class="inline-flex items-center rounded-md border border-transparent bg-zinc-100 px-3 py-1.5 font-medium text-zinc-600 transition hover:bg-zinc-200">
-                                            Detail
-                                        </a>
-                                        <a href="{{ route('sirekap.agensi.edit', $agensi) }}"
-                                            class="inline-flex items-center rounded-md border border-transparent bg-amber-100 px-3 py-1.5 font-medium text-amber-700 transition hover:bg-amber-200">
-                                            Ubah
-                                        </a>
-                                        <form action="{{ route('sirekap.agensi.destroy', $agensi) }}" method="POST"
-                                            class="inline-flex" onsubmit="return confirm('Hapus data agensi ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="inline-flex items-center rounded-md border border-transparent bg-rose-100 px-3 py-1.5 font-medium text-rose-700 transition hover:bg-rose-200">
-                                                Hapus
-                                            </button>
-                                        </form>
+                                    <div class="mt-4">
+                                        <x-action :show-url="route('sirekap.agensi.show', $agensi)"
+                                            :edit-url="route('sirekap.agensi.edit', $agensi)"
+                                            :delete-url="route('sirekap.agensi.destroy', $agensi)" />
                                     </div>
                                 </article>
                             @endforeach

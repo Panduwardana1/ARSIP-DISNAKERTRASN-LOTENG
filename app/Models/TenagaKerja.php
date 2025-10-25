@@ -69,6 +69,14 @@ class TenagaKerja extends Model
         return $this->hasMany(RekomendasiItem::class);
     }
 
+    public function perusahaan () {
+        return $this->belongsTo(PerusahaanIndonesia::class);
+    }
+
+    public function agensi () {
+        return $this->belongsTo(AgensiPenempatan::class);
+    }
+
     public function scopeSearch(Builder $query, ?string $raw): Builder
     {
         $keyword = trim((string) $raw);

@@ -4,34 +4,36 @@
     'deleteUrl' => '#',
 ])
 
-<div x-data="{ open: false }" class="relative inline-block text-left">
-    {{-- button triger --}}
-    <button @click="open = !open" @click.away="open = false" class="px-[4px] rounded-md bg-zinc-100">
-        <x-heroicon-s-ellipsis-horizontal class="h-5 w-5"></x-heroicon-s-ellipsis-horizontal>
+<div x-data="{ open: false }" class="relative inline-flex text-left">
+    <button type="button"
+        class="inline-flex items-center bg-white p-1 text-zinc-500 transition hover:border-sky-200 hover:text-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-200"
+        @click="open = !open" @click.away="open = false" aria-haspopup="true" x-bind:aria-expanded="open">
+        <x-heroicon-s-ellipsis-horizontal class="h-5 w-5" />
     </button>
 
-    {{-- Drop down menu --}}
-    <div x-show="open" x-transition class="absolute right-0 mt-2 w-auto">
-        <div class="bg-red-50">
-            <a href="{{ $showUrl }}">Detail</a>
-            <a href="{{ $editUrl }}">Edit</a>
+    <div x-cloak x-show="open" x-transition.opacity.scale.90
+        class="absolute right-0 z-20 mt-2 w-44 origin-top-right rounded-lg border border-zinc-200 bg-white shadow-lg ring-1 ring-black/5">
+        <div class="py-1 text-sm text-zinc-600">
+            <a href="{{ $showUrl }}"
+                class="flex items-center gap-2 px-3 py-2 transition hover:bg-sky-50 hover:text-sky-600">
+                <x-heroicon-s-eye class="h-4 w-4" />
+                Detail
+            </a>
+            <a href="{{ $editUrl }}"
+                class="flex items-center gap-2 px-3 py-2 transition hover:bg-amber-50 hover:text-amber-600">
+                <x-heroicon-s-pencil-square class="h-4 w-4" />
+                Ubah
+            </a>
             <form method="POST" action="{{ $deleteUrl }}"
                 onsubmit="return confirm('Yakin ingin menghapus data ini?');">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="w-full text-left px-4 py-2 hover:bg-red-100 text-red-600">
-                    Delete
+                <button type="submit"
+                    class="flex w-full items-center gap-2 px-3 py-2 text-left transition hover:bg-rose-50 hover:text-rose-600">
+                    <x-heroicon-s-trash class="h-4 w-4" />
+                    Hapus
                 </button>
             </form>
         </div>
     </div>
 </div>
-
-{{-- pemakaian di blade --}}
-{{-- <td class="text-center">
-    <x-dropdown-action
-        :show-url="route('tki.show', $tki->id)"
-        :edit-url="route('tki.edit', $tki->id)"
-        :delete-url="route('tki.destroy', $tki->id)"
-    />
-</td> --}}
