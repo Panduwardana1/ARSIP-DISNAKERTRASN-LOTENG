@@ -86,21 +86,12 @@ class Lowongan extends Model
     /**
      * Filter query berdasarkan kata kunci, status, dan destinasi.
      */
-    public function scopeFilter(Builder $query, array $filters): void
+    public function scopeFilter(Builder $query, array $filters): Builder
     {
         $keyword = trim((string) ($filters['keyword'] ?? ''));
-        $status = $filters['status'] ?? null;
-        $destinasiId = $filters['destinasi'] ?? null;
 
-        $query
-            ->when($keyword !== '', function (Builder $subQuery) use ($keyword) {
+        return $query->when($keyword !== '', function (Builder $subQuery) use ($keyword) {
                 $subQuery->where('nama', 'like', '%' . $keyword . '%');
-            })
-            ->when(static::isValidStatus($status), function (Builder $subQuery) use ($status) {
-                $subQuery->where('is_aktif', $status);
-            })
-            ->when(!empty($destinasiId), function (Builder $subQuery) use ($destinasiId) {
-                $subQuery->where('destinasi_id', $destinasiId);
             });
     }
 

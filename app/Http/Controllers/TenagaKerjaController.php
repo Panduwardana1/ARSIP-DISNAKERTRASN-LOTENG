@@ -23,7 +23,7 @@ class TenagaKerjaController extends Controller
         $filters = $request->filters();
         $tenagaKerjas = TenagaKerja::query()
             ->with([
-                'pendidikan:id,nama',
+                'pendidikan:id,level',
                 'lowongan' => fn($query) => $query
                     ->select('id', 'nama', 'perusahaan_id', 'agensi_id')
                     ->with([
@@ -36,7 +36,7 @@ class TenagaKerjaController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $pendidikans = Pendidikan::select('id', 'nama')->orderBy('nama')->get();
+        $pendidikans = Pendidikan::select('id', 'level')->orderBy('level')->get();
         $lowongans = Lowongan::select('id', 'nama')->orderBy('nama')->get();
 
         return view('cruds.tenaga_kerja.index', compact(

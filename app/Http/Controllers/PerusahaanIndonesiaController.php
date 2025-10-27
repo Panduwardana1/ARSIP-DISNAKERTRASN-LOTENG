@@ -15,19 +15,27 @@ class PerusahaanIndonesiaController extends Controller
      */
     public function index(Request $request)
     {
-        $query = PerusahaanIndonesia::query();
-        $cari = $request->input('keyword') ?? $request->input('search');
+        $rawKeyword = $request->filled('keyword')
+            ? $request->input('keyword')
+            : $request->input('search', '');
 
-        if ($cari) {
-            $query->where(function ($subQuery) use ($cari) {
-                $subQuery->where('nama', 'like', '%' . $cari . '%')
-                    ->orWhere('nama_pimpinan', 'like', '%' . $cari . '%');
-            });
-        }
+        $keyword = trim((string) $rawKeyword);
 
-        $perusahaans = $query->latest()->paginate(15)->withQueryString();
+        $perusahaans = PerusahaanIndonesia::query()
+            ->when($keyword !== '', function ($query) use ($keyword) {
+                $query->where(function ($subQuery) use ($keyword) {
+                    $subQuery->where('nama', 'like', '%' . $keyword . '%')
+                        ->orWhere('nama_pimpinan', 'like', '%' . $keyword . '%');
+                });
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('cruds.perusahaan.index', compact('perusahaans', 'cari'));
+        return view('cruds.perusahaan.index', [
+            'perusahaans' => $perusahaans,
+            'keyword' => $keyword,
+        ]);
     }
 
     /**

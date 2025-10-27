@@ -14,9 +14,18 @@ return new class extends Migration
         Schema::create('lowongans', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 150);
-            $table->foreignId('agensi_id')->constrained('agensi_penempatans')->cascadeOnDelete();
-            $table->foreignId('perusahaan_id')->constrained('perusahaan_indonesias')->cascadeOnDelete();
-            $table->foreignId('destinasi_id')->constrained('destinasis')->cascadeOnDelete();
+            $table->foreignId('agensi_id')
+                ->constrained('agensi_penempatans')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignId('perusahaan_id')
+                ->constrained('perusahaan_indonesias')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+            $table->foreignId('destinasi_id')
+                ->constrained('destinasis')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->enum('is_aktif', ['aktif', 'non_aktif'])->default('aktif');
             $table->string('catatan')->nullable();
             $table->unique(['agensi_id', 'perusahaan_id']);

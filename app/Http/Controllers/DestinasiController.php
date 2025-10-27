@@ -15,36 +15,23 @@ class DestinasiController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Destinasi::query();
         $keyword = trim((string) $request->input('keyword', ''));
-        $benua = $request->input('benua');
 
-        if ($keyword !== '') {
-            $query->where(function ($subQuery) use ($keyword) {
-                $subQuery
-                    ->where('nama', 'like', '%' . $keyword . '%')
-                    ->orWhere('kode', 'like', '%' . strtoupper($keyword) . '%');
-            });
-        }
-
-        if ($benua !== null && $benua !== '') {
-            $query->where('benua', $benua);
-        }
-
-        $destinasis = $query->orderBy('nama')->paginate(10)->withQueryString();
-        $availableBenua = Destinasi::query()
-            ->whereNotNull('benua')
-            ->distinct()
-            ->orderBy('benua')
-            ->pluck('benua');
+        $destinasis = Destinasi::query()
+            ->when($keyword !== '', function ($query) use ($keyword) {
+                $query->where(function ($subQuery) use ($keyword) {
+                    $subQuery
+                        ->where('nama', 'like', '%' . $keyword . '%')
+                        ->orWhere('kode', 'like', '%' . strtoupper($keyword) . '%');
+                });
+            })
+            ->orderBy('nama')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('cruds.destinasi.index', [
             'destinasis' => $destinasis,
-            'filters' => [
-                'keyword' => $keyword,
-                'benua' => $benua,
-            ],
-            'availableBenua' => $availableBenua,
+            'keyword' => $keyword,
         ]);
     }
 

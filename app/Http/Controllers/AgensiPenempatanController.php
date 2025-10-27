@@ -16,20 +16,17 @@ class AgensiPenempatanController extends Controller
      */
     public function index(Request $request)
     {
-        $filters = [
-            'keyword' => trim((string) $request->input('keyword', '')),
-            'status' => $request->input('status'),
-        ];
+        $keyword = trim((string) $request->input('keyword', ''));
 
         $agensiPenempatan = AgensiPenempatan::query()
-            ->filter($filters)
+            ->filter(['keyword' => $keyword])
             ->orderBy('nama')
             ->paginate(10)
             ->withQueryString();
 
         return view('cruds.agensi_penempatan.index', [
             'agensiPenempatan' => $agensiPenempatan,
-            'filters' => $filters,
+            'keyword' => $keyword,
         ]);
     }
 

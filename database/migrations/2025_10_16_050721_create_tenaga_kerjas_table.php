@@ -22,8 +22,14 @@ return new class extends Migration
             $table->string('desa', 100);
             $table->string('kecamatan', 100);
             $table->text('alamat_lengkap');
-            $table->foreignId('pendidikan_id')->constrained()->restrictOnDelete();
-            $table->foreignId('lowongan_id')->constrained()->restrictOnDelete();
+            $table->foreignId('pendidikan_id')
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+            $table->foreignId('lowongan_id')
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->timestamps();
 
             $table->index('created_at');

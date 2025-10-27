@@ -69,17 +69,12 @@ class AgensiPenempatan extends Model
     /**
      * Scope pencarian sederhana berdasarkan nama dan status.
      */
-    public function scopeFilter(Builder $query, array $filters): void
+    public function scopeFilter(Builder $query, array $filters): Builder
     {
         $keyword = trim((string) ($filters['keyword'] ?? ''));
-        $status = $filters['status'] ?? null;
 
-        $query
-            ->when($keyword !== '', function (Builder $subQuery) use ($keyword) {
+        return $query->when($keyword !== '', function (Builder $subQuery) use ($keyword) {
                 $subQuery->where('nama', 'like', '%' . $keyword . '%');
-            })
-            ->when(static::isValidStatus($status), function (Builder $subQuery) use ($status) {
-                $subQuery->where('is_aktif', $status);
             });
     }
 }

@@ -14,53 +14,86 @@
             font-family: "Times New Roman", Times, serif;
             font-size: 10.5pt;
             color: #000;
+            line-height: 1.4;
+            margin: 0;
         }
 
-        h2 {
-            margin: 0 0 6px;
-            font-size: 14pt;
-            text-transform: uppercase;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .meta {
-            margin-bottom: 16px;
-            font-size: 11pt;
-        }
-
-        .meta td {
-            padding: 2px 4px;
-        }
-
-        .meta td:first-child {
-            min-width: 160px;
+        h2,
+        h3 {
+            margin: 0;
+            font-weight: 700;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+            font-size: 10pt;
         }
 
         th,
         td {
             border: 1px solid #555;
-            padding: 5px 6px;
+            padding: 5px 7px;
             vertical-align: top;
+            word-break: break-word;
+        }
+
+        thead {
+            display: table-header-group;
         }
 
         thead th {
-            background: #f0f0f0;
+            background: #f3f3f3;
             text-transform: uppercase;
+            font-size: 9.5pt;
+            letter-spacing: 0.4pt;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .report-header h2 {
+            font-size: 15pt;
+            letter-spacing: 0.6pt;
+        }
+
+        .report-header p {
+            margin-top: 4px;
             font-size: 10pt;
+            text-transform: none;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+            font-size: 10.5pt;
+        }
+
+        .meta-table td {
+            padding: 2px 0;
+        }
+
+        .meta-table td:first-child {
+            width: 180px;
+            font-weight: 600;
+        }
+
+        .meta-table td:nth-child(2) {
+            width: 12px;
         }
 
         .cell-identitas strong {
             display: block;
+            font-size: 11pt;
         }
 
         .cell-identitas span,
@@ -73,6 +106,31 @@
             font-size: 9pt;
         }
 
+        .signature {
+            margin-top: 24px;
+            text-align: right;
+            font-size: 10.5pt;
+        }
+
+        .signature p {
+            margin: 0;
+        }
+
+        .signature .position {
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .signature .name {
+            margin-top: 60px;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        .signature .nip {
+            margin-top: 4px;
+        }
+
         .page-break {
             page-break-after: always;
         }
@@ -81,29 +139,33 @@
 
 <body>
     @foreach ($pages as $pageIndex => $rows)
-        <div class="table-page">
-            <div class="header">
-                <h2>Rekomendasi Paspor</h2>
+        <section class="table-page">
+            <div class="report-header">
+                <h2>Daftar Rekomendasi Paspor</h2>
                 <p>Nomor: {{ $rekom->nomor }}</p>
             </div>
 
             @if ($loop->first)
-                <table class="meta">
+                <table class="meta-table">
                     <tr>
                         <td>Tanggal Rekomendasi</td>
-                        <td>: {{ $tanggal }}</td>
+                        <td>:</td>
+                        <td>{{ $tanggal }}</td>
                     </tr>
                     <tr>
                         <td>Total Peserta</td>
-                        <td>: {{ $rekom->total }}</td>
+                        <td>:</td>
+                        <td>{{ $rekom->total }}</td>
                     </tr>
                     <tr>
                         <td>Jumlah Laki-laki</td>
-                        <td>: {{ $rekom->jumlah_laki }}</td>
+                        <td>:</td>
+                        <td>{{ $rekom->jumlah_laki }}</td>
                     </tr>
                     <tr>
                         <td>Jumlah Perempuan</td>
-                        <td>: {{ $rekom->jumlah_perempuan }}</td>
+                        <td>:</td>
+                        <td>{{ $rekom->jumlah_perempuan }}</td>
                     </tr>
                 </table>
             @endif
@@ -111,17 +173,18 @@
             @php
                 $offset = $pages->take($pageIndex)->sum(fn($page) => $page->count());
             @endphp
+
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 40px;">No</th>
-                        <th style="width: 170px;">Identitas</th>
-                        <th style="width: 60px;">Gender</th>
-                        <th style="width: 120px;">Pendidikan</th>
-                        <th style="width: 160px;">Perusahaan</th>
-                        <th style="width: 160px;">Agensi</th>
-                        <th style="width: 120px;">Destinasi</th>
-                        <th style="width: 160px;">Lowongan</th>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 23%;">Identitas</th>
+                        <th style="width: 8%;">Gender</th>
+                        <th style="width: 12%;">Pendidikan</th>
+                        <th style="width: 16%;">Perusahaan</th>
+                        <th style="width: 16%;">Agensi</th>
+                        <th style="width: 10%;">Destinasi</th>
+                        <th style="width: 10%;">Lowongan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,7 +196,7 @@
                                 <span>{{ $row['nik'] }}</span>
                                 <small>{{ $row['alamat'] }}</small>
                             </td>
-                            <td>{{ $row['gender'] }}</td>
+                            <td style="text-align: center;">{{ $row['gender'] }}</td>
                             <td>{{ $row['pendidikan'] ?? '-' }}</td>
                             <td>{{ $row['perusahaan'] ?? '-' }}</td>
                             <td>{{ $row['agensi'] ?? '-' }}</td>
@@ -143,23 +206,20 @@
                     @endforeach
                 </tbody>
             </table>
-            <div>
-                <span>PIMPINAN DINSA PENEMPATAN </span>
-                <DIV>
-                    Tanda tangan anda disini
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur similique quos facere.
-                    Aspernatur animi reprehenderit est amet incidunt voluptatibus tempora.
-                </DIV>
-                <span>
-                    <p>UPIANDI S.Sos</p>
-                    <p>NIM : 29139847612421648</p>
-                </span>
-            </div>
 
-            @if (!$loop->last)
-                <div class="page-break"></div>
-        </div>
-    @endif
+            @if ($loop->last)
+                <div class="signature">
+                    <p>Kudus, {{ $tanggal }}</p>
+                    <p class="position">Kepala Dinas</p>
+                    <p class="name">___________________________</p>
+                    <p class="nip">NIP. _______________________</p>
+                </div>
+            @endif
+        </section>
+
+        @if (!$loop->last)
+            <div class="page-break"></div>
+        @endif
     @endforeach
 </body>
 

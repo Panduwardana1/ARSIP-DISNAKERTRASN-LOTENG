@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers;
 
@@ -12,16 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    private const DAY_LABELS = [
-        1 => 'Senin',
-        2 => 'Selasa',
-        3 => 'Rabu',
-        4 => 'Kamis',
-        5 => 'Jumat',
-        6 => 'Sabtu',
-        7 => 'Minggu',
-    ];
-
     public function index(DashboardFilterRequest $request)
     {
         $filters = $request->validated();
@@ -33,7 +23,9 @@ class DashboardController extends Controller
             'gender' => $this->genderDistribution($filters),
         ];
 
-        return view('layouts.index', compact('stats', 'charts', 'filters'));
+        $latestEntries = $this->latestTenagaKerja();
+
+        return view('layouts.index', compact('stats', 'charts', 'filters', 'latestEntries'));
     }
 
     private function buildStats(): array
@@ -52,25 +44,31 @@ class DashboardController extends Controller
 
         $query = $this->baseTenagaKerjaQuery($filters, $start, $end);
 
-        $dbFormat = match ($period) {
-            'weekly' => '%Y-%m-%d',
-            'yearly' => '%Y',
-            default => '%Y-%m',
+        $series = match ($period) {
+            'weekly' => $this->buildDailySeries(clone $query, $start, $end),
+            'yearly' => $this->buildYearlySeries(clone $query, $start, $end),
+            default => $this->buildMonthlySeries(clone $query, $start, $end),
         };
 
-        $dataset = $query
-            ->selectRaw("DATE_FORMAT(created_at, '{$dbFormat}') as label, COUNT(*) as total")
-            ->groupBy('label')
-            ->orderBy('label')
-            ->get()
-            ->pluck('total', 'label')
-            ->all();
-
-        [$labels, $data] = $this->buildSeriesBuckets($period, $start, $end, $dataset);
-
         return [
-            'labels' => $labels,
-            'data' => $data,
+            'labels' => $series['labels'],
+            'data' => $series['data'],
+            'colors' => array_map(
+                fn () => '#0ea5e9',
+                $series['data']
+            ),
+            'meta' => [
+                'unit' => $series['unit'],
+                'range' => [
+                    'start' => $start->copy()->translatedFormat('d M Y'),
+                    'end' => $end->copy()->translatedFormat('d M Y'),
+                ],
+                'range_label' => sprintf(
+                    '%s - %s',
+                    $start->copy()->translatedFormat('d M Y'),
+                    $end->copy()->translatedFormat('d M Y')
+                ),
+            ],
         ];
     }
 
@@ -101,12 +99,12 @@ class DashboardController extends Controller
 
     private function applyLocationFilters(Builder $query, array $filters): Builder
     {
-        $kecamatan = isset($filters['kecamatan']) ? mb_strtolower($filters['kecamatan']) : null;
-        $desa = isset($filters['desa']) ? mb_strtolower($filters['desa']) : null;
+        $kecamatan = isset($filters['kecamatan']) ? trim(mb_strtolower($filters['kecamatan'])) : null;
+        $desa = isset($filters['desa']) ? trim(mb_strtolower($filters['desa'])) : null;
 
         return $query
-            ->when($kecamatan, fn ($q) => $q->whereRaw('LOWER(kecamatan) = ?', [$kecamatan]))
-            ->when($desa, fn ($q) => $q->whereRaw('LOWER(desa) = ?', [$desa]));
+            ->when($kecamatan, fn ($q) => $q->whereRaw('LOWER(kecamatan) LIKE ?', ['%' . $kecamatan . '%']))
+            ->when($desa, fn ($q) => $q->whereRaw('LOWER(desa) LIKE ?', ['%' . $desa . '%']));
     }
 
     private function resolvePeriodRange(string $period): array
@@ -127,37 +125,90 @@ class DashboardController extends Controller
         return [$start, $now];
     }
 
-    private function buildSeriesBuckets(string $period, Carbon $start, Carbon $end, array $dataset): array
+    private function buildDailySeries(Builder $query, Carbon $start, Carbon $end): array
     {
+        $counts = $query
+            ->selectRaw('DATE(created_at) as bucket')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('bucket')
+            ->orderBy('bucket')
+            ->pluck('total', 'bucket');
+
         $labels = [];
         $data = [];
-
         $cursor = $start->copy();
 
         while ($cursor <= $end) {
-            switch ($period) {
-                case 'weekly':
-                    $bucketKey = $cursor->format('Y-m-d');
-                    $displayLabel = self::DAY_LABELS[$cursor->isoWeekday()] ?? $cursor->translatedFormat('l');
-                    $cursor->addDay();
-                    break;
-                case 'yearly':
-                    $bucketKey = $cursor->format('Y');
-                    $displayLabel = $cursor->format('Y');
-                    $cursor->addYear();
-                    break;
-                default:
-                    $bucketKey = $cursor->format('Y-m');
-                    $displayLabel = $cursor->translatedFormat('M Y');
-                    $cursor->addMonth();
-                    break;
-            }
-
-            $labels[] = $displayLabel;
-            $data[] = (int) ($dataset[$bucketKey] ?? 0);
+            $key = $cursor->format('Y-m-d');
+            $labels[] = $cursor->translatedFormat('d M');
+            $data[] = (int) ($counts[$key] ?? 0);
+            $cursor->addDay();
         }
 
-        return [$labels, $data];
+        return [
+            'labels' => $labels,
+            'data' => $data,
+            'unit' => 'Hari',
+        ];
+    }
+
+    private function buildMonthlySeries(Builder $query, Carbon $start, Carbon $end): array
+    {
+        $counts = $query
+            ->selectRaw('DATE_FORMAT(created_at, "%Y-%m") as bucket')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('bucket')
+            ->orderBy('bucket')
+            ->pluck('total', 'bucket');
+
+        $labels = [];
+        $data = [];
+        $cursor = $start->copy()->startOfMonth();
+        $endOfPeriod = $end->copy()->startOfMonth();
+
+        while ($cursor <= $endOfPeriod) {
+            $key = $cursor->format('Y-m');
+            $labels[] = $cursor->translatedFormat('M Y');
+            $data[] = (int) ($counts[$key] ?? 0);
+            $cursor->addMonthNoOverflow();
+        }
+
+        return [
+            'labels' => $labels,
+            'data' => $data,
+            'unit' => 'Bulan',
+        ];
+    }
+
+    private function buildYearlySeries(Builder $query, Carbon $start, Carbon $end): array
+    {
+        $counts = $query
+            ->selectRaw('YEAR(created_at) as bucket')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('bucket')
+            ->orderBy('bucket')
+            ->pluck('total', 'bucket');
+
+        $labels = [];
+        $data = [];
+
+        for ($year = $start->year; $year <= $end->year; $year++) {
+            $labels[] = (string) $year;
+            $data[] = (int) ($counts[$year] ?? 0);
+        }
+
+        return [
+            'labels' => $labels,
+            'data' => $data,
+            'unit' => 'Tahun',
+        ];
+    }
+
+    private function latestTenagaKerja()
+    {
+        return TenagaKerja::query()
+            ->latest()
+            ->take(6)
+            ->get(['id', 'nama', 'kecamatan', 'desa', 'created_at']);
     }
 }
-

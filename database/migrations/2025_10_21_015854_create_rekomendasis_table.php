@@ -18,14 +18,21 @@ return new class extends Migration
             $table->unsignedSmallInteger('tahun');
             $table->date('tanggal_rekom');
 
-            $table->foreignId('perusahaan_id')->nullable()->constrained('perusahaan_indonesias')->nullOnDelete();
+            $table->foreignId('perusahaan_id')
+                ->nullable()
+                ->constrained('perusahaan_indonesias')
+                ->cascadeOnUpdate()
+                ->nullOnDelete();
 
             $table->unsignedInteger('jumlah_laki')->default(0);
             $table->unsignedInteger('jumlah_perempuan')->default(0);
             $table->unsignedInteger('total')->default(0);
 
-            $table->foreignId('dibuat_oleh')->nullable()
-                ->constrained('users')->nullOnDelete();
+            $table->foreignId('dibuat_oleh')
+                ->nullable()
+                ->constrained('users')
+                ->cascadeOnUpdate()
+                ->nullOnDelete();
 
             $table->timestamps();
             $table->unique(['tahun', 'sequence']);

@@ -1,7 +1,7 @@
 @props([
     'action',
     'title' => 'Konfirmasi Hapus',
-    'message' => 'Tindakan ini tidak dapat dibatalkan. Yakin ingin menghapus data ini?',
+    'message' => 'Tindakan ini takan menghapus data. Yakin ingin menghapus data ini?',
     'confirmText' => 'Ya, hapus',
     'cancelText' => 'Batal',
 ])
@@ -36,7 +36,7 @@
             </div>
 
             <div class="px-5 py-4">
-                <p class="text-sm text-gray-700">{{ $message }}</p>
+                <p class="text-md font-medium text-gray-700">{{ $message }}</p>
             </div>
 
             <div class="px-5 py-4 flex items-center justify-end gap-3">

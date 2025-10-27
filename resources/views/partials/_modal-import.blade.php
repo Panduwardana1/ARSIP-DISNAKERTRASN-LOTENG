@@ -1,9 +1,16 @@
-<div class="mx-auto max-w-lg fixed space-y-4 p-4 font-inter">
+<div class="space-y-4 p-6 font-inter">
     <div class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
-        <div class="border-b border-zinc-200 px-6 py-4">
-            <h1 class="text-xl font-semibold text-zinc-800">Import Data TKI (Excel)</h1>
-            <p class="mt-1 text-sm text-zinc-500">Unggah file Excel sesuai format berikut untuk menambah atau memperbarui
-                data CPMI.</p>
+        <div class="flex items-start justify-between border-b border-zinc-200 px-6 py-4">
+            <div>
+                <h1 class="text-xl font-semibold text-zinc-800">Import Data TKI (Excel)</h1>
+                <p class="mt-1 text-sm text-zinc-500">Unggah file Excel sesuai format berikut untuk menambah atau memperbarui
+                    data CPMI.</p>
+            </div>
+            <button type="button"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+                x-on:click="$dispatch('close-import-modal')" aria-label="Tutup">
+                <x-heroicon-o-x-mark class="h-5 w-5" />
+            </button>
         </div>
         <div class="space-y-5 px-6 py-5">
             @php
@@ -76,10 +83,6 @@
                         class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
                         Jalankan
                     </button>
-                    {{-- <a href="{{ route('tki.template') }}"
-                                class="inline-flex items-center rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
-                                Download Template
-                            </a> --}}
                 </div>
             </form>
         </div>

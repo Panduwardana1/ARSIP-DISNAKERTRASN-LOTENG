@@ -19,27 +19,18 @@ class LowonganController extends Controller
      */
     public function index(Request $request)
     {
-        $filters = [
-            'keyword' => trim((string) $request->input('keyword', '')),
-            'status' => $request->input('status'),
-            'destinasi' => $request->input('destinasi'),
-        ];
+        $keyword = trim((string) $request->input('keyword', ''));
 
         $lowongans = Lowongan::query()
             ->with(['agensi', 'perusahaan', 'destinasi'])
-            ->filter($filters)
+            ->filter(['keyword' => $keyword])
             ->orderBy('nama')
             ->paginate(10)
             ->withQueryString();
 
-        $daftarDestinasi = Destinasi::query()
-            ->orderBy('nama')
-            ->pluck('nama', 'id');
-
         return view('cruds.lowongan.index', [
             'lowongans' => $lowongans,
-            'filters' => $filters,
-            'daftarDestinasi' => $daftarDestinasi,
+            'keyword' => $keyword,
         ]);
     }
 

@@ -1,7 +1,6 @@
 @props([
     'showUrl' => '#',
     'editUrl' => '#',
-    'deleteUrl' => '#',
 ])
 
 <div x-data="{ open: false }" class="relative inline-flex text-left">
@@ -24,16 +23,9 @@
                 <x-heroicon-s-pencil-square class="h-4 w-4" />
                 Ubah
             </a>
-            <form method="POST" action="{{ $deleteUrl }}"
-                onsubmit="return confirm('Yakin ingin menghapus data ini?');">
-                @csrf
-                @method('DELETE')
-                <button type="submit"
-                    class="flex w-full items-center gap-2 px-3 py-2 text-left transition hover:bg-rose-50 hover:text-rose-600">
-                    <x-heroicon-s-trash class="h-4 w-4" />
-                    Hapus
-                </button>
-            </form>
+            <div>
+                {{ $slot }}
+            </div>
         </div>
     </div>
 </div>

@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Carbon;
 
 class TenagaKerja extends Model
 {
@@ -77,6 +76,13 @@ class TenagaKerja extends Model
         return $this->belongsTo(AgensiPenempatan::class);
     }
 
+    protected static function booted(): void
+    {
+        static::deleting(function (self $tenagaKerja) {
+            $tenagaKerja->rekomendasiItems()->delete();
+        });
+    }
+
     public function scopeSearch(Builder $query, ?string $raw): Builder
     {
         $keyword = trim((string) $raw);
@@ -112,5 +118,14 @@ class TenagaKerja extends Model
             ->when(!empty($filters['gender']), fn($q) => $q->where('gender', $filters['gender']))
             ->when(!empty($filters['pendidikan']), fn($q) => $q->where('pendidikan_id', $filters['pendidikan']))
             ->when(!empty($filters['lowongan']), fn($q) => $q->where('lowongan_id', $filters['lowongan']));
+    }
+
+    public function getUsiaAttribute(): ?int
+    {
+        if (empty($this->tanggal_lahir)) {
+            return null;
+        }
+
+        return $this->tanggal_lahir->age;
     }
 }
