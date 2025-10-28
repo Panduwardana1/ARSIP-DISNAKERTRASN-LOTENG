@@ -21,7 +21,8 @@
 
                     </div>
                     <div class="space-y-2 text-white">
-                        <h3 class="text-2xl font-bold leading-snug sm:text-3xl">Kelola Data Arsip CPMI Dengan Efisien.</h3>
+                        <h3 class="text-2xl font-bold leading-snug sm:text-3xl">Kelola Data Arsip CPMI Dengan Efisien.
+                        </h3>
                         <p class="max-w-md text-sm leading-relaxed text-sky-100">Sistem ini membantu tim Disnakertrans
                             menjaga kelengkapan data pencatatan tenaga kerja, memastikan arsip digital tersusun rapi dan
                             mudah ditemukan kapan pun dibutuhkan.</p>

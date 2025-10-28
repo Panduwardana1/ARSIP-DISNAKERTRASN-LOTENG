@@ -1,22 +1,23 @@
 <?php
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LowonganController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DestinasiController;
 use App\Http\Controllers\TenagaKerjaController;
 use App\Http\Controllers\AgensiPenempatanController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RekomendasiExportController;
 use App\Http\Controllers\TenagaKerjaImportController;
 use App\Http\Controllers\PerusahaanIndonesiaController;
-use Illuminate\Routing\Router;
 
 // ? Redirect /
-// Route::get('/', fn() => redirect()->route('auth.login'));
+Route::get('/', fn() => redirect()->route('auth.login'));
 
-// Route::prefix('/auth')->name('auth.')->group(function () {
-//     Route::get('/login', [AuthController::class, 'index'])->name('login');
-// });
+Route::prefix('/auth')->name('auth.')->group(function () {
+    Route::get('/login', [AuthController::class, 'index'])->name('login');
+});
 
 Route::prefix('/sirekappasmi')->name('sirekap.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

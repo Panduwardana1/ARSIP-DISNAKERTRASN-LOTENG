@@ -14,7 +14,7 @@
 
             <div x-cloak x-show="open" x-transition x-on:click.self="open = false"
                 class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
-                <section class="relative w-full max-w-4xl rounded-2xl border border-zinc-200 bg-white shadow-xl">
+                <section class="relative w-full max-w-2xl rounded-md border border-zinc-200 bg-white shadow-xl">
                     <div class="flex items-start justify-between border-b border-zinc-200 px-6 py-4">
                         <div>
                             <h2 class="text-lg font-semibold text-zinc-800">Export Data CPMI</h2>
@@ -26,8 +26,8 @@
                             <x-heroicon-o-x-mark class="h-5 w-5" />
                         </button>
                     </div>
-                    <div class="px-6 py-5">
-                        <form method="GET" action="{{ route('sirekap.cpmi.export') }}" class="grid gap-4 lg:grid-cols-6">
+                    <div class="px-6 py-5 grid">
+                        <form method="GET" action="{{ route('sirekap.cpmi.export') }}" class="grid gap-4">
                             @php($now = now())
                             <div class="lg:col-span-2">
                                 <label
@@ -80,9 +80,9 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="flex items-end">
+                            <div class="flex w-full col-span-2">
                                 <button type="submit"
-                                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-200">
+                                    class="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-200">
                                     <img src="{{ asset('asset/excel-svgrepo-com.svg') }}" alt="Excel-icon" class="h-5 w-5">
                                     Export
                                 </button>
@@ -190,7 +190,7 @@
                 @if (session('import_context'))
                     <div class="text-xs text-amber-600">Import terakhir: {{ session('import_context') }}</div>
                 @endif
-                <div class="overflow-hidden rounded-md border border-zinc-200 bg-white shadow-sm">
+                <div class="rounded-md border border-zinc-200 bg-white">
                     {{-- <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
                         <div class="text-sm font-semibold text-zinc-700">Total CPMI:
                             {{ $tenagaKerjas->total() ?? $tenagaKerjas->count() }}</div>
@@ -204,40 +204,40 @@
                         </div>
                     @else
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-zinc-100 text-sm">
-                                <thead class="bg-sky-800 text-xs uppercase tracking-wide text-zinc-50">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left">Nama</th>
-                                        <th class="px-4 py-3 text-left">NIK</th>
-                                        <th class="px-4 py-3 text-left">Kecamatan</th>
-                                        <th class="px-4 py-3 text-left">Pendidikan</th>
-                                        <th class="px-4 py-3 text-left">Perusahaan</th>
-                                        <th class="px-4 py-3 text-left">Agensi</th>
-                                        <th class="px-4 py-3 text-left">Lowongan</th>
-                                        <th class="px-4 py-3 text-center">Tindakan</th>
+                            <table class="min-w-full divide-y divide-zinc-200 text-sm text-zinc-600">
+                                <thead>
+                                    <tr class="text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                                        <th class="px-6 py-4">Nama</th>
+                                        <th class="px-6 py-4">NIK</th>
+                                        <th class="px-6 py-4">Kecamatan</th>
+                                        <th class="px-6 py-4">Pendidikan</th>
+                                        <th class="px-6 py-4">Perusahaan</th>
+                                        <th class="px-6 py-4">Agensi</th>
+                                        <th class="px-6 py-4">Lowongan</th>
+                                        <th class="px-6 py-4 text-right">Tindakan</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-zinc-100">
                                     @foreach ($tenagaKerjas as $tenagaKerja)
                                         <tr class="transition hover:bg-zinc-50/70">
-                                            <td class="px-4 py-3">
+                                            <td class="px-6 py-4 align-top">
                                                 <div class="font-semibold text-zinc-800">{{ $tenagaKerja->nama }}</div>
                                                 <div class="text-xs text-zinc-500">{{ $tenagaKerja->gender }}</div>
                                             </td>
-                                            <td class="px-4 py-3">
-                                                <div class="font-mono text-sm text-zinc-700">{{ $tenagaKerja->nik }}</div>
+                                            <td class="px-6 py-4 align-top">
+                                                <div class="text-sm text-zinc-700">{{ $tenagaKerja->nik }}</div>
                                             </td>
-                                            <td class="px-4 py-3 text-sm text-zinc-600">
+                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
                                                 {{ $tenagaKerja->kecamatan ?? '-' }}</td>
-                                            <td class="px-4 py-3 text-sm text-zinc-700">
+                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
                                                 {{ optional($tenagaKerja->pendidikan)->level ?? '-' }}</td>
-                                            <td class="px-4 py-3 text-sm text-zinc-700">
+                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
                                                 {{ optional($tenagaKerja->lowongan?->perusahaan)->nama ?? '-' }}</td>
-                                            <td class="px-4 py-3 text-sm text-zinc-700">
+                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
                                                 {{ optional($tenagaKerja->lowongan?->agensi)->nama ?? '-' }}</td>
-                                            <td class="px-4 py-3 text-sm text-zinc-700">
+                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
                                                 {{ optional($tenagaKerja->lowongan)->nama ?? '-' }}</td>
-                                            <td class="px-4 py-3 text-right">
+                                            <td class="px-6 py-4 align-top text-right">
                                                 <div class="inline-flex items-center justify-end gap-2 whitespace-nowrap">
                                                     <a href="{{ route('sirekap.tenaga-kerja.show', $tenagaKerja) }}"
                                                         class="inline-flex items-center rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200">
