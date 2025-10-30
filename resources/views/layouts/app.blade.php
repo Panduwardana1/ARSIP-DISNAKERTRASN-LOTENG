@@ -20,9 +20,7 @@
 <body class="antialiased bg-slate-100 text-slate-900 min-h-screen" x-data="{ sidebarOpen: true }" x-init="sidebarOpen = window.matchMedia('(min-width: 1250px)').matches">
     <div class="flex min-h-screen h-screen bg-slate-100 text-slate-900">
         <aside
-            class="fixed inset-y-0 left-0 z-40 flex h-full flex-col border-r-[1.5px] border-zinc-200 bg-white transition-[transform,width] duration-300 ease-in-out lg:static lg:h-screen lg:flex-shrink-0 lg:translate-x-0"
-            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-            :style="{ width: sidebarOpen ? '14rem' : '5rem' }">
+            class="fixed inset-y-0 left-0 z-40 flex h-full flex-col border-r-[1.5px] w-60 border-zinc-200 bg-white transition-[transform,width] duration-300 ease-in-out lg:static lg:h-screen lg:flex-shrink-0 lg:translate-x-0">
             <x-sidebar />
         </aside>
 
@@ -36,21 +34,11 @@
             </header>
             {{-- Konten main --}}
             <main class="h-screen flex-1 overflow-y-auto bg-white font-inter">
-                {{-- Header Title dan Action menu --}}
-                {{-- <div class="px-4 pt-6">
-                    <div class="flex items-center justify-between">
-                        <h3 class="font-bold text-3xl">@yield('titlePage')</h3>
-                        <div>
-                            @yield('buttonAction')
-                        </div>
-                    </div>
-                </div> --}}
                 @yield('content')
             </main>
         </div>
 
-        <div class="fixed inset-0 z-30 bg-slate-900/40 transition-opacity lg:hidden" x-show="sidebarOpen"
-            x-transition.opacity @click="sidebarOpen = false" x-cloak></div>
+        <div class="fixed inset-0 z-30 bg-slate-900/40 transition-opacity lg:hidden"></div>
     </div>
 
     @stack('scripts')

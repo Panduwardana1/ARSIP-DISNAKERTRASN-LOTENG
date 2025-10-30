@@ -9,10 +9,12 @@
             <div class="flex flex-wrap items-center justify-between gap-6">
                 <div class="space-y-3">
                     <div class="flex flex-wrap gap-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
-                        <span class="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-zinc-600">
+                        <span
+                            class="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-zinc-600">
                             Total data tersedia: {{ number_format($tkis->total()) }}
                         </span>
-                        <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-700">
+                        <span
+                            class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-700">
                             Batas per cetak: 100 baris
                         </span>
                     </div>
@@ -54,20 +56,20 @@
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-zinc-200 text-sm text-zinc-700">
-                        <thead class="bg-zinc-100 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                        <thead class="bg-zinc-100 text-xs font-semibold tracking-wide text-zinc-500">
                             <tr>
                                 <th scope="col" class="w-12 px-4 py-3">
                                     <input id="checkAll" type="checkbox"
                                         class="h-4 w-4 rounded border-zinc-300 text-sky-600 focus:ring-sky-500">
                                 </th>
-                                <th scope="col" class="w-14 px-3 py-3 text-left">No</th>
-                                <th scope="col" class="px-3 py-3 text-left">Identitas</th>
-                                <th scope="col" class="px-3 py-3 text-left">Gender</th>
-                                <th scope="col" class="px-3 py-3 text-left">Pendidikan</th>
-                                <th scope="col" class="px-3 py-3 text-left">Perusahaan</th>
-                                <th scope="col" class="px-3 py-3 text-left">Agensi</th>
-                                <th scope="col" class="px-3 py-3 text-left">Destinasi</th>
-                                <th scope="col" class="px-3 py-3 text-left">Lowongan</th>
+                                <th scope="col" class="px-3 py-3 text-center">No</th>
+                                <th scope="col" class="px-3 py-3 text-left">Nama & ID PMI</th>
+                                <th scope="col" class="px-3 py-3 text-center">Tempat Tgl.Lahir</th>
+                                <th scope="col" class="px-3 py-3 text-center">L/P</th>
+                                <th scope="col" class="px-3 py-3 text-center">Alamat PMI</th>
+                                <th scope="col" class="px-3 py-3 text-center">Agency</th>
+                                <th scope="col" class="px-3 py-3 text-center">Jenis Pekerjaan</th>
+                                <th scope="col" class="px-3 py-3 text-center">Pendidikan</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200">
@@ -82,8 +84,8 @@
                                     $destinasi = optional($lowongan)->destinasi;
                                     $genderValue = Str::lower($tki->gender ?? '');
                                     $genderLabel = match ($genderValue) {
-                                        'l', 'laki-laki' => 'Laki-laki',
-                                        'p', 'perempuan' => 'Perempuan',
+                                        'l', 'laki-laki' => 'L',
+                                        'p', 'perempuan' => 'P',
                                         default => '-',
                                     };
                                 @endphp
@@ -97,28 +99,32 @@
                                     </td>
                                     <td class="px-3 py-3 align-top">
                                         <div class="font-semibold text-zinc-900">{{ $tki->nama }}</div>
-                                        <div class="text-xs text-zinc-500">{{ $tki->nik }}</div>
-                                        <div class="mt-1 text-xs text-zinc-400">
-                                            {{ Str::limit($tki->alamat_lengkap, 110, '...') }}
+                                        <div class="text-[12px] text-zinc-500">{{ $tki->nik }}</div>
+                                    </td>
+                                    <td class="px-3 py-3 align-top text-zinc-600">
+                                        <div class="mt-1 text-[12px] text-zinc-600">
+                                            <span>{{ $tki->tempat_lahir ?? '-' }}</span>
+                                            <span>
+                                                {{ $tki->tanggal_lahir->locale('id')->translatedFormat('d F Y') ?? '-' }}
+                                            </span>
                                         </div>
                                     </td>
                                     <td class="px-3 py-3 align-top text-zinc-600">
-                                        {{ $genderLabel }}
+                                        {{ $genderLabel ?? '-' }}
                                     </td>
-                                    <td class="px-3 py-3 align-top text-zinc-600">
-                                        {{ optional($tki->pendidikan)->level ?? '-' }}
+                                    <td class="px-3 py-3 align-top text-zinc-600 max-w-xs">
+                                        <div class="mt-1 text-[12px] text-center text-zinc-400">
+                                            {{ Str::limit($tki->alamat_lengkap, 200, '...') }}
+                                        </div>
                                     </td>
-                                    <td class="px-3 py-3 align-top text-zinc-600">
-                                        {{ $perusahaan->nama ?? '-' }}
-                                    </td>
-                                    <td class="px-3 py-3 align-top text-zinc-600">
+                                    <td class="px-3 py-3 text-[12px] align-top text-zinc-600">
                                         {{ $agensi->nama ?? '-' }}
                                     </td>
-                                    <td class="px-3 py-3 align-top text-zinc-600">
-                                        {{ $destinasi->nama ?? '-' }}
-                                    </td>
-                                    <td class="px-3 py-3 align-top text-zinc-600">
+                                    <td class="px-3 py-3 text-[12px] align-top text-zinc-600">
                                         {{ $lowongan->nama ?? '-' }}
+                                    </td>
+                                    <td class="px-3 py-3 text-[12px] align-top text-zinc-600">
+                                        {{ ($tki->pendidikan)->level ?? '-' }}
                                     </td>
                                 </tr>
                             @empty

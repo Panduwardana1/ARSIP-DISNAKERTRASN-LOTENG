@@ -190,12 +190,7 @@
                 @if (session('import_context'))
                     <div class="text-xs text-amber-600">Import terakhir: {{ session('import_context') }}</div>
                 @endif
-                <div class="rounded-md border border-zinc-200 bg-white">
-                    {{-- <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
-                        <div class="text-sm font-semibold text-zinc-700">Total CPMI:
-                            {{ $tenagaKerjas->total() ?? $tenagaKerjas->count() }}</div>
-                    </div> --}}
-
+                <div class="border-zinc-200 bg-white">
                     @if ($tenagaKerjas->isEmpty())
                         <div
                             class="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center text-sm text-zinc-500">
@@ -206,38 +201,38 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-zinc-200 text-sm text-zinc-600">
                                 <thead>
-                                    <tr class="text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                                        <th class="px-6 py-4">Nama</th>
-                                        <th class="px-6 py-4">NIK</th>
-                                        <th class="px-6 py-4">Kecamatan</th>
-                                        <th class="px-6 py-4">Pendidikan</th>
-                                        <th class="px-6 py-4">Perusahaan</th>
-                                        <th class="px-6 py-4">Agensi</th>
-                                        <th class="px-6 py-4">Lowongan</th>
-                                        <th class="px-6 py-4 text-right">Tindakan</th>
+                                    <tr class="text-left text-xs font-semibold uppercase tracking-wide bg-amber-600 text-zinc-50">
+                                        <th class="px-6 py-4 border">Nama & ID</th>
+                                        <th class="px-6 py-4 border">P/L</th>
+                                        <th class="px-6 py-4 border">Kecamatan</th>
+                                        <th class="px-6 py-4 border">Pendidikan</th>
+                                        <th class="px-6 py-4 border w-full">P3MI</th>
+                                        <th class="px-6 py-4 border">Agency</th>
+                                        <th class="px-6 py-4 border">Pekerjaan</th>
+                                        <th class="px-6 py-4 border text-center">Tindakan</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-zinc-100">
                                     @foreach ($tenagaKerjas as $tenagaKerja)
                                         <tr class="transition hover:bg-zinc-50/70">
-                                            <td class="px-6 py-4 align-top">
+                                            <td class="p-4 align-top border">
                                                 <div class="font-semibold text-zinc-800">{{ $tenagaKerja->nama }}</div>
-                                                <div class="text-xs text-zinc-500">{{ $tenagaKerja->gender }}</div>
-                                            </td>
-                                            <td class="px-6 py-4 align-top">
                                                 <div class="text-sm text-zinc-700">{{ $tenagaKerja->nik }}</div>
                                             </td>
-                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
+                                            <td class="p-4 align-top border">
+                                                <div class="text-sm text-zinc-700">{{ $tenagaKerja->gender === 'Laki-laki' ? 'L' : ($tenagaKerja->gender === 'Perempuan' ? 'P' : '-')  }}</div>
+                                            </td>
+                                            <td class="p-4 align-top border">
                                                 {{ $tenagaKerja->kecamatan ?? '-' }}</td>
-                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
+                                            <td class="p-4 align-top text-center border text-sm text-zinc-600">
                                                 {{ optional($tenagaKerja->pendidikan)->level ?? '-' }}</td>
-                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
+                                            <td class="p-4 align-top border">
                                                 {{ optional($tenagaKerja->lowongan?->perusahaan)->nama ?? '-' }}</td>
-                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
+                                            <td class="p-4 align-top border">
                                                 {{ optional($tenagaKerja->lowongan?->agensi)->nama ?? '-' }}</td>
-                                            <td class="px-6 py-4 align-top text-sm text-zinc-600">
+                                            <td class="p-4 align-top border">
                                                 {{ optional($tenagaKerja->lowongan)->nama ?? '-' }}</td>
-                                            <td class="px-6 py-4 align-top text-right">
+                                            <td class="p-4 align-top border text-center">
                                                 <div class="inline-flex items-center justify-end gap-2 whitespace-nowrap">
                                                     <a href="{{ route('sirekap.tenaga-kerja.show', $tenagaKerja) }}"
                                                         class="inline-flex items-center rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200">

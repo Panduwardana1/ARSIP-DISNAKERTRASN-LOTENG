@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="utf-8">
-    <title>Surat Rekomendasi {{ $rekom->nomor }}</title>
+    <title>Surat Rekomendasi Paspor PMI</title>
     <style>
         @page {
             size: A4 portrait;
@@ -11,156 +11,151 @@
         }
 
         body {
-            font-family: "Times New Roman", Times, serif;
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 11pt;
-            line-height: 1.5;
             color: #000;
+            line-height: 1.6;
         }
 
-        h1,
-        h2 {
-            margin: 0;
-            font-weight: 700;
+        .header {
+            height: 100px;
+            border: 1px solid black;
+            margin-bottom: 10px;
         }
 
-        .cover {
-            text-align: center;
-        }
-
-        .brand h1 {
-            font-size: 18pt;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .brand h2 {
-            font-size: 14pt;
-            margin-top: 4px;
-            text-transform: uppercase;
-        }
-
-        .brand p {
-            margin-top: 4px;
-            font-size: 11pt;
-        }
-
-        .brand hr {
-            border: 0;
-            border-top: 3px double #000;
-            margin: 12px 0 18px;
-        }
-
-        .letter-meta {
-            margin: 0 auto 16px;
+        .meta {
             width: 100%;
             border-collapse: collapse;
             font-size: 11pt;
+            line-height: 1.4;
+            margin-bottom: 10px;
         }
 
-        .letter-meta td:first-child {
-            width: 130px;
-            font-weight: 600;
-        }
-
-        .letter-meta td:nth-child(2) {
-            width: 12px;
-        }
-
-        .letter-meta td {
-            padding: 3px 6px;
+        .meta td {
+            padding: 3px 5px;
             vertical-align: top;
         }
 
-        .letter-body {
+        .meta td:first-child {
+            width: 90px;
+        }
+
+        .meta td:nth-child(2) {
+            width: 15px;
+            letter-spacing: 3px;
+            text-align: right;
+        }
+
+        .meta td:last-child {
+            font-weight: normal;
+        }
+
+        .meta strong {
+            text-transform: uppercase;
+        }
+
+        .date {
+            text-align: right;
+            margin-bottom: 12px;
+        }
+
+        .content {
             text-align: justify;
-            margin-top: 18px;
         }
 
-        .letter-body p {
-            margin: 0 0 12px;
-            text-indent: 24px;
+        .content p {
+            margin: 0 0 10px;
         }
 
-        .letter-body p.salutation,
-        .letter-body p.closing {
+        .content .no-indent {
             text-indent: 0;
         }
 
-        .letter-date {
-            text-align: right;
-            margin-top: 12px;
-            font-size: 11pt;
-        }
-
-        .signature {
+        .signature-block {
+            width: 90%;
+            padding-left: 4cm;
             margin-top: 60px;
-            text-align: right;
-            font-size: 11pt;
+            text-align: center;
         }
 
-        .signature .position {
+        .signature-block .position {
+            font-weight: bold;
             text-transform: uppercase;
-            font-weight: 600;
+            margin: 0;
+            line-height: 1.4;
         }
 
-        .signature .name {
-            font-weight: 700;
+        .signature-block .space {
+            height: 90px;
+        }
+
+        .signature-block .name {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .signature-block .name u {
             text-decoration: underline;
+        }
+
+        .signature-block .nip {
+            margin: 0;
         }
     </style>
 </head>
 
 <body>
-    <div class="cover">
-        <div class="brand">
-            <h1>Pemerintah Kabupaten Kudus</h1>
-            <h2>Dinas Tenaga Kerja, Perindustrian, Koperasi dan UKM</h2>
-            <p>Jl. Mejobo No. 99 Kudus &middot; Telp (0291) 123456 &middot; email: disnaker@kuduskab.go.id</p>
-            <hr>
-        </div>
+    <div class="header"></div>
 
-        <div class="letter-date">
-            Kudus, {{ $tanggal }}
-        </div>
+    <div class="date">
+        Lombok Tengah, 12 Oktober 2025
+    </div>
 
-        <table class="letter-meta">
-            <tr>
-                <td>Nomor</td>
-                <td>:</td>
-                <td>{{ $rekom->nomor }}</td>
-            </tr>
-            <tr>
-                <td>Lampiran</td>
-                <td>:</td>
-                <td>-</td>
-            </tr>
-            <tr>
-                <td>Hal</td>
-                <td>:</td>
-                <td><strong>Rekomendasi Pengurusan Paspor</strong></td>
-            </tr>
-        </table>
+    <table class="meta">
+        <tr>
+            <td>Nomor</td>
+            <td>:</td>
+            <td>526/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/LTSA/ </td>
+        </tr>
+        <tr>
+            <td>Lampiran</td>
+            <td>:</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td>Perihal</td>
+            <td>:</td>
+            <td><strong>Rekomendasi Pembuatan Paspor PMI MALAYSIA</strong></td>
+        </tr>
+    </table>
 
-        <div style="text-align: left; margin-top: 12px;">
-            Kepada Yth.<br>
-            Kepala Kantor Imigrasi ____________________<br>
-            di tempat
-        </div>
+    <div>
+        <strong>Kepada Yth.</strong><br>
+        <strong>Kepala KANTOR IMIGRASI MATARAM<br>di<br><span
+                style="margin-left: 25px; text-decoration: underline">TEMPAT</span></strong>
+    </div>
 
-        <div class="letter-body">
-            <p class="salutation">Dengan hormat,</p>
-            <p>Bersama ini kami mengajukan permohonan rekomendasi penerbitan paspor bagi calon pekerja migran
-                Indonesia sebagaimana tercantum pada lampiran. Seluruh data telah kami verifikasi sesuai ketentuan dan
-                dapat dipergunakan sebagai bahan pengurusan lebih lanjut.</p>
-            <p class="closing">Demikian disampaikan, atas perhatian dan kerja samanya kami ucapkan terima kasih.</p>
-        </div>
+    <div class="content">
+        <p>Sesuai dengan permohonan <strong>PT. DINASTY INSAN MANDIRI</strong> perihal tersebut di atas, telah kami
+            adakan verifikasi atas dokumen CPMI.</p>
 
-        <div class="signature">
-            Hormat kami,<br>
-            <span class="position">Kepala Dinas</span><br><br><br>
-            <span class="name">___________________________</span><br>
-            NIP. _______________________
-        </div>
+        <p>Bersama ini kami memberikan rekomendasi untuk pembuatan paspor CPMI sebanyak <strong>1 (satu) orang</strong>,
+            sebagaimana daftar lampiran, terdiri dari CPMI :</p>
+
+        <p class="no-indent" style="margin-left: 40px;">Laki-laki : 1</p>
+        <p class="no-indent" style="margin-left: 40px;">Perempuan : 0</p>
+
+        <p>Sebagai bahan pertimbangan, kami sertakan dokumen PMI yang diperlukan. Demikian disampaikan, atas
+            perhatiannya dan kerja sama yang baik kami ucapkan terima kasih.</p>
+    </div>
+
+    <div class="signature-block">
+        <p class="position">A.N. Kepala Disnakertrans Kab. Lombok Tengah</p>
+        <p class="position">Kabid Penempatan dan Perluasan Kerja</p>
+        <div class="space"></div>
+        <p class="name"><u>SUPIANDI, S.STP</u></p>
+        <p class="nip">NIP 198201182002121001</p>
     </div>
 </body>
 
