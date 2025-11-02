@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('pageTitle', 'SIREKAP - PASMI | CPMI | Detail Tenaga Kerja')
-@section('titleContent', 'Detail Data Tenaga Kerja')
+@section('titlePageContent', 'Biodata PMI')
 
 @section('content')
     <div class="min-h-screen bg-zinc-100 px-4 py-6 font-inter md:px-6 md:py-8">
@@ -15,32 +15,11 @@
                         {{ $tenagaKerja->gender ?? '-' }}
                     </p>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <a href="{{ route('sirekap.tenaga-kerja.index') }}"
-                        class="inline-flex items-center justify-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600">
-                        <x-heroicon-o-arrow-left class="mr-2 h-4 w-4" />
-                        Kembali ke daftar
-                    </a>
-                    <a href="{{ route('sirekap.tenaga-kerja.edit', $tenagaKerja) }}"
-                        class="inline-flex items-center justify-center rounded-md bg-sky-600 px-4 py-2 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600">
-                        <x-heroicon-o-pencil-square class="mr-2 h-4 w-4" />
-                        Ubah data
-                    </a>
-                    <x-modal-delete :action="route('sirekap.tenaga-kerja.destroy', $tenagaKerja)" title="Hapus Data Tenaga Kerja">
-                        <x-slot name="trigger">
-                            <button type="button"
-                                class="inline-flex items-center justify-center rounded-md border border-rose-500 bg-white px-4 py-2 text-sm font-semibold text-rose-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500">
-                                <x-heroicon-o-trash class="mr-2 h-4 w-4" />
-                                Hapus
-                            </button>
-                        </x-slot>
-                        <div class="space-y-2 text-sm text-zinc-600">
-                            <p>Anda yakin ingin menghapus data <span class="font-semibold">{{ $tenagaKerja->nama }}</span>?
-                            </p>
-                            <p>Tindakan ini tidak dapat dibatalkan.</p>
-                        </div>
-                    </x-modal-delete>
-                </div>
+                <a href="{{ route('sirekap.tenaga-kerja.index') }}"
+                    class="inline-flex items-center justify-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600">
+                    <x-heroicon-o-arrow-left class="mr-2 h-4 w-4" />
+                    Kembali ke daftar
+                </a>
             </div>
 
             @if (session('success'))
@@ -115,11 +94,11 @@
                 <dl class="grid grid-cols-1 gap-4 text-sm text-zinc-600 md:grid-cols-3">
                     <div>
                         <dt class="font-medium text-zinc-700">Desa/Kelurahan</dt>
-                        <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->desa ?? '-' }}</dd>
+                        <dd class="mt-1 text-zinc-900">{{ optional($tenagaKerja->desa)->nama ?? '-' }}</dd>
                     </div>
                     <div>
                         <dt class="font-medium text-zinc-700">Kecamatan</dt>
-                        <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->kecamatan ?? '-' }}</dd>
+                        <dd class="mt-1 text-zinc-900">{{ optional($tenagaKerja->kecamatan)->nama ?? '-' }}</dd>
                     </div>
                     <div class="md:col-span-3">
                         <dt class="font-medium text-zinc-700">Alamat Lengkap</dt>
@@ -131,30 +110,26 @@
             <section class="rounded-xl border border-zinc-200 bg-white p-6">
                 <header class="mb-4">
                     <h3 class="text-lg font-semibold text-zinc-900">Kualifikasi & Penempatan</h3>
-                    <p class="text-sm text-zinc-500">Detail pendidikan dan lowongan yang diikuti.</p>
+                    <p class="text-sm text-zinc-500">Detail pendidikan serta relasi perusahaan dan agency.</p>
                 </header>
                 <dl class="grid grid-cols-1 gap-4 text-sm text-zinc-600 md:grid-cols-2">
                     <div>
                         <dt class="font-medium text-zinc-700">Pendidikan Terakhir</dt>
                         <dd class="mt-1 text-zinc-900">
-                            {{ optional($tenagaKerja->pendidikan)->level ?? (optional($tenagaKerja->pendidikan)->nama ?? '-') }}
+                            {{ optional($tenagaKerja->pendidikan)->nama ?? '-' }}
                         </dd>
                     </div>
                     <div>
-                        <dt class="font-medium text-zinc-700">Lowongan</dt>
-                        <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->lowongan->nama ?? '-' }}</dd>
-                    </div>
-                    <div>
                         <dt class="font-medium text-zinc-700">Perusahaan (P3MI)</dt>
-                        <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->lowongan?->perusahaan?->nama ?? '-' }}</dd>
+                        <dd class="mt-1 text-zinc-900">{{ optional($tenagaKerja->perusahaan)->nama ?? '-' }}</dd>
                     </div>
                     <div>
-                        <dt class="font-medium text-zinc-700">Agensi Penempatan</dt>
-                        <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->lowongan?->agensi?->nama ?? '-' }}</dd>
+                        <dt class="font-medium text-zinc-700">Agency Penempatan</dt>
+                        <dd class="mt-1 text-zinc-900">{{ optional($tenagaKerja->agency)->nama ?? '-' }}</dd>
                     </div>
-                    <div class="md:col-span-2">
-                        <dt class="font-medium text-zinc-700">Destinasi</dt>
-                        <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->lowongan?->destinasi?->nama ?? '-' }}</dd>
+                    <div>
+                        <dt class="font-medium text-zinc-700">Email</dt>
+                        <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->email ?? '-' }}</dd>
                     </div>
                 </dl>
             </section>

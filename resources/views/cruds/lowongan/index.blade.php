@@ -61,12 +61,12 @@
                     </div>
                 @endif
 
-                <div class="rounded-xl border border-zinc-200 bg-white shadow-sm">
+                <div class="rounded-md border border-zinc-200 bg-white shadow-sm">
                     @if ($lowongans->count())
                         <div class="hidden md:block">
                             <table class="min-w-full divide-y divide-zinc-200 text-sm text-zinc-600">
                                 <thead>
-                                    <tr class="text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                                    <tr class="text-left text-xs font-semibold uppercase tracking-wide bg-zinc-100 text-zinc-500">
                                         <th class="px-6 py-4">Lowongan</th>
                                         <th class="px-6 py-4">Agensi</th>
                                         <th class="px-6 py-4">Perusahaan</th>
@@ -118,14 +118,14 @@
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 align-top text-right">
-                                                <div class="inline-flex items-center justify-end gap-2">
+                                                <div class="flex items-center justify-end gap-2">
                                                     <a href="{{ route('sirekap.lowongan.show', $lowongan) }}"
-                                                        class="inline-flex items-center rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200">
-                                                        Detail
+                                                        class="inline-flex items-center justify-center rounded-md bg-blue-500 px-2 py-1.5 text-xs font-medium text-blue-50 transition hover:bg-blue-600">
+                                                        <x-heroicon-o-eye class="h-4 w-4" />
                                                     </a>
                                                     <a href="{{ route('sirekap.lowongan.edit', $lowongan) }}"
-                                                        class="inline-flex items-center rounded-md bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-200">
-                                                        Ubah
+                                                        class="inline-flex items-center justify-center rounded-md bg-amber-500 px-2 py-1.5 text-xs font-medium text-amber-50 transition hover:bg-amber-600">
+                                                        <x-heroicon-o-pencil-square class="h-4 w-4" />
                                                     </a>
                                                     <x-modal-delete :action="route('sirekap.lowongan.destroy', $lowongan)" title="Hapus Lowongan">
                                                     </x-modal-delete>
@@ -188,12 +188,12 @@
 
                                     <div class="mt-4 flex flex-wrap gap-2">
                                         <a href="{{ route('sirekap.lowongan.show', $lowongan) }}"
-                                            class="inline-flex items-center rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-200">
-                                            Detail
+                                            class="inline-flex items-center justify-center rounded-md bg-blue-500 px-2 py-1.5 text-xs font-medium text-blue-50 transition hover:bg-blue-600">
+                                            <x-heroicon-o-eye class="h-4 w-4" />
                                         </a>
                                         <a href="{{ route('sirekap.lowongan.edit', $lowongan) }}"
-                                            class="inline-flex items-center rounded-md bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-200">
-                                            Ubah
+                                            class="inline-flex items-center justify-center rounded-md bg-amber-500 px-2 py-1.5 text-xs font-medium text-amber-50 transition hover:bg-amber-600">
+                                            <x-heroicon-o-pencil-square class="h-4 w-4" />
                                         </a>
                                         <x-modal-delete :action="route('sirekap.lowongan.destroy', $lowongan)" title="Hapus Lowongan">
                                         </x-modal-delete>

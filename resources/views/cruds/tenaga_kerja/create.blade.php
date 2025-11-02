@@ -1,244 +1,282 @@
 @extends('layouts.app')
 
 @section('pageTitle', 'SIREKAP - PASMI | CPMI | Tambah Tenaga Kerja')
-@section('titleContent', 'Tambah Data Tenaga Kerja')
+@section('titlePageContent', 'Tambah Data CPMI')
 
 @section('content')
-    <div class="h-full overflow-y-auto py-4">
-        <div class="mx-auto max-w-full space-y-6 px-2 font-inter">
-            <div class="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-                <div class="space-y-1">
-                    <h2 class="font-inter text-xl font-semibold text-zinc-800">Formulir Pendaftaran CPMI</h2>
-                    <p class="text-sm text-zinc-500">Lengkapi seluruh informasi berikut untuk mendaftarkan calon pekerja
-                        migran.</p>
+    <div class="max-w-4xl rounded-xl border p-6 bg-white font-inter">
+        <form action="{{ route('sirekap.tenaga-kerja.store') }}" method="POST" class="space-y-8">
+            @csrf
+
+            <div class="grid gap-6 md:grid-cols-2">
+                <div>
+                    <label for="nama" class="block text-sm font-semibold text-slate-700">Nama</label>
+                    <input type="text" name="nama" id="nama"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('nama') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        value="{{ old('nama') }}" required>
+                    @error('nama')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
-                <a href="{{ route('sirekap.tenaga-kerja.index') }}"
-                    class="inline-flex items-center justify-center rounded-md border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:border-blue-400 hover:text-blue-600">
-                    <x-heroicon-o-arrow-left class="mr-2 h-4 w-4" />
-                    Kembali
-                </a>
+
+                <div>
+                    <label for="nik" class="block text-sm font-semibold text-slate-700">NIK</label>
+                    <input type="text" name="nik" id="nik" maxlength="16"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('nik') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        value="{{ old('nik') }}" required>
+                    @error('nik')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="gender" class="block text-sm font-semibold text-slate-700">Jenis Kelamin</label>
+                    <select name="gender" id="gender"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('gender') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        required>
+                        <option value="">-- Pilih --</option>
+                        <option value="L" @selected(old('gender') === 'L')>Laki-laki</option>
+                        <option value="P" @selected(old('gender') === 'P')>Perempuan</option>
+                    </select>
+                    @error('gender')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-slate-700">Email (Opsional)</label>
+                    <input type="email" name="email" id="email"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('email') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        value="{{ old('email') }}">
+                    @error('email')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
-            @if ($errors->any())
-                <div class="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
-                    <p class="font-semibold">Harap periksa ulang data yang Anda masukkan:</p>
-                    <ul class="mt-2 list-disc space-y-1 pl-5">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
+            <div class="grid gap-6 md:grid-cols-2">
+                <div>
+                    <label for="tempat_lahir" class="block text-sm font-semibold text-slate-700">Tempat Lahir</label>
+                    <input type="text" name="tempat_lahir" id="tempat_lahir"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('tempat_lahir') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        value="{{ old('tempat_lahir') }}" required>
+                    @error('tempat_lahir')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="tanggal_lahir" class="block text-sm font-semibold text-slate-700">Tanggal Lahir</label>
+                    <input type="date" name="tanggal_lahir" id="tanggal_lahir"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('tanggal_lahir') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        value="{{ old('tanggal_lahir') }}" required>
+                    @error('tanggal_lahir')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div>
+                <label for="alamat_lengkap" class="block text-sm font-semibold text-slate-700">Alamat Lengkap</label>
+                <textarea name="alamat_lengkap" id="alamat_lengkap" rows="3"
+                    class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('alamat_lengkap') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                    required>{{ old('alamat_lengkap') }}</textarea>
+                @error('alamat_lengkap')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2" data-dependant-desa>
+                <div>
+                    <label for="kecamatan_id" class="block text-sm font-semibold text-slate-700">Kecamatan</label>
+                    <select name="kecamatan_id" id="kecamatan_id" data-role="kecamatan"
+                        data-initial="{{ old('kecamatan_id') }}"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('kecamatan_id') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        required>
+                        <option value="">-- Pilih Kecamatan --</option>
+                        @foreach ($kecamatans as $kecamatan)
+                            <option value="{{ $kecamatan->id }}" @selected(old('kecamatan_id') == $kecamatan->id)>
+                                {{ $kecamatan->nama }}
+                            </option>
                         @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <form action="{{ route('sirekap.tenaga-kerja.store') }}" method="POST"
-                class="rounded-xl border border-zinc-100 bg-white">
-                @csrf
-                <div class="space-y-10 p-6 md:p-10">
-                    <section class="space-y-6">
-                        <div class="space-y-1">
-                            <h3 class="font-inter text-lg font-semibold text-zinc-800">Data Pribadi</h3>
-                            <p class="text-sm text-zinc-500">Informasi dasar calon tenaga kerja.</p>
-                        </div>
-                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <label class="block text-sm font-medium text-zinc-700">
-                                Nama Lengkap
-                                <input type="text" name="nama" value="{{ old('nama') }}" required
-                                    class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                                @error('nama')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-
-                            <label class="block text-sm font-medium text-zinc-700">
-                                NIK
-                                <input type="text" name="nik" value="{{ old('nik') }}" minlength="16"
-                                    maxlength="16" inputmode="numeric" required
-                                    class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                                @error('nik')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-
-                            <div class="md:col-span-2">
-                                <p class="text-sm font-medium">Gender <span class="text-red-600">*</span></p>
-                                <div class="mt-1 flex gap-6">
-                                    @foreach (\App\Models\TenagaKerja::GENDERS as $g)
-                                        <label class="inline-flex items-center gap-2">
-                                            <input type="radio" name="gender" value="{{ $g }}"
-                                                class="border rounded" @checked(old('gender', $tenagaKerja->gender ?? '') === $g) required>
-                                            <span>{{ $g }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                                @error('gender')
-                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                @enderror
-
-                            </div>
-
-                            <label class="block text-sm font-medium text-zinc-700">
-                                Tempat Lahir
-                                <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir') }}" required
-                                    class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                                @error('tempat_lahir')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-
-                            <label class="block text-sm font-medium text-zinc-700">
-                                Tanggal Lahir
-                                <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" required
-                                    class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                                @error('tanggal_lahir')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-                        </div>
-                    </section>
-
-                    <section class="space-y-6">
-                        <div class="space-y-1">
-                            <h3 class="font-inter text-lg font-semibold text-zinc-800">Kontak & Domisili</h3>
-                            <p class="text-sm text-zinc-500">Detail tempat tinggal dan informasi kontak.</p>
-                        </div>
-                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <label class="block text-sm font-medium text-zinc-700">
-                                Email (Opsional)
-                                <input type="email" name="email" value="{{ old('email') }}"
-                                    class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                                    placeholder="nama@email.com">
-                                @error('email')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-
-                            <label class="block text-sm font-medium text-zinc-700">
-                                Desa/Kelurahan
-                                <input type="text" name="desa" value="{{ old('desa') }}" required
-                                    class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                                @error('desa')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-
-                            <label class="block text-sm font-medium text-zinc-700">
-                                Kecamatan
-                                <input type="text" name="kecamatan" value="{{ old('kecamatan') }}" required
-                                    class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                                @error('kecamatan')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-
-                            <label class="block text-sm font-medium text-zinc-700 md:col-span-2">
-                                Alamat Lengkap
-                                <textarea name="alamat_lengkap" rows="4" required
-                                    class="mt-1 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                                    placeholder="Tulis alamat sesuai KTP atau domisili saat ini">{{ old('alamat_lengkap') }}</textarea>
-                                @error('alamat_lengkap')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-                        </div>
-                    </section>
-
-                    <section class="space-y-6">
-                        <div class="space-y-1">
-                            <h3 class="font-inter text-lg font-semibold text-zinc-800">Kualifikasi & Penempatan</h3>
-                            <p class="text-sm text-zinc-500">Pilih data pendidikan dan lowongan terkait.</p>
-                        </div>
-                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <label class="block text-sm font-medium text-zinc-700">
-                                Pendidikan Terakhir
-                                <select name="pendidikan_id" class="mt-1 w-full border rounded px-3 py-2">
-                                    <option value="" disabled
-                                        {{ old('pendidikan_id', $tenagaKerja->pendidikan_id ?? '') === '' ? 'selected' : '' }}>
-                                        -- Pilih Pendidikan --
-                                    </option>
-
-                                    @forelse ($pendidikans as $p)
-                                        <option value="{{ $p->id }}" @selected(old('pendidikan_id', $tenagaKerja->pendidikan_id ?? '') == $p->id)>
-                                            {{ $p->nama }}
-                                        </option>
-                                    @empty
-                                        <option value="" disabled>Tidak ada data pendidikan</option>
-                                    @endforelse
-                                </select>
-                                @error('pendidikan_id')
-                                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                                @enderror
-                            </label>
-
-                            @php
-                                $selectedLowongan = $lowongans->firstWhere('id', (int) old('lowongan_id', $tenagaKerja->lowongan_id ?? null));
-                                $initialPerusahaan = $selectedLowongan?->perusahaan?->nama ?? '';
-                                $initialAgensi = $selectedLowongan?->agensi?->nama ?? '';
-                            @endphp
-                            <label class="block text-sm font-medium text-zinc-700"
-                                x-data="{
-                                    selectedPerusahaan: @js($initialPerusahaan),
-                                    selectedAgensi: @js($initialAgensi),
-                                    sync(event) {
-                                        const option = event.target.selectedOptions[0];
-                                        this.selectedPerusahaan = option?.dataset.perusahaan || '';
-                                        this.selectedAgensi = option?.dataset.agensi || '';
-                                    }
-                                }">
-                                Lowongan Aktif
-                                <select name="lowongan_id" required x-on:change="sync($event)" x-ref="lowongan"
-                                    class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                                    <option value="" disabled
-                                        {{ old('lowongan_id', $tenagaKerja->lowongan_id ?? '') === '' ? 'selected' : '' }}>
-                                        Pilih
-                                        lowongan
-                                    </option>
-
-                                    @forelse ($lowongans as $items)
-                                        <option value="{{ $items->id }}" @selected(old('lowongan_id', $tenagaKerja->lowongan_id ?? '') == $items->id)
-                                            data-perusahaan="{{ $items->perusahaan->nama ?? '' }}"
-                                            data-agensi="{{ $items->agensi->nama ?? '' }}">
-                                            {{ $items->nama }}
-                                            @if ($items->perusahaan?->nama || $items->agensi?->nama)
-                                                - {{ $items->perusahaan->nama ?? 'Tanpa P3MI' }} |
-                                                {{ $items->agensi->nama ?? 'Tanpa Agensi' }}
-                                            @endif
-                                        </option>
-                                    @empty
-                                        <option value="" disabled>Data lowongan belum tersedia</option>
-                                    @endforelse
-                                </select>
-                                <div class="mt-2 space-y-1 text-xs text-zinc-500">
-                                    <p>P3MI:
-                                        <span x-text="selectedPerusahaan || '-'" class="font-medium text-zinc-700">
-                                            {{ $initialPerusahaan !== '' ? $initialPerusahaan : '-' }}
-                                        </span>
-                                    </p>
-                                    <p>Agensi:
-                                        <span x-text="selectedAgensi || '-'" class="font-medium text-zinc-700">
-                                            {{ $initialAgensi !== '' ? $initialAgensi : '-' }}
-                                        </span>
-                                    </p>
-                                </div>
-                                @error('lowongan_id')
-                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                @enderror
-                            </label>
-                        </div>
-                    </section>
+                    </select>
+                    @error('kecamatan_id')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <div
-                    class="flex flex-col gap-3 border-t border-zinc-100 bg-zinc-50 px-6 py-5 md:flex-row md:items-center md:justify-between md:px-10">
-                    <button type="reset"
-                        class="inline-flex items-center justify-center rounded-md border border-transparent bg-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-300">
-                        Reset Formulir
-                    </button>
-                    <button type="submit"
-                        class="inline-flex items-center justify-center rounded-md border border-blue-500 bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-1">
-                        Simpan
-                    </button>
+                <div>
+                    <label for="desa_id" class="block text-sm font-semibold text-slate-700">Desa</label>
+                    <select name="desa_id" id="desa_id" data-role="desa" data-placeholder="-- Pilih Desa --"
+                        data-initial="{{ old('desa_id') }}"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('desa_id') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        required>
+                        <option value="">-- Pilih Desa --</option>
+                        @foreach ($desas as $desa)
+                            <option value="{{ $desa->id }}" data-kecamatan="{{ $desa->kecamatan_id ?? '' }}"
+                                @selected(old('desa_id') == $desa->id)>
+                                {{ $desa->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('desa_id')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-xs text-slate-500">Pilih kecamatan terlebih dahulu untuk menampilkan daftar desa.</p>
                 </div>
-            </form>
-        </div>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-3">
+                <div>
+                    <label for="pendidikan_id" class="block text-sm font-semibold text-slate-700">Pendidikan</label>
+                    <select name="pendidikan_id" id="pendidikan_id"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('pendidikan_id') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        required>
+                        <option value="">-- Pilih Pendidikan --</option>
+                        @foreach ($pendidikans as $pendidikan)
+                            <option value="{{ $pendidikan->id }}" @selected(old('pendidikan_id') == $pendidikan->id)>
+                                {{ $pendidikan->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('pendidikan_id')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="perusahaan_id" class="block text-sm font-semibold text-slate-700">Perusahaan</label>
+                    <select name="perusahaan_id" id="perusahaan_id"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('perusahaan_id') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        required>
+                        <option value="">-- Pilih Perusahaan --</option>
+                        @foreach ($perusahaans as $perusahaan)
+                            <option value="{{ $perusahaan->id }}" @selected(old('perusahaan_id') == $perusahaan->id)>
+                                {{ $perusahaan->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('perusahaan_id')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="agency_id" class="block text-sm font-semibold text-slate-700">Agency</label>
+                    <select name="agency_id" id="agency_id"
+                        class="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('agency_id') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror"
+                        required>
+                        <option value="">-- Pilih Agency --</option>
+                        @foreach ($agencies as $agency)
+                            <option value="{{ $agency->id }}" @selected(old('agency_id') == $agency->id)>
+                                {{ $agency->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('agency_id')
+                        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3">
+                <a href="{{ route('sirekap.tenaga-kerja.index') }}"
+                    class="inline-flex items-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100">
+                    Batal
+                </a>
+                <button type="submit"
+                    class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    Simpan
+                </button>
+            </div>
+        </form>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.__desaSelectScriptLoaded) {
+                return;
+            }
+            window.__desaSelectScriptLoaded = true;
+            document.querySelectorAll('[data-dependant-desa]').forEach(function (container) {
+                if (container.dataset.initialized === 'true') {
+                    return;
+                }
+                container.dataset.initialized = 'true';
+
+                const kecSelect = container.querySelector('[data-role="kecamatan"]');
+                const desaSelect = container.querySelector('[data-role="desa"]');
+                if (!kecSelect || !desaSelect) {
+                    return;
+                }
+
+                const placeholderOption = desaSelect.querySelector('option[value=""]');
+                const allOptions = Array.from(desaSelect.options).filter(option => option.value !== '');
+
+                const getMatches = (kecamatanId) => {
+                    if (!kecamatanId) {
+                        return [];
+                    }
+
+                    return allOptions.filter(option => String(option.dataset.kecamatan || '') === String(kecamatanId));
+                };
+
+                const syncOptions = () => {
+                    const selectedKec = kecSelect.value;
+                    const matches = getMatches(selectedKec);
+
+                    allOptions.forEach(option => {
+                        const match = matches.includes(option);
+                        option.hidden = !match;
+                        option.disabled = !match;
+                    });
+
+                    if (!selectedKec || matches.length === 0) {
+                        desaSelect.value = '';
+                    } else if (!matches.some(option => option.value === desaSelect.value)) {
+                        desaSelect.value = '';
+                    }
+
+                    desaSelect.disabled = !selectedKec || matches.length === 0;
+                    if (placeholderOption) {
+                        placeholderOption.disabled = desaSelect.disabled;
+                        placeholderOption.hidden = false;
+                    }
+                };
+
+                let initialKecamatan = kecSelect.dataset.initial || kecSelect.value || '';
+                const initialDesa = desaSelect.dataset.initial || desaSelect.value || '';
+
+                if (!initialKecamatan && initialDesa) {
+                    const relatedOption = allOptions.find(option => option.value === initialDesa);
+                    if (relatedOption) {
+                        initialKecamatan = relatedOption.dataset.kecamatan || '';
+                    }
+                }
+
+                if (initialKecamatan) {
+                    kecSelect.value = initialKecamatan;
+                }
+
+                syncOptions();
+
+                if (initialDesa) {
+                    const matches = getMatches(kecSelect.value);
+                    if (matches.some(option => option.value === initialDesa)) {
+                        desaSelect.value = initialDesa;
+                        desaSelect.disabled = false;
+                    }
+                }
+
+                if (!kecSelect.value) {
+                    desaSelect.disabled = true;
+                }
+
+                kecSelect.addEventListener('change', function () {
+                    syncOptions();
+                });
+            });
+        });
+    </script>
+@endpush

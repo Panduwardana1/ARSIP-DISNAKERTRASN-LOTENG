@@ -55,24 +55,24 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-zinc-200 text-sm text-zinc-700">
-                        <thead class="bg-zinc-100 text-xs font-semibold tracking-wide text-zinc-500">
+                    <table class="min-w-full border border-zinc-200 border-collapse text-sm text-zinc-700">
+                        <thead class="bg-zinc-100 text-xs font-semibold tracking-wide text-zinc-600">
                             <tr>
-                                <th scope="col" class="w-12 px-4 py-3">
+                                <th scope="col" class="w-12 border border-zinc-200 px-4 py-3 text-center bg-zinc-100">
                                     <input id="checkAll" type="checkbox"
                                         class="h-4 w-4 rounded border-zinc-300 text-sky-600 focus:ring-sky-500">
                                 </th>
-                                <th scope="col" class="px-3 py-3 text-center">No</th>
-                                <th scope="col" class="px-3 py-3 text-left">Nama & ID PMI</th>
-                                <th scope="col" class="px-3 py-3 text-center">Tempat Tgl.Lahir</th>
-                                <th scope="col" class="px-3 py-3 text-center">L/P</th>
-                                <th scope="col" class="px-3 py-3 text-center">Alamat PMI</th>
-                                <th scope="col" class="px-3 py-3 text-center">Agency</th>
-                                <th scope="col" class="px-3 py-3 text-center">Jenis Pekerjaan</th>
-                                <th scope="col" class="px-3 py-3 text-center">Pendidikan</th>
+                                <th scope="col" class="border border-zinc-200 px-3 py-3 text-center bg-zinc-100">No</th>
+                                <th scope="col" class="border border-zinc-200 px-3 py-3 text-left bg-zinc-100">Nama & ID PMI</th>
+                                <th scope="col" class="border border-zinc-200 px-3 py-3 text-center bg-zinc-100">Tempat Tgl.Lahir</th>
+                                <th scope="col" class="border border-zinc-200 px-3 py-3 text-center bg-zinc-100">L/P</th>
+                                <th scope="col" class="border border-zinc-200 px-3 py-3 text-center bg-zinc-100">Alamat PMI</th>
+                                <th scope="col" class="border border-zinc-200 px-3 py-3 text-center bg-zinc-100">Agency</th>
+                                <th scope="col" class="border border-zinc-200 px-3 py-3 text-center bg-zinc-100">Jenis Pekerjaan</th>
+                                <th scope="col" class="border border-zinc-200 px-3 py-3 text-center bg-zinc-100">Pendidikan</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-zinc-200">
+                        <tbody>
                             @php
                                 $startNumber = ($tkis->firstItem() ?? 1) - 1;
                             @endphp
@@ -89,19 +89,19 @@
                                         default => '-',
                                     };
                                 @endphp
-                                <tr class="odd:bg-white even:bg-zinc-50">
-                                    <td class="px-4 py-3 align-top">
+                                <tr class="odd:bg-white even:bg-zinc-50 hover:bg-zinc-100 transition-colors">
+                                    <td class="border border-zinc-200 px-4 py-3 align-top text-center">
                                         <input name="ids[]" value="{{ $tki->id }}" type="checkbox"
                                             class="rowCheck h-4 w-4 rounded border-zinc-300 text-sky-600 focus:ring-sky-500">
                                     </td>
-                                    <td class="px-3 py-3 align-top text-zinc-500">
+                                    <td class="border border-zinc-200 px-3 py-3 align-top text-center text-zinc-500">
                                         {{ $startNumber + $loop->iteration }}
                                     </td>
-                                    <td class="px-3 py-3 align-top">
+                                    <td class="border border-zinc-200 px-3 py-3 align-top">
                                         <div class="font-semibold text-zinc-900">{{ $tki->nama }}</div>
                                         <div class="text-[12px] text-zinc-500">{{ $tki->nik }}</div>
                                     </td>
-                                    <td class="px-3 py-3 align-top text-zinc-600">
+                                    <td class="border border-zinc-200 px-3 py-3 align-top text-center text-zinc-600">
                                         <div class="mt-1 text-[12px] text-zinc-600">
                                             <span>{{ $tki->tempat_lahir ?? '-' }}</span>
                                             <span>
@@ -109,27 +109,27 @@
                                             </span>
                                         </div>
                                     </td>
-                                    <td class="px-3 py-3 align-top text-zinc-600">
+                                    <td class="border border-zinc-200 px-3 py-3 align-top text-center text-zinc-600">
                                         {{ $genderLabel ?? '-' }}
                                     </td>
-                                    <td class="px-3 py-3 align-top text-zinc-600 max-w-xs">
-                                        <div class="mt-1 text-[12px] text-center text-zinc-400">
+                                    <td class="border border-zinc-200 px-3 py-3 align-top text-zinc-600 max-w-xs">
+                                        <div class="mt-1 text-center text-[12px] text-zinc-400">
                                             {{ Str::limit($tki->alamat_lengkap, 200, '...') }}
                                         </div>
                                     </td>
-                                    <td class="px-3 py-3 text-[12px] align-top text-zinc-600">
+                                    <td class="border border-zinc-200 px-3 py-3 text-[12px] align-top text-center text-zinc-600">
                                         {{ $agensi->nama ?? '-' }}
                                     </td>
-                                    <td class="px-3 py-3 text-[12px] align-top text-zinc-600">
+                                    <td class="border border-zinc-200 px-3 py-3 text-[12px] align-top text-center text-zinc-600">
                                         {{ $lowongan->nama ?? '-' }}
                                     </td>
-                                    <td class="px-3 py-3 text-[12px] align-top text-zinc-600">
+                                    <td class="border border-zinc-200 px-3 py-3 text-[12px] align-top text-center text-zinc-600">
                                         {{ ($tki->pendidikan)->level ?? '-' }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="px-4 py-6 text-center text-sm text-zinc-500">
+                                    <td colspan="9" class="border border-zinc-200 px-4 py-6 text-center text-sm text-zinc-500">
                                         Tidak ada data yang dapat ditampilkan.
                                     </td>
                                 </tr>

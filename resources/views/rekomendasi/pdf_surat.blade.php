@@ -18,17 +18,20 @@
         }
 
         .header {
-            height: 100px;
-            border: 1px solid black;
+            height: 120px;
             margin-bottom: 10px;
+        }
+
+        .tujuan {
+            padding-bottom: 1rem;
         }
 
         .meta {
             width: 100%;
-            border-collapse: collapse;
             font-size: 11pt;
             line-height: 1.4;
             margin-bottom: 10px;
+            padding-bottom: 2rem;
         }
 
         .meta td {
@@ -106,48 +109,100 @@
 </head>
 
 <body>
-    <div class="header"></div>
+    @php
+        $perusahaanName = optional($rekom->perusahaan)->nama;
+        $nomorRekom = $rekom->nomor ?? '-';
+        $totalCpmi = $rekom->total ?? 0;
+        $jumlahLaki = $rekom->jumlah_laki ?? 0;
+        $jumlahPerempuan = $rekom->jumlah_perempuan ?? 0;
+        $destinasiTujuan = $destinasi ?? null ?: '-';
 
+        try {
+            $formatter = class_exists(\NumberFormatter::class)
+                ? new \NumberFormatter('id_ID', \NumberFormatter::SPELLOUT)
+                : null;
+        } catch (\Throwable $e) {
+            $formatter = null;
+        }
+
+        $spellNumber = function ($value) use ($formatter) {
+            if (!is_numeric($value) || $formatter === null) {
+                return null;
+            }
+
+            $spelled = $formatter->format($value);
+            if (!is_string($spelled)) {
+                return null;
+            }
+
+            $spelled = trim(mb_strtolower($spelled, 'UTF-8'));
+
+            return $spelled !== '' ? $spelled : null;
+        };
+
+        $totalCpmiSpelled = $spellNumber($totalCpmi);
+        $jumlahLakiSpelled = $spellNumber($jumlahLaki);
+        $jumlahPerempuanSpelled = $spellNumber($jumlahPerempuan);
+    @endphp
+    <div class="header"></div>
     <div class="date">
-        Lombok Tengah, 12 Oktober 2025
+        Lombok Tengah, {{ $tanggal ?? '-' }}
     </div>
 
     <table class="meta">
         <tr>
             <td>Nomor</td>
             <td>:</td>
-            <td>526/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/LTSA/ </td>
+            <td style="word-spacing: 48px;">562/ LTSA/</td>
         </tr>
         <tr>
             <td>Lampiran</td>
             <td>:</td>
-            <td>-</td>
+            <td></td>
         </tr>
         <tr>
             <td>Perihal</td>
             <td>:</td>
-            <td><strong>Rekomendasi Pembuatan Paspor PMI MALAYSIA</strong></td>
+            <td>
+                <strong>
+                    Rekomendasi Pembuatan <br> Paspor PMI{{ $destinasiTujuan !== '-' ? ' ' . $destinasiTujuan : '' }}
+                </strong>
+            </td>
         </tr>
     </table>
 
-    <div>
+    <div class="tujuan">
         <strong>Kepada Yth.</strong><br>
         <strong>Kepala KANTOR IMIGRASI MATARAM<br>di<br><span
                 style="margin-left: 25px; text-decoration: underline">TEMPAT</span></strong>
     </div>
 
     <div class="content">
-        <p>Sesuai dengan permohonan <strong>PT. DINASTY INSAN MANDIRI</strong> perihal tersebut di atas, telah kami
-            adakan verifikasi atas dokumen CPMI.</p>
+        <p>
+            Sesuai dengan permohonan
+            <strong>{{ $perusahaanName ?? '-' }}</strong>
+            perihal tersebut di atas, telah kami adakan verifikasi atas dokumen CPMI.
+        </p>
 
-        <p>Bersama ini kami memberikan rekomendasi untuk pembuatan paspor CPMI sebanyak <strong>1 (satu) orang</strong>,
-            sebagaimana daftar lampiran, terdiri dari CPMI :</p>
+        <p>
+            Bersama ini kami memberikan rekomendasi untuk pembuatan paspor CPMI sebanyak
+            {{ $totalCpmi }}@if ($totalCpmiSpelled)
+                ({{ $totalCpmiSpelled }})
+            @endif orang,
+            sebagaimana daftar lampiran, terdiri dari CPMI :
+        </p>
 
-        <p class="no-indent" style="margin-left: 40px;">Laki-laki : 1</p>
-        <p class="no-indent" style="margin-left: 40px;">Perempuan : 0</p>
+        <p class="no-indent">
+            Laki-laki : {{ $jumlahLaki }}
+        </p>
+        <p class="no-indent">
+            Perempuan : {{ $jumlahPerempuan }}
+        </p>
 
-        <p>Sebagai bahan pertimbangan, kami sertakan dokumen PMI yang diperlukan. Demikian disampaikan, atas
-            perhatiannya dan kerja sama yang baik kami ucapkan terima kasih.</p>
+        <p>
+            Sebagai bahan pertimbangan, kami sertakan dokumen PMI yang diperlukan. Demikian disampaikan, atas
+            perhatiannya dan kerja sama yang baik kami ucapkan terima kasih.
+        </p>
     </div>
 
     <div class="signature-block">

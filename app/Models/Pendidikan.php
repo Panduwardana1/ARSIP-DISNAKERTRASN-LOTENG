@@ -4,28 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\TenagaKerja;
 
 class Pendidikan extends Model
 {
     use HasFactory;
 
+    public const LEVELS = ['SD', 'SMP', 'SMA', 'D1', 'D2', 'D3', 'S1', 'S2', 'S3'];
+
     protected $fillable = [
-        'kode',
         'nama',
-        'level'
+        'level',
     ];
 
-    /**
-     * Tenaga kerja dengan pendidikan ini.
-     */
-    public function tenagaKerja(): HasMany
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    public function tenagaKerjas()
     {
         return $this->hasMany(TenagaKerja::class);
-    }
-
-    public function rekomendasiItems()
-    {
-        return $this->hasMany(RekomendasiItem::class, 'pendidikan_id');
     }
 }

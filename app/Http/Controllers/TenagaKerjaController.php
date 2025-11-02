@@ -2,49 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\TenagaKerjaExport;
-use App\Models\Lowongan;
+use App\Models\Desa;
+use App\Models\Agency;
+use App\Models\Kecamatan;
 use App\Models\Pendidikan;
+use App\Models\Perusahaan;
 use App\Models\TenagaKerja;
-use App\Http\Requests\StoreTenagaKerjaRequest;
-use App\Http\Requests\UpdateTenagaKerjaRequest;
-use App\Http\Requests\Request\Index\TenagaKerjaIndexRequest;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
+use App\Http\Requests\TenagaKerjaRequest;
+
 
 class TenagaKerjaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(TenagaKerjaIndexRequest $request)
+    public function index(Request $request)
     {
-        $filters = $request->filters();
-        $tenagaKerjas = TenagaKerja::query()
-            ->with([
-                'pendidikan:id,level',
-                'lowongan' => fn($query) => $query
-                    ->select('id', 'nama', 'perusahaan_id', 'agensi_id')
-                    ->with([
-                        'perusahaan:id,nama',
-                        'agensi:id,nama',
-                    ]),
-            ])
-            ->filter($filters)
-            ->latest('id')
-            ->paginate(10)
-            ->withQueryString();
+        $q = TenagaKerja::query()
+            ->with(['desa.kecamatan', 'pendidikan', 'perusahaan', 'agency'])
+            ->when($request->filled('q'), function ($qq) use ($request) {
+                $term = trim($request->input('q'));
+                $qq->where(function ($w) use ($term) {
+                    $w->where('nama', 'like', "%{$term}%")
+                        ->orWhere('nik', 'like', "%{$term}%");
+                });
+            });
 
-        $pendidikans = Pendidikan::select('id', 'level')->orderBy('level')->get();
-        $lowongans = Lowongan::select('id', 'nama')->orderBy('nama')->get();
+        $tenagaKerjas = $q->paginate(20)->withQueryString();
 
-        return view('cruds.tenaga_kerja.index', compact(
-            'tenagaKerjas',
-            'pendidikans',
-            'lowongans',
-            'filters'
-        ));
+        return view('cruds.tenaga_kerja.index', compact('tenagaKerjas'));
     }
 
     /**
@@ -53,26 +43,46 @@ class TenagaKerjaController extends Controller
     public function create()
     {
         return view('cruds.tenaga_kerja.create', [
-            'pendidikans' => Pendidikan::select('id', 'nama')->orderBy('nama')->get(),
-            'lowongans' => Lowongan::with([
-                'perusahaan:id,nama',
-                'agensi:id,nama',
-            ])->orderBy('nama')->get(['id', 'nama', 'perusahaan_id', 'agensi_id']),
+            'kecamatans' => Kecamatan::orderBy('nama')->get(['id', 'nama']),
+            'desas' => Desa::orderBy('nama')->get(['id', 'nama', 'kecamatan_id']),
+            'pendidikans' => Pendidikan::orderBy('nama')->get(['id', 'nama']),
+            'perusahaans' => Perusahaan::orderBy('nama')->get(['nama', 'id']),
+            'agencies' => Agency::orderBy('nama')->get(['nama', 'id']),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTenagaKerjaRequest $request)
+    public function store(TenagaKerjaRequest $request)
     {
-        $data = $request->validated();
+        try {
+            DB::transaction(function () use ($request) {
+                TenagaKerja::create($request->validated());
+            });
 
-        TenagaKerja::create($data);
+            return redirect()
+                ->route('sirekap.tenaga-kerja.index')
+                ->with('success', 'DATA BERHASIL DITAMBAHKAN');
+        } catch (QueryException $e) {
+            Log::warning("DB error on TenagaKerja@store", [
+                'sqlState' => $e->getCode(),
+                'errorInfo' => $e->errorInfo ?? null,
+                'payload' => $request->except(['_token']),
+            ]);
 
-        return redirect()
-            ->route('sirekap.tenaga-kerja.index')
-            ->with('success', 'Data baru berhasil ditambahkan.');
+            return back()->withInput()->withErrors([
+                'db' => $this->mapDbError($e, 'Gagal Menyimpan Data'),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Fatal error on Tenaga Kerja@store: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()
+                ->withInput()
+                ->withErrors(['app' => 'Terjadi Kesalahan tak terduga.']);
+        }
     }
 
     /**
@@ -80,20 +90,8 @@ class TenagaKerjaController extends Controller
      */
     public function show(TenagaKerja $tenagaKerja)
     {
-        $tenagaKerja->load([
-            'pendidikan:id,nama',
-            'lowongan' => fn($query) => $query
-                ->select('id', 'nama', 'perusahaan_id', 'agensi_id', 'destinasi_id')
-                ->with([
-                    'perusahaan:id,nama',
-                    'agensi:id,nama',
-                    'destinasi:id,nama',
-                ]),
-        ]);
-
-        return view('cruds.tenaga_kerja.show', [
-            'tenagaKerja' => $tenagaKerja,
-        ]);
+        $tenagaKerja->load(['desa.kecamatan', 'pendidikan', 'perusahaan', 'agency']);
+        return view('cruds.tenaga_kerja.show', compact('tenagaKerja'));
     }
 
     /**
@@ -101,28 +99,50 @@ class TenagaKerjaController extends Controller
      */
     public function edit(TenagaKerja $tenagaKerja)
     {
+        $tenagaKerja->load(['desa.kecamatan', 'pendidikan', 'perusahaan', 'agency']);
+
         return view('cruds.tenaga_kerja.edit', [
-            'tenagaKerja' => $tenagaKerja->load(['pendidikan:id,nama', 'lowongan:id,nama']),
-            'pendidikans' => Pendidikan::select('id', 'nama')->orderBy('nama')->get(),
-            'lowongans'   => Lowongan::with([
-                'perusahaan:id,nama',
-                'agensi:id,nama',
-            ])->orderBy('nama')->get(['id', 'nama', 'perusahaan_id', 'agensi_id']),
+            'tenagaKerja' => $tenagaKerja,
+            'kecamatans' => Kecamatan::orderBy('nama')->get(['id', 'nama']),
+            'desas' => Desa::orderBy('nama')->get(['id', 'nama', 'kecamatan_id']),
+            'pendidikans' => Pendidikan::orderBy('nama')->get(['id', 'nama']),
+            'perusahaans' => Perusahaan::orderBy('nama')->get(['id', 'nama']),
+            'agencies' => Agency::orderBy('nama')->get(['id', 'nama']),
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTenagaKerjaRequest $request, TenagaKerja $tenagaKerja)
+    public function update(TenagaKerjaRequest $request, TenagaKerja $tenagaKerja)
     {
-        $data = $request->validated();
+        try {
+            DB::transaction(function () use ($request, $tenagaKerja) {
+                $tenagaKerja->update($request->validated());
+            });
 
-        $tenagaKerja->update($data);
+            return redirect()
+                ->route('sirekap.tenaga-kerja.show', $tenagaKerja)
+                ->with('success', 'DATA BERHASIL DIPERBAHARUI');
+        } catch(QueryException $e) {
+            Log::warning('DB error on TenagaKerja@update', [
+                'sqlState' => $e->getCode(),
+                'errorInfo' => $e->errorInfo ?? null,
+                'payload' => $request->except(['_token']),
+            ]);
 
-        return redirect()
-            ->route('sirekap.tenaga-kerja.show', $tenagaKerja)
-            ->with('success', 'Data tenaga kerja berhasil diperbarui.');
+            return back()
+                ->withInput()
+                ->withErrors(['db' => $this->mapDbError($e, 'Gagal memperbarui data')]);
+        } catch (\Throwable $e) {
+            Log::error('Fatal error on TenagaKerja@update: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()
+                ->withInput()
+                ->withErrors(['app' => 'Terjadi kesalahan tak terduga saat update data.']);
+        }
     }
 
     /**
@@ -130,34 +150,34 @@ class TenagaKerjaController extends Controller
      */
     public function destroy(TenagaKerja $tenagaKerja)
     {
-        $tenagaKerja->delete();
+        try {
+            $tenagaKerja->delete();
+            return redirect()
+                ->route('sirekap.tenaga-kerja.index')
+                ->with('success', 'Data ini telah diarsipkan');
+        } catch (QueryException $e) {
+            Log::warning('DB error on TenagaKerja@destroy', [
+                'sqlState' => $e->getCode(),
+                'errorInfo' => $e->errorInfo ?? null,
+                'id' => $tenagaKerja->id
+            ]);
 
-        return redirect()
-            ->route('sirekap.tenaga-kerja.index')
-            ->with('success', 'Data tenaga kerja berhasil dihapus.');
+            return back()->withErrors(['db' => $this->mapDbError($e, 'Gagal menghapus data')]);
+        } catch (\Throwable $e) {
+            Log::error('Fatal error on TenagaKerja@destroy: '.$e->getMessage());
+            return back()->withErrors(['app' => 'Terjadi kesalahan tak terduga.']);
+        }
     }
 
-    public function exportMonthly(Request $request)
+    private function mapDbError(QueryException $exception, string $fallback): string
     {
-        $validated = $request->validate([
-            'month' => ['required', 'integer', 'between:1,12'],
-            'year'  => ['required', 'integer', 'min:2000', 'max:2100'],
-            'agensi_id'     => ['nullable', 'integer', 'exists:agensi_penempatans,id'],
-            'perusahaan_id' => ['nullable', 'integer', 'exists:perusahaan_indonesias,id'],
-            'destinasi_id'  => ['nullable', 'integer', 'exists:destinasis,id'],
-        ]);
+        $sqlState = $exception->getCode();
+        $errorInfo = $exception->errorInfo[1] ?? null;
 
-        $start = Carbon::createFromDate($validated['year'], $validated['month'], 1)->startOfMonth();
-        $end   = $start->copy()->endOfMonth();
-
-        $filters = [
-            'agensi_id'     => $validated['agensi_id']     ?? null,
-            'perusahaan_id' => $validated['perusahaan_id'] ?? null,
-            'destinasi_id'  => $validated['destinasi_id']  ?? null,
-        ];
-
-        $fileName = sprintf('REKAP_CPMI_%04d_%02d.xlsx', $validated['year'], $validated['month']);
-
-        return Excel::download(new TenagaKerjaExport($start, $end, $filters), $fileName);
+        return match (true) {
+            $sqlState === '23000' && $errorInfo === 1062 => 'Data sudah terdaftar.',
+            $sqlState === '23000' && $errorInfo === 1451 => 'Data tidak dapat dihapus karena masih digunakan.',
+            default => $fallback,
+        };
     }
 }

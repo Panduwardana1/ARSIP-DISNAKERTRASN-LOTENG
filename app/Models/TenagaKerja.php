@@ -2,130 +2,90 @@
 
 namespace App\Models;
 
-use App\Models\Lowongan;
-use App\Models\Pendidikan;
-use App\Models\Rekap;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TenagaKerja extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    public const GENDERS = ['Laki-laki', 'Perempuan'];
+    public const GENDERS = [
+        'L' => 'Laki-laki',
+        'P' => 'Perempuan',
+    ];
 
     protected $fillable = [
         'nama',
         'nik',
         'gender',
+        'email',
         'tempat_lahir',
         'tanggal_lahir',
-        'email',
-        'desa',
-        'kecamatan',
         'alamat_lengkap',
+        'kecamatan_id',
+        'desa_id',
         'pendidikan_id',
-        'lowongan_id',
+        'perusahaan_id',
+        'agency_id',
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
     ];
 
-    protected $appends = [
-        'usia',
-    ];
+    // Relasi Eloquent
+    public function desa() {
+        return $this->belongsTo(Desa::class);
+    }
 
-    /**
-     * Pendidikan terakhir tenaga kerja.
-     */
-    public function pendidikan(): BelongsTo
-    {
+    public function kecamatan() {
+        return $this->belongsTo(Kecamatan::class);
+    }
+
+    public function pendidikan() {
         return $this->belongsTo(Pendidikan::class);
     }
 
-    /**
-     * Lowongan yang sedang diikuti.
-     */
-    public function lowongan(): BelongsTo
+    public function perusahaan() {
+        return $this->belongsTo(Perusahaan::class);
+    }
+
+    public function agency() {
+        return $this->belongsTo(Agency::class);
+    }
+
+    // label gender
+    public function getLabelGender(): string {
+        return self::GENDERS[$this->gender] ?? $this->gender;
+    }
+
+    // rapikan nik hanya angka saja
+    public function setNikAttribute($value): void
     {
-        return $this->belongsTo(Lowongan::class);
+        $this->attributes['nik'] = preg_replace('/\D/', '', (string) $value);
     }
 
-    /**
-     * Riwayat rekap untuk tenaga kerja ini.
-     */
-    public function rekaps(): HasMany
-    {
-        return $this->hasMany(Rekap::class);
-    }
-
-    public function rekomendasiItems()
-    {
-        return $this->hasMany(RekomendasiItem::class);
-    }
-
-    public function perusahaan () {
-        return $this->belongsTo(PerusahaanIndonesia::class);
-    }
-
-    public function agensi () {
-        return $this->belongsTo(AgensiPenempatan::class);
-    }
-
-    protected static function booted(): void
-    {
-        static::deleting(function (self $tenagaKerja) {
-            $tenagaKerja->rekomendasiItems()->delete();
+    // scoop search
+    public function scopeSearch($keyword, ?string $term) {
+        if(!$term) return $keyword;
+        $term = trim($term);
+        return $keyword->where(function ($q) use ($term) {
+            $q->where('nama', 'like', "%{$term}%")
+                ->orWhere('nama', 'like', "%{$term}%");
         });
     }
 
-    public function scopeSearch(Builder $query, ?string $raw): Builder
-    {
-        $keyword = trim((string) $raw);
-        if ($keyword === '') {
-            return $query;
-        }
-
-        $tokens = preg_split('/\s+/', $keyword);
-        $tokens = array_slice($tokens, 0, 5);
-
-        return $query->where(function (Builder $q) use ($tokens) {
-            foreach ($tokens as $t) {
-                $t = trim($t);
-                if ($t === '') continue;
-
-                $digits = preg_replace('/\D+/', '', $t);
-
-                $q->where(function (Builder $sub) use ($t, $digits) {
-                    $sub->where('nama', 'like', "%{$t}%");
-
-                    if ($digits !== '') {
-                        $sub->orWhere('nik', 'like', "{$digits}%");
-                    }
-                });
-            }
-        });
+    // filter data
+    public function scopeFilterWilayah($q, ?int $kecamatanId, ?int $desaId) {
+        if($kecamatanId) $q->where('kecamatan_id', $kecamatanId);
+        if($desaId) $q->where('desa_id', $desaId);
+        return $q;
     }
 
-    public function scopeFilter(Builder $query, array $filters): Builder
-    {
-        return $query
-            ->search($filters['keyword'] ?? null)
-            ->when(!empty($filters['gender']), fn($q) => $q->where('gender', $filters['gender']))
-            ->when(!empty($filters['pendidikan']), fn($q) => $q->where('pendidikan_id', $filters['pendidikan']))
-            ->when(!empty($filters['lowongan']), fn($q) => $q->where('lowongan_id', $filters['lowongan']));
-    }
-
-    public function getUsiaAttribute(): ?int
-    {
-        if (empty($this->tanggal_lahir)) {
-            return null;
-        }
-
-        return $this->tanggal_lahir->age;
+    public function scopeRange($q, ?string $from, ?string $to) {
+        if($from) $q->whereDate('created_at', '>=' ,$from);
+        if($to) $q->whereDate('created_at', '<=' ,$to);
+        return $q;
     }
 }

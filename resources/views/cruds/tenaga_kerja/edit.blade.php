@@ -34,9 +34,6 @@
                     'tanggal_lahir',
                     $tenagaKerja->tanggal_lahir ? $tenagaKerja->tanggal_lahir->format('Y-m-d') : null,
                 );
-                $selectedLowongan = $lowongans->firstWhere('id', (int) old('lowongan_id', $tenagaKerja->lowongan_id));
-                $initialPerusahaan = $selectedLowongan?->perusahaan?->nama ?? '';
-                $initialAgensi = $selectedLowongan?->agensi?->nama ?? '';
             @endphp
 
             <form action="{{ route('sirekap.tenaga-kerja.update', $tenagaKerja) }}" method="POST"
@@ -72,14 +69,14 @@
                             <div class="md:col-span-2">
                                 <span class="block text-sm font-medium text-zinc-700">Jenis Kelamin</span>
                                 <div class="mt-2 grid grid-cols-2 gap-3 md:max-w-md">
-                                    @foreach (\App\Models\TenagaKerja::GENDERS as $gender)
+                                    @foreach (\App\Models\TenagaKerja::GENDERS as $value => $label)
                                         @php
-                                            $isChecked = old('gender', $tenagaKerja->gender) === $gender;
+                                            $isChecked = old('gender', $tenagaKerja->gender) === $value;
                                         @endphp
                                         <label
                                             class="flex cursor-pointer items-center justify-between rounded-2xl border px-4 py-2 text-sm transition {{ $isChecked ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-zinc-200 text-zinc-600 hover:border-amber-400 hover:text-amber-600' }}">
-                                            <span>{{ $gender }}</span>
-                                            <input type="radio" name="gender" value="{{ $gender }}" @checked($isChecked)
+                                            <span>{{ $label }}</span>
+                                            <input type="radio" name="gender" value="{{ $value }}" @checked($isChecked)
                                                 class="h-4 w-4 border-zinc-300 text-amber-500 focus:ring-amber-500">
                                         </label>
                                     @endforeach
@@ -124,23 +121,42 @@
                             <h3 class="font-inter text-lg font-semibold text-zinc-800">Domisili</h3>
                             <p class="text-sm text-zinc-500">Lengkapi informasi lokasi domisili saat ini.</p>
                         </div>
-                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2" data-dependant-desa>
                             <label class="block text-sm font-medium text-zinc-700">
-                                Desa/Kelurahan
-                                <input type="text" name="desa" value="{{ old('desa', $tenagaKerja->desa) }}" required
+                                Kecamatan
+                                <select name="kecamatan_id" data-role="kecamatan"
+                                    data-initial="{{ old('kecamatan_id', $tenagaKerja->kecamatan_id) }}" required
                                     class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
-                                @error('desa')
+                                    <option value="">Pilih kecamatan</option>
+                                    @foreach ($kecamatans as $kecamatan)
+                                        <option value="{{ $kecamatan->id }}"
+                                            {{ (string) old('kecamatan_id', $tenagaKerja->kecamatan_id) === (string) $kecamatan->id ? 'selected' : '' }}>
+                                            {{ $kecamatan->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('kecamatan_id')
                                     <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                                 @enderror
                             </label>
 
                             <label class="block text-sm font-medium text-zinc-700">
-                                Kecamatan
-                                <input type="text" name="kecamatan" value="{{ old('kecamatan', $tenagaKerja->kecamatan) }}" required
+                                Desa/Kelurahan
+                                <select name="desa_id" data-role="desa" data-placeholder="Pilih desa/kelurahan"
+                                    data-initial="{{ old('desa_id', $tenagaKerja->desa_id) }}" required
                                     class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
-                                @error('kecamatan')
+                                    <option value="">Pilih desa/kelurahan</option>
+                                    @foreach ($desas as $desa)
+                                        <option value="{{ $desa->id }}" data-kecamatan="{{ $desa->kecamatan_id }}"
+                                            {{ (string) old('desa_id', $tenagaKerja->desa_id) === (string) $desa->id ? 'selected' : '' }}>
+                                            {{ $desa->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('desa_id')
                                     <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                                 @enderror
+                                <span class="mt-1 block text-xs text-zinc-500">Pilih kecamatan untuk menampilkan daftar desa.</span>
                             </label>
 
                             <label class="block text-sm font-medium text-zinc-700 md:col-span-2">
@@ -158,9 +174,9 @@
                     <section class="space-y-6">
                         <div class="space-y-1">
                             <h3 class="font-inter text-lg font-semibold text-zinc-800">Kualifikasi & Penempatan</h3>
-                            <p class="text-sm text-zinc-500">Pilih data pendidikan dan lowongan terkait.</p>
+                            <p class="text-sm text-zinc-500">Pilih data pendidikan serta relasi perusahaan dan agency.</p>
                         </div>
-                        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <div class="grid gap-5 md:grid-cols-3">
                             <label class="block text-sm font-medium text-zinc-700">
                                 Pendidikan Terakhir
                                 <select name="pendidikan_id" required
@@ -179,39 +195,36 @@
                                 @enderror
                             </label>
 
-                            <label class="block text-sm font-medium text-zinc-700"
-                                x-data="{
-                                    selectedPerusahaan: @js($initialPerusahaan),
-                                    selectedAgensi: @js($initialAgensi),
-                                    sync(event) {
-                                        const option = event.target.selectedOptions[0];
-                                        this.selectedPerusahaan = option?.dataset.perusahaan || '';
-                                        this.selectedAgensi = option?.dataset.agensi || '';
-                                    }
-                                }">
-                                Lowongan Aktif
-                                <select name="lowongan_id" required x-ref="lowongan" x-on:change="sync($event)"
+                            <label class="block text-sm font-medium text-zinc-700">
+                                Perusahaan
+                                <select name="perusahaan_id" required
                                     class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
-                                    <option value="" disabled {{ old('lowongan_id', $tenagaKerja->lowongan_id) ? '' : 'selected' }}>Pilih lowongan tujuan
-                                    </option>
-                                    @foreach ($lowongans as $lowongan)
-                                        <option value="{{ $lowongan->id }}"
-                                            @selected(old('lowongan_id', $tenagaKerja->lowongan_id) == $lowongan->id)
-                                            data-perusahaan="{{ $lowongan->perusahaan->nama ?? '' }}"
-                                            data-agensi="{{ $lowongan->agensi->nama ?? '' }}">
-                                            {{ $lowongan->nama }}
+                                    <option value="" disabled {{ old('perusahaan_id', $tenagaKerja->perusahaan_id) ? '' : 'selected' }}>Pilih perusahaan</option>
+                                    @foreach ($perusahaans as $perusahaan)
+                                        <option value="{{ $perusahaan->id }}"
+                                            {{ (string) old('perusahaan_id', $tenagaKerja->perusahaan_id) === (string) $perusahaan->id ? 'selected' : '' }}>
+                                            {{ $perusahaan->nama }}
                                         </option>
                                     @endforeach
                                 </select>
+                                @error('perusahaan_id')
+                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
+                                @enderror
+                            </label>
 
-                                <div class="mt-3 space-y-1 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 text-xs text-zinc-600">
-                                    <p><span class="font-semibold text-zinc-700">Perusahaan:</span> <span
-                                            x-text="selectedPerusahaan || '-'"></span></p>
-                                    <p><span class="font-semibold text-zinc-700">Agensi:</span> <span
-                                            x-text="selectedAgensi || '-'"></span></p>
-                                </div>
-
-                                @error('lowongan_id')
+                            <label class="block text-sm font-medium text-zinc-700">
+                                Agency
+                                <select name="agency_id" required
+                                    class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                                    <option value="" disabled {{ old('agency_id', $tenagaKerja->agency_id) ? '' : 'selected' }}>Pilih agency</option>
+                                    @foreach ($agencies as $agency)
+                                        <option value="{{ $agency->id }}"
+                                            {{ (string) old('agency_id', $tenagaKerja->agency_id) === (string) $agency->id ? 'selected' : '' }}>
+                                            {{ $agency->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('agency_id')
                                     <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                                 @enderror
                             </label>
@@ -233,3 +246,92 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.__desaSelectScriptLoaded) {
+                return;
+            }
+            window.__desaSelectScriptLoaded = true;
+            document.querySelectorAll('[data-dependant-desa]').forEach(function (container) {
+                if (container.dataset.initialized === 'true') {
+                    return;
+                }
+                container.dataset.initialized = 'true';
+
+                const kecSelect = container.querySelector('[data-role="kecamatan"]');
+                const desaSelect = container.querySelector('[data-role="desa"]');
+                if (!kecSelect || !desaSelect) {
+                    return;
+                }
+
+                const placeholderOption = desaSelect.querySelector('option[value=""]');
+                const allOptions = Array.from(desaSelect.options).filter(option => option.value !== '');
+
+                const getMatches = (kecamatanId) => {
+                    if (!kecamatanId) {
+                        return [];
+                    }
+
+                    return allOptions.filter(option => String(option.dataset.kecamatan || '') === String(kecamatanId));
+                };
+
+                const syncOptions = () => {
+                    const selectedKec = kecSelect.value;
+                    const matches = getMatches(selectedKec);
+
+                    allOptions.forEach(option => {
+                        const match = matches.includes(option);
+                        option.hidden = !match;
+                        option.disabled = !match;
+                    });
+
+                    if (!selectedKec || matches.length === 0) {
+                        desaSelect.value = '';
+                    } else if (!matches.some(option => option.value === desaSelect.value)) {
+                        desaSelect.value = '';
+                    }
+
+                    desaSelect.disabled = !selectedKec || matches.length === 0;
+                    if (placeholderOption) {
+                        placeholderOption.disabled = desaSelect.disabled;
+                        placeholderOption.hidden = false;
+                    }
+                };
+
+                let initialKecamatan = kecSelect.dataset.initial || kecSelect.value || '';
+                const initialDesa = desaSelect.dataset.initial || desaSelect.value || '';
+
+                if (!initialKecamatan && initialDesa) {
+                    const relatedOption = allOptions.find(option => option.value === initialDesa);
+                    if (relatedOption) {
+                        initialKecamatan = relatedOption.dataset.kecamatan || '';
+                    }
+                }
+
+                if (initialKecamatan) {
+                    kecSelect.value = initialKecamatan;
+                }
+
+                syncOptions();
+
+                if (initialDesa) {
+                    const matches = getMatches(kecSelect.value);
+                    if (matches.some(option => option.value === initialDesa)) {
+                        desaSelect.value = initialDesa;
+                        desaSelect.disabled = false;
+                    }
+                }
+
+                if (!kecSelect.value) {
+                    desaSelect.disabled = true;
+                }
+
+                kecSelect.addEventListener('change', function () {
+                    syncOptions();
+                });
+            });
+        });
+    </script>
+@endpush

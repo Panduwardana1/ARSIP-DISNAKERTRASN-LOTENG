@@ -19,8 +19,8 @@
         </div>
     @else
         <button type="button" x-on:click="open = true"
-            class="inline-flex items-center justify-center h-8 px-3 rounded-md bg-rose-600 text-white hover:bg-rose-700 transition">
-            Hapus
+            class="inline-flex items-center justify-center h-7 px-2 rounded-md bg-rose-600 text-white hover:bg-rose-700 transition">
+            <x-heroicon-o-trash class="h-4 w-4" />
         </button>
     @endif
 
