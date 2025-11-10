@@ -4,127 +4,128 @@
 @section('titlePageContent', 'Tambah Data P3MI')
 
 @section('content')
-    <div class="flex h-full flex-col font-inter">
-        <main class="flex-1 px-4 py-6">
-            <div class="mx-auto max-w-4xl space-y-6">
-                <div class="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-                    <div class="space-y-1">
-                        <h2 class="text-xl font-semibold text-zinc-900">Formulir Perusahaan Penempatan</h2>
-                        <p class="text-sm text-zinc-500">
-                            Lengkapi informasi perusahaan yang akan digunakan pada modul SIREKAP.
-                        </p>
-                    </div>
-                    <a href="{{ route('sirekap.perusahaan.index') }}"
-                        class="inline-flex items-center justify-center rounded-md border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:border-emerald-400 hover:text-emerald-600">
-                        <x-heroicon-o-arrow-left class="mr-2 h-4 w-4" />
-                        Kembali ke daftar
-                    </a>
+    <div class="max-w-3xl mx-auto space-y-6 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+        <div>
+            <h1 class="text-2xl font-semibold text-zinc-900">Tambah Data Perusahaan (P3MI)</h1>
+            <p class="mt-1 text-sm text-zinc-600">
+                Lengkapi identitas perusahaan, kontak, serta lampirkan logo bila tersedia.
+            </p>
+        </div>
+
+        @if ($errors->has('message'))
+            <div class="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {{ $errors->first('message') }}
+            </div>
+        @endif
+
+        <form action="{{ route('sirekap.perusahaan.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            @csrf
+
+            <div>
+                <label for="nama" class="block text-sm font-medium text-zinc-700">
+                    Nama Perusahaan <span class="text-rose-500">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="nama"
+                    name="nama"
+                    value="{{ old('nama') }}"
+                    maxlength="100"
+                    required
+                    class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Contoh: PT Amanah Internasional"
+                >
+                @error('nama')
+                    <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                <div>
+                    <label for="pimpinan" class="block text-sm font-medium text-zinc-700">
+                        Nama Pimpinan
+                    </label>
+                    <input
+                        type="text"
+                        id="pimpinan"
+                        name="pimpinan"
+                        value="{{ old('pimpinan') }}"
+                        maxlength="100"
+                        class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Contoh: Budi Santoso"
+                    >
+                    @error('pimpinan')
+                        <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                @if ($errors->any())
-                    <div class="rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
-                        <p class="font-semibold">Periksa kembali data berikut:</p>
-                        <ul class="mt-2 list-disc space-y-1 pl-5">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <form action="{{ route('sirekap.perusahaan.store') }}" method="POST" enctype="multipart/form-data"
-                    class="rounded-xl border border-zinc-100 bg-white shadow-sm">
-                    @csrf
-                    <div class="space-y-10 p-6 md:p-10">
-                        <section class="space-y-6">
-                            <header>
-                                <h3 class="text-lg font-semibold text-zinc-900">Informasi Perusahaan</h3>
-                                <p class="text-sm text-zinc-500">Data dasar dan relasi ke agency penempatan.</p>
-                            </header>
-                            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                                <label class="block text-sm font-medium text-zinc-700">
-                                    Agency Penempatan
-                                    <select name="agency_id" required
-                                        class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
-                                        <option value="">-- Pilih Agency --</option>
-                                        @foreach ($agencies as $agency)
-                                            <option value="{{ $agency->id }}" @selected(old('agency_id') == $agency->id)>
-                                                {{ $agency->nama }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('agency_id')
-                                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                    @enderror
-                                </label>
-                                <label class="block text-sm font-medium text-zinc-700">
-                                    Nama Perusahaan
-                                    <input type="text" name="nama" value="{{ old('nama') }}" required
-                                        class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
-                                    @error('nama')
-                                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                    @enderror
-                                </label>
-                                <label class="block text-sm font-medium text-zinc-700 md:col-span-2">
-                                    Nama Pimpinan (Opsional)
-                                    <input type="text" name="pimpinan" value="{{ old('pimpinan') }}"
-                                        class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
-                                    @error('pimpinan')
-                                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                    @enderror
-                                </label>
-                            </div>
-                        </section>
-
-                        <section class="space-y-6">
-                            <header>
-                                <h3 class="text-lg font-semibold text-zinc-900">Kontak & Identitas</h3>
-                                <p class="text-sm text-zinc-500">Informasi komunikasi serta alamat perusahaan.</p>
-                            </header>
-                            <div class="grid grid-cols-1 gap-5">
-                                <label class="block text-sm font-medium text-zinc-700 md:grid md:grid-cols-2 md:gap-5">
-                                    <span>Email</span>
-                                    <input type="email" name="email" value="{{ old('email') }}" required
-                                        class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" placeholder="contoh: kontak@p3mi.co.id">
-                                    @error('email')
-                                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                    @enderror
-                                </label>
-
-                                <label class="block text-sm font-medium text-zinc-700">
-                                    Alamat (Opsional)
-                                    <textarea name="alamat" rows="3"
-                                        class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">{{ old('alamat') }}</textarea>
-                                    @error('alamat')
-                                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                    @enderror
-                                </label>
-
-                                <label class="block text-sm font-medium text-zinc-700">
-                                    Logo Perusahaan (JPG/JPEG/PNG, maks 2 MB)
-                                    <input type="file" name="gambar" accept=".jpg,.jpeg,.png" required
-                                        class="mt-1 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 transition file:mr-2 file:rounded-md file:border-0 file:bg-zinc-100 file:px-3 file:py-1 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30">
-                                    @error('gambar')
-                                        <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
-                                    @enderror
-                                </label>
-                            </div>
-                        </section>
-                    </div>
-
-                    <div
-                        class="flex flex-col gap-3 border-t border-zinc-100 bg-zinc-50 px-6 py-5 md:flex-row md:items-center md:justify-between md:px-10">
-                        <button type="reset"
-                            class="inline-flex items-center justify-center rounded-md border border-transparent bg-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-300">
-                            Reset Formulir
-                        </button>
-                        <button type="submit"
-                            class="inline-flex items-center justify-center rounded-md border border-emerald-600 bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
-                            Simpan Perusahaan
-                        </button>
-                    </div>
-                </form>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-zinc-700">
+                        Email Perusahaan
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ old('email') }}"
+                        maxlength="100"
+                        class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Contoh: hr@p3mi.co.id"
+                    >
+                    @error('email')
+                        <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
-        </main>
+
+            <div>
+                <label for="alamat" class="block text-sm font-medium text-zinc-700">
+                    Alamat Operasional
+                </label>
+                <textarea
+                    id="alamat"
+                    name="alamat"
+                    rows="4"
+                    class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Tuliskan alamat lengkap perusahaan.">{{ old('alamat') }}</textarea>
+                @error('alamat')
+                    <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="gambar" class="block text-sm font-medium text-zinc-700">
+                    Logo/Identitas Visual
+                </label>
+                <input
+                    type="file"
+                    id="gambar"
+                    name="gambar"
+                    accept=".png,.jpg,.jpeg"
+                    class="mt-1 w-full rounded-md border border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-800 focus:border-indigo-500 focus:ring-indigo-500"
+                >
+                <p class="mt-1 text-xs text-zinc-500">
+                    Format yang diperbolehkan: PNG, JPG, atau JPEG (maks. 2 MB).
+                </p>
+                @error('gambar')
+                    <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <a
+                    href="{{ route('sirekap.perusahaan.index') }}"
+                    class="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
+                >
+                    Batal
+                </a>
+                <button
+                    type="submit"
+                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+                >
+                    Simpan Perusahaan
+                </button>
+            </div>
+        </form>
     </div>
 @endsection

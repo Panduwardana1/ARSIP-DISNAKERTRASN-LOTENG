@@ -17,10 +17,10 @@ class AgencyFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama' => $this->faker->company('PT.'),
-            'country' => $this->faker->country(),
-            'kota' => $this->faker->city(),
-            'lowongan' => $this->faker->jobTitle(),
+            'nama' => fake()->unique()->company(),
+            'country' => fake()->country(),
+            'lowongan' => fake()->sentence(3),
+            'deskripsi' => fake()->paragraph(),
         ];
     }
 }

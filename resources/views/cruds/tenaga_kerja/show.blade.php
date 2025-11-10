@@ -12,21 +12,22 @@
                     <p class="text-sm text-zinc-500">
                         NIK {{ $tenagaKerja->nik }}
                         <span aria-hidden="true" class="px-2 text-zinc-300">|</span>
-                        {{ $tenagaKerja->gender ?? '-' }}
+                        {{ $tenagaKerja->getLabelGender() }}
                     </p>
                 </div>
-                <a href="{{ route('sirekap.tenaga-kerja.index') }}"
-                    class="inline-flex items-center justify-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600">
-                    <x-heroicon-o-arrow-left class="mr-2 h-4 w-4" />
-                    Kembali ke daftar
-                </a>
-            </div>
-
-            @if (session('success'))
-                <div class="rounded-md border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-700">
-                    {{ session('success') }}
+                <div class="flex flex-wrap items-center gap-2">
+                    <a href="{{ route('sirekap.tenaga-kerja.edit', $tenagaKerja) }}"
+                        class="inline-flex items-center justify-center rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500">
+                        <x-heroicon-o-pencil-square class="mr-2 h-4 w-4" />
+                        Ubah data
+                    </a>
+                    <a href="{{ route('sirekap.tenaga-kerja.index') }}"
+                        class="inline-flex items-center justify-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600">
+                        <x-heroicon-o-arrow-left class="mr-2 h-4 w-4" />
+                        Kembali ke daftar
+                    </a>
                 </div>
-            @endif
+            </div>
 
             <div class="grid gap-6 lg:grid-cols-3">
                 <section class="rounded-xl border border-zinc-200 bg-white p-6 lg:col-span-2">
@@ -44,11 +45,13 @@
                         </div>
                         <div>
                             <dt class="font-medium text-zinc-700">Gender</dt>
-                            <dd class="mt-1">{{ $tenagaKerja->gender ?? '-' }}</dd>
+                            <dd class="mt-1">{{ $tenagaKerja->getLabelGender() }}</dd>
                         </div>
                         <div>
                             <dt class="font-medium text-zinc-700">Usia</dt>
-                            <dd class="mt-1">{{ $tenagaKerja->usia }} tahun</dd>
+                            <dd class="mt-1">
+                                {{ $tenagaKerja->usia !== null ? "{$tenagaKerja->usia} tahun" : '-' }}
+                            </dd>
                         </div>
                         <div>
                             <dt class="font-medium text-zinc-700">Tempat Lahir</dt>
@@ -75,6 +78,18 @@
                     </header>
                     <dl class="space-y-3 text-sm text-zinc-600">
                         <div>
+                            <dt class="font-medium text-zinc-700">Status Keaktifan</dt>
+                            <dd class="mt-1">
+                                @php
+                                    $isActive = $tenagaKerja->is_active === 'Aktif';
+                                    $badgeClasses = $isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
+                                @endphp
+                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $badgeClasses }}">
+                                    {{ $tenagaKerja->is_active }}
+                                </span>
+                            </dd>
+                        </div>
+                        <div>
                             <dt class="font-medium text-zinc-700">Dibuat</dt>
                             <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->created_at?->format('d M Y H:i') ?? '-' }}</dd>
                         </div>
@@ -98,7 +113,7 @@
                     </div>
                     <div>
                         <dt class="font-medium text-zinc-700">Kecamatan</dt>
-                        <dd class="mt-1 text-zinc-900">{{ optional($tenagaKerja->kecamatan)->nama ?? '-' }}</dd>
+                        <dd class="mt-1 text-zinc-900">{{ optional(optional($tenagaKerja->desa)->kecamatan)->nama ?? '-' }}</dd>
                     </div>
                     <div class="md:col-span-3">
                         <dt class="font-medium text-zinc-700">Alamat Lengkap</dt>
@@ -127,6 +142,10 @@
                         <dt class="font-medium text-zinc-700">Agency Penempatan</dt>
                         <dd class="mt-1 text-zinc-900">{{ optional($tenagaKerja->agency)->nama ?? '-' }}</dd>
                     </div>
+                        <div>
+                            <dt class="font-medium text-zinc-700">Negara Penempatan</dt>
+                            <dd class="mt-1 text-zinc-900">{{ optional($tenagaKerja->negara)->nama ?? '-' }}</dd>
+                        </div>
                     <div>
                         <dt class="font-medium text-zinc-700">Email</dt>
                         <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->email ?? '-' }}</dd>

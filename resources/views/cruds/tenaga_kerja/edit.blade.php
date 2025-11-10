@@ -1,7 +1,9 @@
-@extends('layouts.app')
+{{-- @extends('layouts.app')
 
 @section('pageTitle', 'SIREKAP - PASMI | CPMI | Ubah Tenaga Kerja')
 @section('titleContent', 'Ubah Data Tenaga Kerja')
+
+<x-wal-session />
 
 @section('content')
     <div class="h-full overflow-y-auto bg-slate-50 px-6 py-6">
@@ -34,6 +36,7 @@
                     'tanggal_lahir',
                     $tenagaKerja->tanggal_lahir ? $tenagaKerja->tanggal_lahir->format('Y-m-d') : null,
                 );
+                $currentKecamatanId = old('kecamatan_id', optional($tenagaKerja->desa)->kecamatan_id);
             @endphp
 
             <form action="{{ route('sirekap.tenaga-kerja.update', $tenagaKerja) }}" method="POST"
@@ -125,12 +128,12 @@
                             <label class="block text-sm font-medium text-zinc-700">
                                 Kecamatan
                                 <select name="kecamatan_id" data-role="kecamatan"
-                                    data-initial="{{ old('kecamatan_id', $tenagaKerja->kecamatan_id) }}" required
+                                    data-initial="{{ $currentKecamatanId }}" required
                                     class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
                                     <option value="">Pilih kecamatan</option>
                                     @foreach ($kecamatans as $kecamatan)
                                         <option value="{{ $kecamatan->id }}"
-                                            {{ (string) old('kecamatan_id', $tenagaKerja->kecamatan_id) === (string) $kecamatan->id ? 'selected' : '' }}>
+                                            {{ (string) $currentKecamatanId === (string) $kecamatan->id ? 'selected' : '' }}>
                                             {{ $kecamatan->nama }}
                                         </option>
                                     @endforeach
@@ -144,6 +147,7 @@
                                 Desa/Kelurahan
                                 <select name="desa_id" data-role="desa" data-placeholder="Pilih desa/kelurahan"
                                     data-initial="{{ old('desa_id', $tenagaKerja->desa_id) }}" required
+                                    data-disabled-label="Pilih kecamatan terlebih dahulu" @disabled(! $currentKecamatanId)
                                     class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
                                     <option value="">Pilih desa/kelurahan</option>
                                     @foreach ($desas as $desa)
@@ -220,11 +224,20 @@
                                     @foreach ($agencies as $agency)
                                         <option value="{{ $agency->id }}"
                                             {{ (string) old('agency_id', $tenagaKerja->agency_id) === (string) $agency->id ? 'selected' : '' }}>
-                                            {{ $agency->nama }}
+                                            {{ $agency->nama }} {{ $agency->country ? '(' . $agency->country . ')' : '' }}
                                         </option>
                                     @endforeach
                                 </select>
                                 @error('agency_id')
+                                    <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
+                                @enderror
+                            </label>
+
+                            <label class="md:col-span-3 block text-sm font-medium text-zinc-700">
+                                Negara Penempatan
+                                <input type="text" name="negara" value="{{ old('negara', $tenagaKerja->negara) }}" required
+                                    class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-700 transition focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30">
+                                @error('negara')
                                     <span class="mt-1 block text-xs text-rose-600">{{ $message }}</span>
                                 @enderror
                             </label>
@@ -248,90 +261,5 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (window.__desaSelectScriptLoaded) {
-                return;
-            }
-            window.__desaSelectScriptLoaded = true;
-            document.querySelectorAll('[data-dependant-desa]').forEach(function (container) {
-                if (container.dataset.initialized === 'true') {
-                    return;
-                }
-                container.dataset.initialized = 'true';
-
-                const kecSelect = container.querySelector('[data-role="kecamatan"]');
-                const desaSelect = container.querySelector('[data-role="desa"]');
-                if (!kecSelect || !desaSelect) {
-                    return;
-                }
-
-                const placeholderOption = desaSelect.querySelector('option[value=""]');
-                const allOptions = Array.from(desaSelect.options).filter(option => option.value !== '');
-
-                const getMatches = (kecamatanId) => {
-                    if (!kecamatanId) {
-                        return [];
-                    }
-
-                    return allOptions.filter(option => String(option.dataset.kecamatan || '') === String(kecamatanId));
-                };
-
-                const syncOptions = () => {
-                    const selectedKec = kecSelect.value;
-                    const matches = getMatches(selectedKec);
-
-                    allOptions.forEach(option => {
-                        const match = matches.includes(option);
-                        option.hidden = !match;
-                        option.disabled = !match;
-                    });
-
-                    if (!selectedKec || matches.length === 0) {
-                        desaSelect.value = '';
-                    } else if (!matches.some(option => option.value === desaSelect.value)) {
-                        desaSelect.value = '';
-                    }
-
-                    desaSelect.disabled = !selectedKec || matches.length === 0;
-                    if (placeholderOption) {
-                        placeholderOption.disabled = desaSelect.disabled;
-                        placeholderOption.hidden = false;
-                    }
-                };
-
-                let initialKecamatan = kecSelect.dataset.initial || kecSelect.value || '';
-                const initialDesa = desaSelect.dataset.initial || desaSelect.value || '';
-
-                if (!initialKecamatan && initialDesa) {
-                    const relatedOption = allOptions.find(option => option.value === initialDesa);
-                    if (relatedOption) {
-                        initialKecamatan = relatedOption.dataset.kecamatan || '';
-                    }
-                }
-
-                if (initialKecamatan) {
-                    kecSelect.value = initialKecamatan;
-                }
-
-                syncOptions();
-
-                if (initialDesa) {
-                    const matches = getMatches(kecSelect.value);
-                    if (matches.some(option => option.value === initialDesa)) {
-                        desaSelect.value = initialDesa;
-                        desaSelect.disabled = false;
-                    }
-                }
-
-                if (!kecSelect.value) {
-                    desaSelect.disabled = true;
-                }
-
-                kecSelect.addEventListener('change', function () {
-                    syncOptions();
-                });
-            });
-        });
-    </script>
-@endpush
+    @include('components.dependant-desa-script')
+@endpush --}}

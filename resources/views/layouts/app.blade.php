@@ -5,122 +5,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('pageTitle', 'Sirekap Pasmi - Disnakertrans')</title>
     <link rel="icon" href="{{ asset('asset/logo/icon.png') }}">
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     @stack('head')
 </head>
 
-<body class="antialiased bg-white text-zinc-900 min-h-screen">
-    <section class="flex min-h-screen h-screen bg-zinc-100 text-zinc-900">
-        <aside
-            class="fixed inset-y-0 left-0 z-40 flex h-full flex-col w-60 border-zinc-200 bg-white transition-[transform,width] duration-300 ease-in-out lg:static lg:h-screen lg:flex-shrink-0 lg:tranzinc-x-0">
-            <div class="relative flex h-full font-inter border-r transition-all duration-300 ease-in-out">
-                <div class="flex-1 overflow-y-auto">
-                    <div class="flex items-center justify-between gap-2 px-4 py-4 border-b">
-                        <div class="flex items-center space-x-2">
-                            <button type="button" class="flex items-center justify-center text-white">
-                                <img src="{{ asset('asset/logo/primary.png') }}" alt="Logo" class="h-8 w-auto">
-                            </button>
-                        </div>
-                        <button type="button"
-                            class="absolute -right-3 px-0.5 hover:bg-zinc-300 bg-zinc-200 transition-all duration-300">
-                            <x-heroicon-s-chevron-up-down class="h-5 w-5 shrink-0 rotate-90" />
-                        </button>
-                    </div>
-                    <nav class="grid gap-[4px] px-4 py-4 space-y-1">
-                        <span class="items-start font-medium text-zinc-500 text-sm px-2">Menu</span>
-                        <x-nav-link :active="request()->routeIs('sirekap.tenaga-kerja.index')" href="{{ route('sirekap.tenaga-kerja.index') }}">
-                            <div class="flex items-center gap-2 rounded-md px-2 py-2 transition-all duration-300">
-                                <x-heroicon-s-squares-2x2 class="h-5 w-5 shrink-0" />
-                                <span class="text-sm font-medium text-zinc-700 transition duration-200">Dashboard</span>
-                            </div>
-                        </x-nav-link>
-                        <x-nav-link :active="request()->routeIs('sirekap.tenaga-kerja.index')" href="{{ route('sirekap.tenaga-kerja.index') }}">
-                            <div class="flex items-center gap-2 rounded-md px-2 py-2 transition-all duration-300">
-                                <x-heroicon-s-document-text class="h-5 w-5 shrink-0" />
-                                <span class="text-sm font-medium text-zinc-700 transition duration-200">Rekom</span>
-                            </div>
-                        </x-nav-link>
-                        <div class="border-t"></div>
-                        <span class="items-start font-medium text-zinc-500 text-sm px-2">Master</span>
-                        <x-nav-link :active="request()->routeIs('sirekap.tenaga-kerja.index')" href="{{ route('sirekap.tenaga-kerja.index') }}">
-                            <div class="flex items-center gap-2 rounded-md px-2 py-2 transition-all duration-300">
-                                <x-heroicon-s-identification class="h-5 w-5 shrink-0" />
-                                <span class="text-sm font-medium text-zinc-700 transition duration-200">CPMI</span>
-                            </div>
-                        </x-nav-link>
-                        <x-nav-link :active="request()->routeIs('sirekap.perusahaan.index')" href="{{ route('sirekap.perusahaan.index') }}">
-                            <div class="flex items-center gap-2 rounded-md px-2 py-2 transition-all duration-300">
-                                <x-heroicon-s-building-library class="h-5 w-5 shrink-0" />
-                                <span class="text-sm font-medium text-zinc-700 transition duration-200">Perusahaan</span>
-                            </div>
-                        </x-nav-link>
-                        <x-nav-link :active="request()->routeIs('sirekap.agency.index')" href="{{ route('sirekap.agency.index') }}">
-                            <div class="flex items-center gap-2 rounded-md px-2 py-2 transition-all duration-300">
-                                <x-heroicon-s-building-office class="h-5 w-5 shrink-0" />
-                                <span class="text-sm font-medium text-zinc-700 transition duration-200">Agency</span>
-                            </div>
-                        </x-nav-link>
-                        @php
-                            $wilayahActive =
-                                request()->routeIs('sirekap.kecamatan.*') || request()->routeIs('sirekap.desa.*');
-                        @endphp
+<body class="h-screen w-[100%] bg-white font-outfit text-zinc-900 antialiased">
 
-                        {{-- WILAYAH (accordion native <details>) --}}
-                        <details {{ $wilayahActive ? 'open' : '' }} {{-- fallback tanpa JS: terbuka saat aktif --}} x-data="{ open: false }"
-                            x-init="const saved = localStorage.getItem('nav.wilayah');
-                            open = {{ $wilayahActive ? 'true' : 'false' }} || (saved ? JSON.parse(saved) : false);
-                            $watch('open', v => localStorage.setItem('nav.wilayah', JSON.stringify(v)));" x-bind:open="open" @toggle="open = $el.open"
-                            {{-- sinkronkan klik <summary> ke state Alpine --}} class="group space-y-1 [&_summary::-webkit-details-marker]:hidden">
-                            <summary
-                                class="list-none flex items-center justify-between rounded-md px-2 py-2 hover:bg-zinc-100 cursor-pointer select-none"
-                                role="button" aria-controls="submenu-wilayah" :aria-expanded="open.toString()">
-                                <span class="inline-flex items-center gap-2">
-                                    <x-heroicon-s-map-pin class="h-5 w-5 shrink-0" />
-                                    <span class="text-sm font-medium text-zinc-700">Wilayah</span>
-                                </span>
-                                <x-heroicon-s-chevron-right
-                                    class="h-4 w-4 transition-transform duration-200 group-open:rotate-90" />
-                            </summary>
+    @if (session('success'))
+        <x-alert type="success" message="{{ session('success') }}" />
+    @endif
 
-                            <div id="submenu-wilayah" class="pl-8 grid gap-[2px]">
-                                <x-nav-link :active="request()->routeIs('sirekap.kecamatan.*')" href="{{ route('sirekap.kecamatan.index') }}">
-                                    <div class="flex items-center gap-2 rounded-md px-2 py-2 hover:bg-zinc-50">
-                                        <x-heroicon-s-map class="h-4 w-4 shrink-0" />
-                                        <span class="text-sm text-zinc-700">Kecamatan</span>
-                                    </div>
-                                </x-nav-link>
+    @if (session('error'))
+        <x-alert type="error" message="{{ session('error') }}" />
+    @endif
 
-                                <x-nav-link :active="request()->routeIs('sirekap.desa.*')" href="{{ route('sirekap.desa.index') }}">
-                                    <div class="flex items-center gap-2 rounded-md px-2 py-2 hover:bg-zinc-50">
-                                        <x-heroicon-s-map class="h-4 w-4 shrink-0" />
-                                        <span class="text-sm text-zinc-700">Desa</span>
-                                    </div>
-                                </x-nav-link>
-                            </div>
-                        </details>
-                        <x-nav-link :active="request()->routeIs('sirekap.pendidikan.index')" href="{{ route('sirekap.pendidikan.index') }}">
-                            <div class="flex items-center gap-2 rounded-md px-2 py-2 transition-all duration-300">
-                                <x-heroicon-s-academic-cap class="h-5 w-5 shrink-0" />
-                                <span class="text-sm font-medium text-zinc-700 transition duration-200">Pendidikan</span>
-                            </div>
-                        </x-nav-link>
-                        <div class="border-t"></div>
-                        <span class="items-start font-medium text-zinc-500 text-sm px-2">Logs</span>
-                        <x-nav-link :active="request()->routeIs('sirekap.tenaga-kerja.index')" href="{{ route('sirekap.tenaga-kerja.index') }}">
-                            <div class="flex items-center gap-2 rounded-md px-2 py-2 transition-all duration-300">
-                                <x-heroicon-s-briefcase class="h-5 w-5 shrink-0" />
-                                <span class="text-sm font-medium text-zinc-700 transition duration-200">Lowongan</span>
-                            </div>
-                        </x-nav-link>
-                    </nav>
-                </div>
+    @if (session('warning'))
+        <x-alert type="warning" message="{{ session('warning') }}" />
+    @endif
+
+    <section class="flex grid-cols-[18rem_1fr]">
+        <div class="h-[100vh] fixed left-0 top-0 z-50 w-60 border-r-[1.5px] border-r-zinc-200 bg-slate-900 py-2 px-4">
+            <x-sidebar.sdiebar />
+        </div>
+        <main class="w-full ml-64 max-w-full min-h-screen flex-wrap bg-white space-y-2 overflow-y-auto scroll-smooth">
+            <div
+                class="flex items-center justify-between p-2 h-16 px-4 flex-wrap fixed right-0 top-0 z-40 border-l pl-[16rem] border-b-[1.5px] border-zinc-200 bg-zinc-50 w-full">
+                <h2 class="font-semibold text-3xl text-zinc-800">@yield('Title')</h2>
+                <a href="{{ route('sirekap.profile.index') }}"
+                    class="bg-slate-900 text-white p-2 rounded-full font-semibold border ring-1">
+                    OK
+                </a>
             </div>
-        </aside>
-        <main class="h-screen bg-white w-full px-4">
-            @yield('content')
+            <div class="pt-[5rem] px-2">
+                @yield('content')
+            </div>
         </main>
     </section>
     @stack('scripts')

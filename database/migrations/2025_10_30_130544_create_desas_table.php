@@ -17,8 +17,7 @@ return new class extends Migration
                 ->constrained('kecamatans')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
-            $t->string('nama', 100);
-            $t->enum('tipe', ['desa', 'kelurahan']);
+            $t->string('nama');
             $t->timestamps();
         });
     }

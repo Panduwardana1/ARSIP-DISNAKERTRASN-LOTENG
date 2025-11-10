@@ -13,21 +13,19 @@ return new class extends Migration
     {
         Schema::create('tenaga_kerjas', function (Blueprint $t) {
             $t->id();
-            $t->string('nama');
-            $t->char('nik', 16)->unique();
+            $t->string('nama')->index();
+            $t->char('nik', 16)->unique()->index();
             $t->enum('gender', ['L', 'P']);
-            $t->string('email', 100)->nullable();
-            $t->string('tempat_lahir', 150);
+            $t->string('email', 100)->nullable()->unique();
+            $t->string('no_telpon', 20)->nullable();
+            $t->string('tempat_lahir', 100);
             $t->date('tanggal_lahir');
             $t->text('alamat_lengkap');
-            $t->foreignId('kecamatan_id')
-                ->constrained('kecamatans')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
             $t->foreignId('desa_id')
-                ->constrained('desas')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
+            ->constrained('desas')
+            ->cascadeOnUpdate()
+            ->restrictOnDelete();
+            $t->string('kode_pos', 10)->nullable();
             $t->foreignId('pendidikan_id')
                 ->constrained('pendidikans')
                 ->cascadeOnUpdate()
@@ -40,6 +38,11 @@ return new class extends Migration
                 ->constrained('agencies')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
+            $t->foreignId('negara_id')
+                ->constrained('negaras')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+            $t->enum('is_active', ['Aktif', 'Banned'])->default('Aktif');
 
             $t->timestamps();
             $t->softDeletes();

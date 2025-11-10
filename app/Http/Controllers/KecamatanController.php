@@ -2,28 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use Throwable;
 use App\Models\Kecamatan;
 use Illuminate\Http\Request;
-use App\Http\Requests\KecamatanRequest;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Database\QueryException;
+use App\Http\Requests\KecamatanRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 
 class KecamatanController extends Controller
 {
     public function index(Request $request)
     {
-        $q = Kecamatan::query()
-            ->when($request->filled('q'), function ($qq) use ($request) {
-                $term = trim($request->input('q'));
-                $qq->where(function ($w) use ($term) {
-                    $w->where('nama', 'like', "%{$term}%")
-                        ->orWhere('kode', 'like', "%{$term}%");
+        $search = trim((string) $request->input('q'));
+
+        $kecamatans = Kecamatan::query()
+            ->withCount('desas')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('nama', 'like', '%' . $search . '%')
+                        ->orWhere('kode', 'like', '%' . $search . '%');
                 });
             })
-            ->orderBy('nama');
-
-        $kecamatans = $q->paginate(20)->withQueryString();
+            ->orderBy('nama')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('cruds.kecamatan.index', compact('kecamatans'));
     }
@@ -33,40 +36,23 @@ class KecamatanController extends Controller
         return view('cruds.kecamatan.create');
     }
 
-    public function store(KecamatanRequest $request)
+    public function store(KecamatanRequest $request): RedirectResponse
     {
+        $validated = $request->validated();
+
         try {
-            DB::transaction(function () use ($request) {
-                Kecamatan::create($request->validated());
-            });
+            Kecamatan::create($validated);
 
             return redirect()
                 ->route('sirekap.kecamatan.index')
                 ->with('success', 'Data kecamatan berhasil ditambahkan.');
-        } catch (QueryException $e) {
-            Log::warning('DB error on Kecamatan@store', [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'payload' => $request->except(['_token']),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['db' => $this->mapDbError($e, 'Gagal menyimpan data kecamatan')]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on Kecamatan@store: '.$e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['app' => 'Terjadi kesalahan tak terduga saat menyimpan data.']);
+        } catch (Throwable $e) {
+            Log::warning('Gagal menyimpan data kecamatan.', ['exception' => $e]);
         }
-    }
 
-    public function show(Kecamatan $kecamatan)
-    {
-        return view('cruds.kecamatan.show', compact('kecamatan'));
+        return Redirect::back()
+            ->withInput()
+            ->withErrors(['db' => 'Terjadi kesalahan saat menyimpan data kecamatan.']);
     }
 
     public function edit(Kecamatan $kecamatan)
@@ -74,75 +60,43 @@ class KecamatanController extends Controller
         return view('cruds.kecamatan.edit', compact('kecamatan'));
     }
 
-    public function update(KecamatanRequest $request, Kecamatan $kecamatan)
+    public function update(KecamatanRequest $request, Kecamatan $kecamatan): RedirectResponse
     {
+        $validated = $request->validated();
+
         try {
-            DB::transaction(function () use ($request, $kecamatan) {
-                $kecamatan->update($request->validated());
-            });
+            $kecamatan->update($validated);
 
             return redirect()
                 ->route('sirekap.kecamatan.index')
                 ->with('success', 'Data kecamatan berhasil diperbarui.');
-        } catch (QueryException $e) {
-            Log::warning('DB error on Kecamatan@update', [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'id' => $kecamatan->id,
-                'payload' => $request->except(['_token']),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['db' => $this->mapDbError($e, 'Gagal memperbarui data kecamatan')]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on Kecamatan@update: '.$e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['app' => 'Terjadi kesalahan tak terduga saat memperbarui data.']);
+        } catch (Throwable $e) {
+            Log::warning('Gagal memperbarui data kecamatan.', ['exception' => $e]);
         }
+
+        return Redirect::back()
+            ->withInput()
+            ->withErrors(['db' => 'Terjadi kesalahan saat memperbarui data kecamatan.']);
     }
 
-    public function destroy(Kecamatan $kecamatan)
+    public function destroy(Kecamatan $kecamatan): RedirectResponse
     {
+        if ($kecamatan->desas()->exists()) {
+            return Redirect::back()
+                ->withErrors(['app' => 'Kecamatan masih memiliki data desa dan tidak dapat dihapus.']);
+        }
+
         try {
             $kecamatan->delete();
 
             return redirect()
                 ->route('sirekap.kecamatan.index')
                 ->with('success', 'Data kecamatan berhasil dihapus.');
-        } catch (QueryException $e) {
-            Log::warning('DB error on Kecamatan@destroy', [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'id' => $kecamatan->id,
-            ]);
-
-            return back()
-                ->withErrors(['db' => $this->mapDbError($e, 'Gagal menghapus data kecamatan')]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on Kecamatan@destroy: '.$e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->withErrors(['app' => 'Terjadi kesalahan tak terduga saat menghapus data.']);
+        } catch (Throwable $e) {
+            Log::warning('Gagal menghapus data kecamatan.', ['exception' => $e]);
         }
-    }
 
-    private function mapDbError(QueryException $exception, string $fallback): string
-    {
-        $sqlState = $exception->getCode();
-        $driverCode = $exception->errorInfo[1] ?? null;
-
-        return match (true) {
-            $driverCode === 1062 => 'Data bentrok: nama atau kode kecamatan sudah digunakan.',
-            $driverCode === 1451 => 'Data tidak dapat dihapus karena masih terkait data lain.',
-            $sqlState === '23000' => 'Gagal karena melanggar aturan integritas data.',
-            default => $fallback,
-        };
+        return Redirect::back()
+            ->withErrors(['db' => 'Terjadi kesalahan saat menghapus data kecamatan.']);
     }
 }

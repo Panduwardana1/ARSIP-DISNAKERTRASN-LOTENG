@@ -17,6 +17,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "chartjs": "^0.3.24"
+        "chartjs": "^0.3.24",
+        "sweetalert2": "^11.26.3"
     }
 }

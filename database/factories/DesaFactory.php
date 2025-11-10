@@ -2,11 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\Kecamatan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Desa>
+ * @extends \Illuminate\Database\Eloquent\Factories.Factory<\App\Models\Desa>
  */
 class DesaFactory extends Factory
 {
@@ -18,9 +17,8 @@ class DesaFactory extends Factory
     public function definition(): array
     {
         return [
-            'kecamatan_id' => Kecamatan::factory(),
-            'nama' => $this->faker->city(),
-            'tipe' => $this->faker->randomElement(['desa', 'kelurahan']),
+            'kecamatan_id' => \App\Models\Kecamatan::factory(),
+            'nama' => fake()->unique()->streetName(),
         ];
     }
 }

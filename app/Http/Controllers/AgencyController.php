@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AgencyRequest;
 use App\Models\Agency;
-use Illuminate\Database\QueryException;
+use App\Models\Perusahaan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Throwable;
 
 class AgencyController extends Controller
 {
@@ -16,19 +18,22 @@ class AgencyController extends Controller
      */
     public function index(Request $request)
     {
+        $search = trim((string) $request->input('q'));
+
         $agencies = Agency::query()
-            ->withCount(['perusahaans', 'tenagaKerjas'])
-            ->when($request->filled('q'), function ($query) use ($request) {
-                $term = trim($request->input('q'));
-                $query->where(function ($subQuery) use ($term) {
-                    $subQuery->where('nama', 'like', "%{$term}%")
-                        ->orWhere('country', 'like', "%{$term}%")
-                        ->orWhere('kota', 'like', "%{$term}%")
-                        ->orWhere('lowongan', 'like', "%{$term}%");
+            ->with('perusahaan')
+            ->withCount('tenagaKerjas')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery
+                        ->where('nama', 'like', '%' . $search . '%')
+                        ->orWhereHas('perusahaan', function ($perusahaanQuery) use ($search) {
+                            $perusahaanQuery->where('nama', 'like', '%' . $search . '%');
+                        });
                 });
             })
             ->orderBy('nama')
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
         return view('cruds.agency.index', compact('agencies'));
@@ -39,41 +44,31 @@ class AgencyController extends Controller
      */
     public function create()
     {
-        return view('cruds.agency.create');
+        $perusahaans = $this->perusahaanOptions();
+
+        return view('cruds.agency.create', compact('perusahaans'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(AgencyRequest $request)
+    public function store(AgencyRequest $request): RedirectResponse
     {
+        $validated = $request->validated();
+
         try {
-            DB::transaction(function () use ($request) {
-                Agency::create($request->validated());
-            });
+            Agency::create($validated);
 
             return redirect()
                 ->route('sirekap.agency.index')
-                ->with('success', 'DATA AGENCY BERHASIL DITAMBAHKAN');
-        } catch (QueryException $e) {
-            Log::warning('DB error on Agency@store', [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'payload' => $request->except(['_token']),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['db' => $this->mapDb($e, 'Gagal menyimpan data agency')]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on Agency@store: '.$e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['app' => 'Terjadi kesalahan tak terduga.']);
+                ->with('success', 'Agency berhasil ditambahkan.');
+        } catch (Throwable $e) {
+            Log::warning('Gagal menyimpan data agency.', ['exception' => $e]);
         }
+
+        return Redirect::back()
+            ->withInput()
+            ->withErrors(['db' => 'Terjadi kesalahan saat menyimpan data agency.']);
     }
 
     /**
@@ -82,9 +77,9 @@ class AgencyController extends Controller
     public function show(Agency $agency)
     {
         $agency->load([
-            'perusahaans' => fn ($query) => $query->orderBy('nama'),
+            'perusahaan',
             'tenagaKerjas' => fn ($query) => $query->orderBy('nama')->with('perusahaan'),
-        ])->loadCount(['perusahaans', 'tenagaKerjas']);
+        ])->loadCount('tenagaKerjas');
 
         return view('cruds.agency.show', compact('agency'));
     }
@@ -94,102 +89,69 @@ class AgencyController extends Controller
      */
     public function edit(Agency $agency)
     {
-        return view('cruds.agency.edit', compact('agency'));
+        $perusahaans = $this->perusahaanOptions();
+
+        return view('cruds.agency.edit', compact('agency', 'perusahaans'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(AgencyRequest $request, Agency $agency)
+    public function update(AgencyRequest $request, Agency $agency): RedirectResponse
     {
+        $validated = $request->validated();
+
         try {
-            DB::transaction(function () use ($request, $agency) {
-                $agency->update($request->validated());
-            });
+            $agency->update($validated);
 
             return redirect()
-                ->route('sirekap.agency.show', $agency)
-                ->with('success', 'DATA AGENCY BERHASIL DIPERBARUI');
-        } catch (QueryException $e) {
-            Log::warning('DB error on Agency@update', [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'id' => $agency->id,
+                ->route('sirekap.agency.index')
+                ->with('success', 'Agency berhasil diperbarui.');
+        } catch (Throwable $e) {
+            Log::warning('Gagal memperbarui data agency.', [
+                'exception' => $e,
+                'agency_id' => $agency->id,
             ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['db' => $this->mapDb($e, 'Gagal memperbarui data agency')]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on Agency@update: '.$e->getMessage(), [
-                'id' => $agency->id,
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['app' => 'Terjadi kesalahan tak terduga saat memperbarui data.']);
         }
+
+        return Redirect::back()
+            ->withInput()
+            ->withErrors(['db' => 'Terjadi kesalahan saat memperbarui data agency.']);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Agency $agency)
+    public function destroy(Agency $agency): RedirectResponse
     {
-        if ($agency->perusahaans()->exists() || $agency->tenagaKerjas()->exists()) {
-            return back()->withErrors([
+        if ($agency->tenagaKerjas()->exists()) {
+            return Redirect::back()->withErrors([
                 'destroy' => 'Agency tidak dapat dihapus karena masih digunakan oleh data lain.',
             ]);
         }
 
         try {
-            DB::transaction(function () use ($agency) {
-                $agency->delete();
-            });
+            $agency->delete();
 
             return redirect()
                 ->route('sirekap.agency.index')
                 ->with('success', 'Data agency telah dihapus.');
-        } catch (QueryException $e) {
-            Log::warning('DB error on Agency@destroy', [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'id' => $agency->id,
+        } catch (Throwable $e) {
+            Log::warning('Gagal menghapus data agency.', [
+                'exception' => $e,
+                'agency_id' => $agency->id,
             ]);
 
-            return back()->withErrors([
-                'db' => $this->mapDb($e, 'Gagal menghapus data agency'),
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on Agency@destroy: '.$e->getMessage(), [
-                'id' => $agency->id,
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()->withErrors([
-                'app' => 'Terjadi kesalahan tak terduga saat menghapus data.',
+            return Redirect::back()->withErrors([
+                'db' => 'Terjadi kesalahan saat menghapus data agency.',
             ]);
         }
     }
 
-    protected function mapDb(QueryException $exception, string $fallback): string
+    private function perusahaanOptions()
     {
-        $driverCode = $exception->errorInfo[1] ?? null;
-        $sqlState = $exception->getCode();
-
-        if ($driverCode === 1062) {
-            return 'Data bentrok: nama agency sudah digunakan.';
-        }
-
-        if (in_array($driverCode, [1451, 1452], true)) {
-            return 'Relasi tidak valid: agency masih terhubung dengan data lain.';
-        }
-
-        if ($sqlState === '23000') {
-            return 'Gagal karena melanggar aturan integritas data.';
-        }
-
-        return $fallback.'.';
+        return Perusahaan::query()
+            ->orderBy('nama')
+            ->get(['id', 'nama']);
     }
 }

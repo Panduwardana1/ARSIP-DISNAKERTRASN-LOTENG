@@ -4,90 +4,73 @@ namespace App\Http\Requests;
 
 use App\Models\TenagaKerja;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class TenagaKerjaRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
+    protected $stopOnFirstFailurel;
     public function rules(): array
     {
-        $routeParam = $this->route('tenaga_kerja');
-        $tenagaKerja = $routeParam instanceof TenagaKerja ? $routeParam : TenagaKerja::find($routeParam);
-        $id = $tenagaKerja?->id ?? $routeParam;
+        $tenagaKerja = $this->route('tenaga_kerja');
 
-        $requiredRules = ($this->isMethod('patch') || $this->isMethod('put'))
-            ? ['sometimes', 'required']
-            : ['required'];
-
-        $kecamatanId = $this->input('kecamatan_id', $tenagaKerja?->kecamatan_id);
+        $tenagaKerjaId = is_object($tenagaKerja) ? $tenagaKerja->getKey() : $tenagaKerja;
 
         return [
-            'nama' => [...$requiredRules, 'string', 'max:255'],
-            'nik' => [
-                ...$requiredRules,
-                'bail',
-                'digits:16',
-                Rule::unique('tenaga_kerjas', 'nik')->ignore($id),
-            ],
-            'gender' => [...$requiredRules, Rule::in(['L', 'P'])],
-            'email' => ['sometimes', 'nullable', 'email', 'max:100'],
-            'tempat_lahir' => [...$requiredRules, 'string', 'max:150'],
-            'tanggal_lahir' => [...$requiredRules, 'date', 'before:today'],
-            'alamat_lengkap' => [...$requiredRules, 'string', 'max:300'],
-            'kecamatan_id' => [...$requiredRules, 'integer', Rule::exists('kecamatans', 'id')],
-            'desa_id' => [
-                ...$requiredRules,
-                'integer',
-                Rule::exists('desas', 'id')->where(fn ($q) => $q->where('kecamatan_id', $kecamatanId)),
-            ],
-            'pendidikan_id' => [...$requiredRules, 'integer', Rule::exists('pendidikans', 'id')],
-            'perusahaan_id' => [...$requiredRules, 'integer', Rule::exists('perusahaans', 'id')],
-            'agency_id' => [...$requiredRules, 'integer', Rule::exists('agencies', 'id')],
+            'nama' => ['required', 'string','regex:/^[A-Za-z\s\',\.]+$/', 'max:100'],
+            'nik' => ['required', 'digits:16', 'regex:/^[0-9]+$/', Rule::unique('tenaga_kerjas', 'nik')->ignore($tenagaKerjaId)],
+            'gender' => ['required', Rule::in(array_keys(TenagaKerja::GENDERS))],
+            'email' => ['nullable', 'string', 'email', 'max:100', Rule::unique('tenaga_kerjas', 'email')->ignore($tenagaKerjaId)],
+            'no_telpon' => ['nullable', 'digits_between:10,15', 'regex:/^[0-9]+$/'],
+            'tempat_lahir' => ['required', 'string', 'max:100'],
+            'tanggal_lahir' => ['required', 'date', 'before_or_equal:today'],
+            'alamat_lengkap' => ['required', 'string', 'max:500'],
+            'desa_id' => ['required', Rule::exists('desas', 'id')],
+            'kode_pos' => ['nullable', 'digits_between:3,10', 'regex:/^[0-9]+$/'],
+            'pendidikan_id' => ['required', Rule::exists('pendidikans', 'id')],
+            'perusahaan_id' => ['required', Rule::exists('perusahaans', 'id')],
+            'agency_id' => ['required', Rule::exists('agencies', 'id')],
+            'negara_id' => ['required', Rule::exists('negaras', 'id')],
+            'is_active' => ['required', Rule::in(array_keys(TenagaKerja::STATUSES))],
         ];
     }
 
-    public function messages(): array
-    {
-        return [
-            'nama.required' => 'NAMA WAJIB DIISI',
-            'nik.required' => 'NIK WAJIB DIISI',
-            'nik.digits' => 'NIK HARUS 16 DIGIT',
-            'nik.unique' => 'NIK SUDAH TERDAFTAR',
-            'desa_id.exists' => 'DESA TIDAK VALID UNTUK KECAMATAN YANG DIPILIH',
-            'tanggal_lahir.before' => 'TANGGAL LAHIR HARUS SEBELUM HARI INI',
-        ];
-    }
+    protected function prepareForValidation() : void {
+        $cleanPhone = preg_replace('/\D/', '', (string) $this->input('no_telpon'));
+        $cleanPostal = preg_replace('/\D/', '', (string) $this->input('kode_pos'));
 
-    public function attributes(): array
-    {
-        return [
-            'nik' => 'Nik',
-            'desa_id' => 'Desa',
-            'kecamatan_id' => 'Kecamatan',
-            'pendidikan_id' => 'Pendidikan',
-            'perusahaan_id' => 'Perusahaan',
-            'agency_id' => 'Agency',
-        ];
-    }
-
-    protected function prepareForValidation(): void
-    {
         $this->merge([
-            'nik' => preg_replace('/\D/', '', (string) $this->nik),
-            'nama' => trim((string) $this->nama),
-            'alamat_lengkap' => trim((string) $this->alamat_lengkap),
+            'nama' => trim((string) Str::title($this->input('nama'))),
+            'email' => $this->filled('email') ? trim(Str::lower($this->input('email'))) : null,
+            'nik' => preg_replace('/\D/', '', (string) $this->input('nik')),
+            'no_telpon' => $cleanPhone !== '' ? $cleanPhone : null,
+            'kode_pos' => $cleanPostal !== '' ? $cleanPostal : null,
+            'is_active' => trim((string) $this->input('is_active', 'Aktif')),
         ]);
+    }
+
+    public function messages() : array {
+        return [
+            'nama.required' => 'Nama harus diisi',
+            'nama.regex' => 'Nama tidak boleh menggunakan karakter simbol',
+            'email.unique' => 'Alamat email sudah digunakan',
+            'nik.required' => 'No NIK harus diisi',
+            'nik.regex' => 'NIK tidak boleh menggunakan karakter simbol',
+            'nik.unique' => 'No NIK sudah digunakan atau kurang lengkap',
+        ];
+    }
+
+    public function attributes() : array {
+        return [
+            'nama' => 'Nama',
+            'nik' => 'NIK',
+            'email' => 'Email',
+            'no_telpon' => 'No Telpon',
+            'tempat_lahir' => 'Tempat Lahir',
+            'alamat_lengkap' => 'Alamat Lengkap',
+            'negara_id' => 'Negara Tujuan',
+            'is_active' => 'Status',
+        ];
     }
 }

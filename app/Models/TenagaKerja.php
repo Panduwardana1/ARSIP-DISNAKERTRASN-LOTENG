@@ -2,17 +2,27 @@
 
 namespace App\Models;
 
+use App\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class TenagaKerja extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     public const GENDERS = [
         'L' => 'Laki-laki',
         'P' => 'Perempuan',
+    ];
+
+    public const STATUSES = [
+        'Aktif' => 'Aktif',
+        'Banned' => 'Banned',
     ];
 
     protected $fillable = [
@@ -20,14 +30,17 @@ class TenagaKerja extends Model
         'nik',
         'gender',
         'email',
+        'no_telpon',
         'tempat_lahir',
         'tanggal_lahir',
         'alamat_lengkap',
-        'kecamatan_id',
         'desa_id',
+        'kode_pos',
         'pendidikan_id',
         'perusahaan_id',
         'agency_id',
+        'negara_id',
+        'is_active',
     ];
 
     protected $casts = [
@@ -37,10 +50,6 @@ class TenagaKerja extends Model
     // Relasi Eloquent
     public function desa() {
         return $this->belongsTo(Desa::class);
-    }
-
-    public function kecamatan() {
-        return $this->belongsTo(Kecamatan::class);
     }
 
     public function pendidikan() {
@@ -55,37 +64,23 @@ class TenagaKerja extends Model
         return $this->belongsTo(Agency::class);
     }
 
+    public function rekomendasis(): BelongsToMany
+    {
+        return $this->belongsToMany(Rekomendasi::class, 'rekomendasi_items')
+            ->withPivot('id');
+    }
+
+    public function negara() : BelongsTo {
+        return $this->belongsTo(Negara::class);
+    }
+
     // label gender
     public function getLabelGender(): string {
         return self::GENDERS[$this->gender] ?? $this->gender;
     }
 
-    // rapikan nik hanya angka saja
-    public function setNikAttribute($value): void
+    public function getUsiaAttribute(): ?int
     {
-        $this->attributes['nik'] = preg_replace('/\D/', '', (string) $value);
-    }
-
-    // scoop search
-    public function scopeSearch($keyword, ?string $term) {
-        if(!$term) return $keyword;
-        $term = trim($term);
-        return $keyword->where(function ($q) use ($term) {
-            $q->where('nama', 'like', "%{$term}%")
-                ->orWhere('nama', 'like', "%{$term}%");
-        });
-    }
-
-    // filter data
-    public function scopeFilterWilayah($q, ?int $kecamatanId, ?int $desaId) {
-        if($kecamatanId) $q->where('kecamatan_id', $kecamatanId);
-        if($desaId) $q->where('desa_id', $desaId);
-        return $q;
-    }
-
-    public function scopeRange($q, ?string $from, ?string $to) {
-        if($from) $q->whereDate('created_at', '>=' ,$from);
-        if($to) $q->whereDate('created_at', '<=' ,$to);
-        return $q;
+        return $this->tanggal_lahir?->age;
     }
 }

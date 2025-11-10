@@ -2,72 +2,65 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
+use App\Models\Kecamatan;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class KecamatanRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
+
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        $routeParam = $this->route('kecamatan');
-        $id = $routeParam instanceof \App\Models\Kecamatan ? $routeParam->id : $routeParam;
+        $kecamatanId = $this->route('kecamatan');
 
-        $requiredRules = ($this->isMethod('patch') || $this->isMethod('put'))
-            ? ['sometimes', 'required']
-            : ['required'];
+        if ($kecamatanId instanceof Kecamatan) {
+            $kecamatanId = $kecamatanId->getKey();
+        }
+
+        $namaRule = Rule::unique('kecamatans', 'nama');
+        $kodeRule = Rule::unique('kecamatans', 'kode');
+
+        if ($kecamatanId) {
+            $namaRule->ignore($kecamatanId);
+            $kodeRule->ignore($kecamatanId);
+        }
 
         return [
-            'nama' => [
-                ...$requiredRules,
-                'string',
-                'max:100',
-                Rule::unique('kecamatans', 'nama')->ignore($id),
-            ],
-            'kode' => [
-                ...$requiredRules,
-                'string',
-                'max:10',
-                Rule::unique('kecamatans', 'kode')->ignore($id),
-            ],
+            'nama' => ['required', 'string', 'max:100', $namaRule],
+            'kode' => ['nullable', 'string', 'max:10', $kodeRule],
         ];
     }
 
-    public function messages(): array
-    {
-        return [
-            'nama.required' => 'Nama kecamatan wajib diisi.',
-            'nama.max' => 'Nama kecamatan maksimal 100 karakter.',
-            'nama.unique' => 'Nama kecamatan sudah digunakan.',
-            'kode.required' => 'Kode kecamatan wajib diisi.',
-            'kode.max' => 'Kode kecamatan maksimal 10 karakter.',
-            'kode.unique' => 'Kode kecamatan sudah digunakan.',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'nama' => 'Nama Kecamatan',
-            'kode' => 'Kode Kecamatan',
-        ];
-    }
-
-    protected function prepareForValidation(): void
-    {
-        $nama = preg_replace('/\s+/u', ' ', trim((string) $this->nama));
-        $kode = strtoupper(trim((string) $this->kode));
+    protected function prepareForValidation() {
+        $nama = $this->input('nama');
+        $kode = $this->input('kode');
 
         $this->merge([
-            'nama' => $nama,
-            'kode' => $kode,
+            'nama' => $nama ? strtoupper(trim($nama)) : null,
+            'kode' => $kode ? strtoupper(trim($kode)) : null,
         ]);
+    }
+
+    public function messages() : array {
+        return [
+            'nama.required' => 'Nama kecamatan Wajib diisi',
+            'nama.max' => 'Nama terlalu panjang',
+            'nama.unique' => 'Nama kecmatan sudah digunakan',
+            'kode.unique' => 'Kode tidak valid',
+            'kode.max' => 'kode tidak boleh melebihi 10 angka',
+        ];
+    }
+
+    public function attributes() : array {
+        return [
+            'nama' => 'Nama',
+            'kode' => 'Kode',
+        ];
     }
 }

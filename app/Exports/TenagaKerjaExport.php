@@ -2,73 +2,51 @@
 
 namespace App\Exports;
 
-use Carbon\Carbon;
 use App\Models\TenagaKerja;
-use Illuminate\Support\Arr;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
-class TenagaKerjaExport implements
-    FromQuery,
-    WithHeadings,
-    WithMapping,
-    WithColumnFormatting,
-    ShouldAutoSize
+class TenagaKerjaExport implements FromQuery, WithMapping, WithHeadings, ShouldAutoSize
 {
-    protected Carbon $start;
-    protected Carbon $end;
-    protected array $filters;
-
-    public function __construct(Carbon $start, Carbon $end, array $filters = [])
+    /**
+     * @param array<string, mixed> $filters
+     */
+    public function __construct(private array $filters = [])
     {
-        $this->start   = $start->copy()->startOfDay();
-        $this->end     = $end->copy()->endOfDay();
-        $this->filters = $filters;
     }
 
-    public function query()
+    public function query(): Builder
     {
-        $q = TenagaKerja::query()
-            ->from('tenaga_kerjas as tk')
-            ->leftJoin('pendidikans as pd', 'pd.id', '=', 'tk.pendidikan_id')
-            ->leftJoin('lowongans as lw', 'lw.id', '=', 'tk.lowongan_id')
-            ->leftJoin('agensi_penempatans as ag', 'ag.id', '=', 'lw.agensi_id')
-            ->leftJoin('perusahaan_indonesias as pr', 'pr.id', '=', 'lw.perusahaan_id')
-            ->leftJoin('destinasis as ds', 'ds.id', '=', 'lw.destinasi_id')
-            ->whereBetween('tk.created_at', [$this->start, $this->end])
+        $query = TenagaKerja::query()
             ->select([
-                'tk.nama',
-                'tk.nik',
-                'tk.gender',
-                'tk.tempat_lahir',
-                'tk.tanggal_lahir',
-                'pd.nama as pendidikan',
-                'lw.nama as lowongan',
-                'ag.nama as agensi',
-                'pr.nama as perusahaan',
-                'ds.nama as destinasi',
-                'tk.desa',
-                'tk.kecamatan',
-                'tk.alamat_lengkap',
-                'tk.created_at as tgl_daftar',
+                'nama',
+                'nik',
+                'gender',
+                'email',
+                'no_telpon',
+                'tempat_lahir',
+                'tanggal_lahir',
+                'alamat_lengkap',
+                'desa_id',
+                'perusahaan_id',
+                'agency_id',
+                'negara_id',
+                'is_active',
+                'created_at',
+            ])
+            ->with([
+                'desa:id,nama,kecamatan_id',
+                'desa.kecamatan:id,nama',
+                'perusahaan:id,nama',
+                'agency:id,nama',
+                'negara:id,nama',
             ]);
 
-        if ($ag = Arr::get($this->filters, 'agensi_id')) {
-            $q->where('lw.agensi_id', $ag);
-        }
-        if ($pr = Arr::get($this->filters, 'perusahaan_id')) {
-            $q->where('lw.perusahaan_id', $pr);
-        }
-        if ($ds = Arr::get($this->filters, 'destinasi_id')) {
-            $q->where('lw.destinasi_id', $ds);
-        }
-
-        return $q->orderBy('tk.created_at');
+        return $this->applyFilters($query)->orderByDesc('created_at');
     }
 
     public function headings(): array
@@ -77,45 +55,96 @@ class TenagaKerjaExport implements
             'Nama',
             'NIK',
             'Gender',
+            'Email',
+            'No Telpon',
             'Tempat Lahir',
             'Tanggal Lahir',
-            'Pendidikan',
-            'Lowongan',
-            'Agensi',
-            'Perusahaan',
-            'Destinasi',
-            'Desa',
+            'Alamat',
             'Kecamatan',
-            'Alamat Lengkap',
-            'Tanggal Daftar',
+            'Desa',
+            'Perusahaan',
+            'Agency',
+            'Negara Tujuan',
+            'Status',
+            'Dibuat Pada',
         ];
     }
 
-    public function map($row): array
+    /**
+     * @param TenagaKerja $tenagaKerja
+     * @return array<int, mixed>
+     */
+    public function map($tenagaKerja): array
     {
         return [
-            $row->nama,
-            $row->nik,
-            $row->gender,
-            $row->tempat_lahir,
-            $row->tanggal_lahir ? Carbon::parse($row->tanggal_lahir)->format('Y-m-d') : null,
-            $row->pendidikan,
-            $row->lowongan,
-            $row->agensi,
-            $row->perusahaan,
-            $row->destinasi,
-            $row->desa,
-            $row->kecamatan,
-            $row->alamat_lengkap,
-            $row->tgl_daftar ? Carbon::parse($row->tgl_daftar)->format('Y-m-d') : null,
+            $tenagaKerja->nama,
+            $tenagaKerja->nik,
+            TenagaKerja::GENDERS[$tenagaKerja->gender] ?? $tenagaKerja->gender,
+            $tenagaKerja->email,
+            $tenagaKerja->no_telpon,
+            $tenagaKerja->tempat_lahir,
+            $tenagaKerja->tanggal_lahir?->format('Y-m-d'),
+            $tenagaKerja->alamat_lengkap,
+            optional($tenagaKerja->desa?->kecamatan)->nama,
+            optional($tenagaKerja->desa)->nama,
+            optional($tenagaKerja->perusahaan)->nama,
+            optional($tenagaKerja->agency)->nama,
+            optional($tenagaKerja->negara)->nama,
+            $tenagaKerja->is_active,
+            $tenagaKerja->created_at?->format('Y-m-d H:i:s'),
         ];
     }
 
-    public function columnFormats(): array
+    private function applyFilters(Builder $query): Builder
     {
-        return [
-            'E' => NumberFormat::FORMAT_DATE_YYYYMMDD, // Tanggal Lahir
-            'N' => NumberFormat::FORMAT_DATE_YYYYMMDD, // Tanggal Daftar
-        ];
+        return $query
+            ->when(
+                isset($this->filters['tahun']),
+                fn (Builder $builder) => $builder->whereYear('created_at', (int) $this->filters['tahun'])
+            )
+            ->when(
+                isset($this->filters['bulan']),
+                fn (Builder $builder) => $builder->whereMonth('created_at', (int) $this->filters['bulan'])
+            )
+            ->when(
+                isset($this->filters['minggu']),
+                function (Builder $builder) {
+                    $offset = (int) $this->filters['minggu'];
+                    $startOfWeek = CarbonImmutable::now()->startOfWeek()->subWeeks($offset);
+                    $endOfWeek = $startOfWeek->endOfWeek();
+
+                    $builder->whereBetween('created_at', [
+                        $startOfWeek->startOfDay(),
+                        $endOfWeek->endOfDay(),
+                    ]);
+                }
+            )
+            ->when(
+                isset($this->filters['gender']),
+                fn (Builder $builder) => $builder->where('gender', $this->filters['gender'])
+            )
+            ->when(
+                isset($this->filters['kecamatan_id']),
+                fn (Builder $builder) => $builder->whereHas(
+                    'desa',
+                    fn (Builder $desaQuery) => $desaQuery->where('kecamatan_id', $this->filters['kecamatan_id'])
+                )
+            )
+            ->when(
+                isset($this->filters['desa_id']),
+                fn (Builder $builder) => $builder->where('desa_id', $this->filters['desa_id'])
+            )
+            ->when(
+                isset($this->filters['perusahaan_id']),
+                fn (Builder $builder) => $builder->where('perusahaan_id', $this->filters['perusahaan_id'])
+            )
+            ->when(
+                isset($this->filters['agency_id']),
+                fn (Builder $builder) => $builder->where('agency_id', $this->filters['agency_id'])
+            )
+            ->when(
+                isset($this->filters['negara_id']),
+                fn (Builder $builder) => $builder->where('negara_id', $this->filters['negara_id'])
+            );
     }
 }

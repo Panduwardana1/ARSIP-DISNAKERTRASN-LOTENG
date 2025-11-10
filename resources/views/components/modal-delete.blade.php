@@ -2,8 +2,10 @@
     'action',
     'title' => 'Konfirmasi Hapus',
     'message' => 'Tindakan ini takan menghapus data. Yakin ingin menghapus data ini?',
-    'confirmText' => 'Ya, hapus',
+    'confirmText' => 'Hapus',
     'cancelText' => 'Batal',
+    'confirmField' => null,
+    'confirmValue' => '1',
 ])
 
 <style>
@@ -48,6 +50,9 @@
                 <form action="{{ $action }}" method="POST" class="m-0" x-on:submit="loading = true">
                     @csrf
                     @method('DELETE')
+                    @if ($confirmField)
+                        <input type="hidden" name="{{ $confirmField }}" value="{{ $confirmValue }}">
+                    @endif
                     <button type="submit" :disabled="loading"
                         class="rounded-md bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-60">
                         <span x-show="!loading">{{ $confirmText }}</span>

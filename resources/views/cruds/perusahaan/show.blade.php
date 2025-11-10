@@ -3,6 +3,8 @@
 @section('pageTitle', 'SIREKAP - PASMI | P3MI | Detail')
 @section('titlePageContent', 'Profil P3MI')
 
+<x-wal-session />
+
 @section('content')
     <div class="min-h-screen bg-zinc-100 px-4 py-6 font-inter md:px-6 md:py-8">
         <div class="mx-auto max-w-5xl space-y-6">
@@ -10,10 +12,7 @@
                 <div class="space-y-1">
                     <h2 class="text-2xl font-semibold text-zinc-900">{{ $perusahaan->nama }}</h2>
                     <p class="text-sm text-zinc-500">
-                        Terdaftar pada agency
-                        <span class="font-medium text-zinc-700">
-                            {{ optional($perusahaan->agency)->nama ?? 'Tidak ada data agency' }}
-                        </span>
+                        Profil lengkap perusahaan penempatan tenaga kerja.
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
@@ -46,12 +45,6 @@
                         <div>
                             <dt class="font-medium text-zinc-700">Nama Perusahaan</dt>
                             <dd class="mt-1 text-zinc-900">{{ $perusahaan->nama }}</dd>
-                        </div>
-                        <div>
-                            <dt class="font-medium text-zinc-700">Agency Penempatan</dt>
-                            <dd class="mt-1 text-zinc-900">
-                                {{ optional($perusahaan->agency)->nama ?? '-' }}
-                            </dd>
                         </div>
                         <div>
                             <dt class="font-medium text-zinc-700">Nama Pimpinan</dt>
@@ -121,10 +114,10 @@
                         <p class="text-sm text-zinc-500">Daftar CPMI yang terkait dengan perusahaan ini.</p>
                     </div>
                     <span class="text-sm text-zinc-500">
-                        Total: {{ $perusahaan->tenagaKerja_count ?? $perusahaan->tenagaKerja->count() }}
+                        Total: {{ $perusahaan->tenaga_kerja_count ?? $perusahaan->tenagaKerja->count() }}
                     </span>
                 </header>
-                @if (($perusahaan->tenagaKerja_count ?? $perusahaan->tenagaKerja->count()) > 0)
+                @if (($perusahaan->tenaga_kerja_count ?? $perusahaan->tenagaKerja->count()) > 0)
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-zinc-200 text-sm text-zinc-600">
                             <thead>

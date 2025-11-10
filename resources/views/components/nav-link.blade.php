@@ -2,8 +2,8 @@
 
 @php
     $classes = $active
-        ? ' bg-zinc-200 text-zinc-800 rounded-md'
-        : ' text-zinc-800 hover:bg-zinc-200 rounded-md hover:text-zinc-800';
+        ? ' text-amber-500 rounded-md'
+        : ' text-amber-50 hover:text-amber-500 rounded-md';
 @endphp
 
 <a {{ $attributes->class($classes) }}>

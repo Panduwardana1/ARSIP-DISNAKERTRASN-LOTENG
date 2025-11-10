@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Kecamatan>
+ * @extends \Illuminate\Database\Eloquent\Factories.Factory<\App\Models\Kecamatan>
  */
 class KecamatanFactory extends Factory
 {
@@ -16,9 +16,11 @@ class KecamatanFactory extends Factory
      */
     public function definition(): array
     {
+        $kode = fake()->unique()->numerify('KC###');
+
         return [
-            'nama' => 'Kec. '. $this->faker->city(),
-            'kode' => $this->faker->countryCode("52,02,00"),
+            'nama' => fake()->unique()->city(),
+            'kode' => strtoupper($kode),
         ];
     }
 }

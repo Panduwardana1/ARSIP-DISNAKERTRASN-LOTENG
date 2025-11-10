@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('agencies', function (Blueprint $t) {
             $t->id();
-            $t->string('nama', 150);
-            $t->string('country');
-            $t->string('kota');
-            $t->string('lowongan');
+            $t->string('nama', 100)->index();
+            $t->foreignId('perusahaan_id')->constrained('perusahaans')->cascadeOnDelete()->cascadeOnUpdate();
+            $t->string('lowongan', 100)->nullable();
+            $t->text('keterangan')->nullable();
             $t->timestamps();
+            $t->softDeletes();
         });
     }
 

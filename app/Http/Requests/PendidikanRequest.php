@@ -2,19 +2,19 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Pendidikan;
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
 class PendidikanRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
-    {
-        return true;
-    }
+    // public function authorize(): bool
+    // {
+    //     return false;
+    // }
 
     /**
      * Get the validation rules that apply to the request.
@@ -23,51 +23,48 @@ class PendidikanRequest extends FormRequest
      */
     public function rules(): array
     {
-        $routeParam = $this->route('pendidikan');
-        $pendidikan = $routeParam instanceof Pendidikan ? $routeParam : Pendidikan::find($routeParam);
-        $id = $pendidikan?->id ?? $routeParam;
-
-        $requiredRules = ($this->isMethod('patch') || $this->isMethod('put'))
-            ? ['sometimes', 'required']
-            : ['required'];
+        $pendidikan = $this->route('pendidikan');
+        $pendidikanId = is_object($pendidikan) ? $pendidikan->getKey() : $pendidikan;
 
         return [
-            'nama' => [
-                ...$requiredRules,
+            'label' => [
+                'required',
                 'string',
-                'max:50',
-                Rule::unique('pendidikans', 'nama')->ignore($id),
+                'max:100',
+                Rule::unique('pendidikans', 'label')->ignore($pendidikanId),
             ],
-            'level' => [
-                ...$requiredRules,
-                Rule::in(Pendidikan::LEVELS),
+            'nama' => [
+                'required',
+                'string',
+                'max:10',
+                'uppercase',
+                Rule::unique('pendidikans', 'nama')->ignore($pendidikanId),
             ],
         ];
     }
 
-    public function messages(): array
-    {
+    public function messages() : array {
         return [
-            'nama.required' => 'Nama pendidikan wajib diisi.',
+            'nama.required' => 'Nama pendidikan harus diisi.',
             'nama.unique' => 'Nama pendidikan sudah digunakan.',
-            'level.required' => 'Level pendidikan wajib dipilih.',
-            'level.in' => 'Level pendidikan tidak valid.',
+            'nama.max' => 'Nama pendidikan maksimal 10 karakter.',
+            'label.required' => 'Label pendidikan harus diisi.',
+            'label.max' => 'Label terlalu panjang.',
+            'label.unique' => 'Label pendidikan sudah digunakan.',
         ];
     }
 
-    public function attributes(): array
-    {
-        return [
-            'nama' => 'Nama Pendidikan',
-            'level' => 'Level Pendidikan',
-        ];
-    }
-
-    protected function prepareForValidation(): void
-    {
+    protected function prepareForValidation() : void {
         $this->merge([
-            'nama' => $this->filled('nama') ? preg_replace('/\s+/u', ' ', trim((string) $this->nama)) : null,
-            'level' => $this->filled('level') ? strtoupper(trim((string) $this->level)) : null,
+            'nama' => Str::upper(trim((string) $this->input('nama'))),
+            'label' => trim((string) $this->input('label')),
         ]);
+    }
+
+    public function attributes() : array {
+        return [
+            'nama' => 'Nama',
+            'label' => 'Label',
+        ];
     }
 }

@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Perusahaan;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PerusahaanRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -22,73 +25,53 @@ class PerusahaanRequest extends FormRequest
      */
     public function rules(): array
     {
-        $routeParam = $this->route('perusahaan');
-        $perusahaanId = $routeParam instanceof \App\Models\Perusahaan ? $routeParam->id : $routeParam;
-        $isUpdate = $this->isMethod('patch') || $this->isMethod('put');
-        $requiredRules = $isUpdate ? ['sometimes', 'required'] : ['required'];
+        $perusahaanId = $this->route('perusahaan');
 
-        $namaUniquePerAgency = Rule::unique('perusahaans', 'nama')
-            ->ignore($perusahaanId)
-            ->where(fn ($query) => $query->where('agency_id', $this->input('agency_id')));
+        if ($perusahaanId instanceof Perusahaan) {
+            $perusahaanId = $perusahaanId->getKey();
+        }
 
-        $emailUnique = Rule::unique('perusahaans', 'email')->ignore($perusahaanId);
+        $emailRule = Rule::unique('perusahaans', 'email')
+            ->where(fn ($query) => $query->whereNull('deleted_at'));
 
-        $gambarRules = [
-            $isUpdate ? 'nullable' : 'required',
-            'image',
-            'mimes:jpg,jpeg,png',
-            'max:2048',
-            'dimensions:min_width=100,min_height=100',
-        ];
+        if ($perusahaanId) {
+            $emailRule->ignore($perusahaanId);
+        }
 
         return [
-            'agency_id' => array_merge($requiredRules, ['integer', Rule::exists('agencies', 'id')]),
-            'nama' => array_merge($requiredRules, ['string', 'max:100', $namaUniquePerAgency]),
+            'nama' => ['required', 'string', 'max:100'],
             'pimpinan' => ['nullable', 'string', 'max:100'],
-            'email' => array_merge($requiredRules, ['email', 'max:100', $emailUnique]),
+            'email' => [
+                'nullable',
+                'email',
+                'max:100',
+                $emailRule,
+            ],
             'alamat' => ['nullable', 'string'],
-            'gambar' => $gambarRules,
+            'gambar' => ['nullable', 'mimes:png,jpg,jpeg', 'image', 'max:2048'],
         ];
     }
 
-    public function messages(): array
-    {
+    public function messages() : array {
         return [
-            'nama.required' => 'Nama P3MI wajib diisi.',
-            'nama.unique' => 'Nama perusahaan sudah terdaftar pada agency ini.',
-            'email.required' => 'Email P3MI wajib diisi.',
-            'email.unique' => 'Alamat email sudah digunakan.',
-            'gambar.required' => 'Logo perusahaan wajib diunggah.',
-            'gambar.image' => 'Berkas gambar harus berupa foto.',
-            'gambar.mimes' => 'Format gambar harus JPG atau PNG.',
-            'gambar.max' => 'Ukuran gambar maksimal 2 MB.',
-            'gambar.dimensions' => 'Resolusi gambar minimal 100x100 piksel.',
-            'agency_id.required' => 'Agency wajib dipilih.',
-            'agency_id.exists' => 'Agency tidak ditemukan.',
+            'nama.required' => 'Nama perusahaan wajib diisi.',
+            'nama.max' => 'Nama perusahaan terlalu panjang.',
+            'email.email' => 'Format email perusahaan tidak valid.',
+            'email.unique' => 'Email perusahaan sudah terdaftar.',
+            'gambar.image' => 'File logo harus berupa gambar.',
+            'gambar.mimes' => 'Format gambar yang diperbolehkan: png, jpg, atau jpeg.',
+            'gambar.max' => 'Ukuran file logo maksimal 2 MB.',
         ];
     }
 
-    public function attributes(): array
+    protected function prepareForValidation()
     {
-        return [
-            'nama' => 'Nama Perusahaan',
-            'pimpinan' => 'Nama Pimpinan/Petugas',
-            'email' => 'Email',
-            'alamat' => 'Alamat',
-            'gambar' => 'Logo',
-            'agency_id' => 'Agency',
-        ];
-    }
+        $nama = $this->input('nama');
+        $email = $this->input('email');
 
-    protected function prepareForValidation(): void
-    {
         $this->merge([
-            'nama' => trim((string) $this->nama),
-            'pimpinan' => $this->filled('pimpinan') ? trim((string) $this->pimpinan) : null,
-            'email' => $this->filled('email') ? mb_strtolower(trim((string) $this->email)) : null,
-            'alamat' => $this->filled('alamat')
-                ? preg_replace('/\s+/u', ' ', trim((string) $this->alamat))
-                : null,
+            'nama' => $nama ? Str::upper(trim((string) $nama)) : null,
+            'email' => $email ? Str::lower(trim((string) $email)) : null,
         ]);
     }
 }

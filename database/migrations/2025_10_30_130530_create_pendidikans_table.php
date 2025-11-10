@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('pendidikans', function (Blueprint $t) {
             $t->id();
-            $t->string('nama', 50)->unique();
-            $t->enum('level', ['SD', 'SMP', 'SMA', 'D1', 'D2', 'D3', 'S1', 'S2', 'S3']);
+            $t->string('nama',10)->unique()->index();
+            $t->string('label')->unique();
             $t->timestamps();
         });
     }

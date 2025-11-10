@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Agency;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class AgencyRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -22,18 +24,24 @@ class AgencyRequest extends FormRequest
      */
     public function rules(): array
     {
-        $routeParam = $this->route('agency');
-        $agencyId = $routeParam instanceof \App\Models\Agency ? $routeParam->id : $routeParam;
-        $isUpdate = $this->isMethod('patch') || $this->isMethod('put');
-        $requiredRules = $isUpdate ? ['sometimes', 'required'] : ['required'];
+        $agency = $this->route('agency');
+        $agencyId = $agency instanceof Agency ? $agency->getKey() : $agency;
 
-        $namaUnique = Rule::unique('agencies', 'nama')->ignore($agencyId);
+        $uniqueNama = Rule::unique('agencies', 'nama')
+            ->where(fn ($query) => $query->whereNull('deleted_at'));
+
+        if ($agencyId !== null) {
+            $uniqueNama = $uniqueNama->ignore($agencyId);
+        }
 
         return [
-            'nama' => array_merge($requiredRules, ['string', 'max:150', $namaUnique]),
-            'country' => array_merge($requiredRules, ['string', 'max:120']),
-            'kota' => array_merge($requiredRules, ['string', 'max:120']),
-            'lowongan' => array_merge($requiredRules, ['string', 'max:255']),
+            'nama' => ['required', 'string', 'max:100', $uniqueNama],
+            'perusahaan_id' => [
+                'required',
+                Rule::exists('perusahaans', 'id')->whereNull('deleted_at'),
+            ],
+            'lowongan' => ['nullable', 'string', 'max:100'],
+            'keterangan' => ['nullable', 'string'],
         ];
     }
 
@@ -41,32 +49,43 @@ class AgencyRequest extends FormRequest
     {
         return [
             'nama.required' => 'Nama agency wajib diisi.',
+            'nama.string' => 'Nama agency harus berupa teks.',
+            'nama.max' => 'Nama agency maksimal 100 karakter.',
             'nama.unique' => 'Nama agency sudah terdaftar.',
-            'country.required' => 'Negara tujuan wajib diisi.',
-            'kota.required' => 'Kota tujuan wajib diisi.',
-            'lowongan.required' => 'Informasi lowongan wajib diisi.',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'nama' => 'Nama Agency',
-            'country' => 'Negara Tujuan',
-            'kota' => 'Kota Penempatan',
-            'lowongan' => 'Informasi Lowongan',
+            'perusahaan_id.required' => 'Perusahaan wajib dipilih.',
+            'perusahaan_id.exists' => 'Perusahaan tidak valid atau sudah dihapus.',
+            'lowongan.string' => 'Lowongan harus berupa teks.',
+            'lowongan.max' => 'Lowongan maksimal 100 karakter.',
+            'keterangan.string' => 'Keterangan harus berupa teks.',
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            'nama' => trim((string) $this->nama),
-            'country' => $this->filled('country') ? trim((string) $this->country) : null,
-            'kota' => $this->filled('kota') ? trim((string) $this->kota) : null,
-            'lowongan' => $this->filled('lowongan')
-                ? preg_replace('/\s+/u', ' ', trim((string) $this->lowongan))
+        $normalized = collect($this->only(['nama', 'lowongan', 'keterangan']))
+            ->map(function ($value) {
+                if (is_string($value)) {
+                    $value = trim($value);
+                    return $value === '' ? null : $value;
+                }
+
+                return $value;
+            })
+            ->toArray();
+
+        $this->merge(array_merge($normalized, [
+            'perusahaan_id' => $this->filled('perusahaan_id')
+                ? (int) $this->input('perusahaan_id')
                 : null,
-        ]);
+        ]));
+    }
+
+    public function attributes() : array {
+        return [
+            'nama' => 'Nama',
+            'perusahaan_id' => 'Perusahaan',
+            'lowongan' => 'Lowongan',
+            'keterangan' => 'Keterangan',
+        ];
     }
 }

@@ -9,46 +9,45 @@
     @vite('resources/css/app.css')
 </head>
 
-<body class="min-h-screen bg-zinc-50 px-4 py-12 flex items-center justify-center">
-    <main class="w-full max-w-sm font-inter">
-        <div class="rounded-lg border border-zinc-300 p-8 backdrop-blur">
+<body class="min-h-screen flex flex-col bg-zinc-100 font-outfit px-4 py-12 items-center justify-center">
+    <main class="w-full max-w-md shadow-sm">
+        <div class="rounded-lg bg-white border-[1.5px] p-8 backdrop-blur">
             <div class="mb-8 flex flex-col items-center justify-center space-y-3">
-                <img src="{{ asset('asset/logo/icon.png') }}" alt="Logo" class="h-10 w-10">
                 <div class="space-y-0 text-center">
-                    <h3 class="text-md font-medium text-zinc-600">Selamat datang di</h3>
-                    <h1 class="text-3xl font-medium">SIREKAP PASMI</h1>
-                    <p class="mt-2 text-xs text-zinc-600">Masuk untuk mengelola layanan Disnakertrans</p>
+                    <h1 class="text-4xl font-medium">Welcome Back!</h1>
                 </div>
             </div>
 
             <form action="" method="POST" class="space-y-5">
                 @csrf
                 <div class="space-y-2">
-                    <label for="email" class="text-sm font-medium text-zinc-600">Email</label>
+                    <label for="email" class="text-sm font-medium text-slate-900">E-mail address</label>
                     <div class="relative">
                         <input id="email" name="email" type="email" autocomplete="email" required
-                            class="w-full px-2 py-2 bg-zinc-100 border rounded-lg focus:outline-none"
-                            placeholder="nama@disnakertrans.go.id" />
-                        <x-heroicon-o-envelope
-                            class="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-300" />
+                            class="w-full p-3 border rounded-sm focus:outline-none" />
                     </div>
                 </div>
 
                 <div class="space-y-2">
                     <div class="flex items-center justify-between text-sm">
-                        <label for="password" class="font-medium text-zinc-600">Password</label>
+                        <label for="password" class="font-medium text-slate-900">Password</label>
                     </div>
                     <div class="relative">
                         <input id="password" name="password" type="password" autocomplete="current-password" required
-                            class="w-full px-2 py-2 bg-zinc-100 border rounded-lg focus:outline-none"
-                            placeholder="Minimal 8 karakter" />
-                        <x-heroicon-o-lock-closed
-                            class="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-300" />
+                            class="w-full p-3 border rounded-sm focus:outline-none"/>
                     </div>
                 </div>
 
+                <div class="flex items-center justify-between">
+                    <div class="felx items-center space-x-1.5">
+                        <input type="checkbox" name="" id="">
+                        <span>Remember Me</span>
+                    </div>
+                    <a href="#" class="text-blue-700 font-medium underline">Bantuan?</a>
+                </div>
+
                 <button type="submit"
-                    class="flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2.5 font-inter font-semibold text-white transition-all hover:bg-amber-600 focus:outline-none focus:ring-4 focus:ring-amber-200 active:bg-amber-700">
+                    class="flex w-full items-center justify-center gap-2 rounded-sm bg-amber-500 p-3 font-semibold text-slate-900 transition-all hover:bg-amber-600 focus:outline-none">
                     Login
                 </button>
             </form>

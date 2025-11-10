@@ -10,7 +10,7 @@
                 <div class="space-y-1">
                     <h2 class="text-2xl font-semibold text-zinc-900">{{ $agency->nama }}</h2>
                     <p class="text-sm text-zinc-500">
-                        Penempatan di {{ $agency->country }} • {{ $agency->kota }}
+                        Kemitraan dengan {{ $agency->perusahaan->nama ?? '-' }}
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
@@ -57,16 +57,18 @@
                             <dd class="mt-1 text-zinc-900">{{ $agency->nama }}</dd>
                         </div>
                         <div>
-                            <dt class="font-medium text-zinc-700">Negara Tujuan</dt>
-                            <dd class="mt-1 text-zinc-900">{{ $agency->country }}</dd>
-                        </div>
-                        <div>
-                            <dt class="font-medium text-zinc-700">Kota Penempatan</dt>
-                            <dd class="mt-1 text-zinc-900">{{ $agency->kota }}</dd>
+                            <dt class="font-medium text-zinc-700">Perusahaan Mitra</dt>
+                            <dd class="mt-1 text-zinc-900">{{ $agency->perusahaan->nama ?? '-' }}</dd>
                         </div>
                         <div class="md:col-span-2">
                             <dt class="font-medium text-zinc-700">Ringkasan Lowongan</dt>
                             <dd class="mt-1 text-zinc-900">{{ $agency->lowongan }}</dd>
+                        </div>
+                        <div class="md:col-span-2">
+                            <dt class="font-medium text-zinc-700">Keterangan</dt>
+                            <dd class="mt-1 whitespace-pre-line text-zinc-900">
+                                {{ $agency->keterangan ?? '-' }}
+                            </dd>
                         </div>
                     </dl>
                 </section>
@@ -76,10 +78,6 @@
                         <h3 class="text-lg font-semibold text-zinc-900">Status Sistem</h3>
                     </header>
                     <dl class="space-y-3 text-sm text-zinc-600">
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wide text-zinc-400">Perusahaan Terkait</dt>
-                            <dd class="mt-1 text-zinc-900">{{ $agency->perusahaans_count ?? $agency->perusahaans->count() }}</dd>
-                        </div>
                         <div>
                             <dt class="text-xs font-medium uppercase tracking-wide text-zinc-400">CPMI Terkait</dt>
                             <dd class="mt-1 text-zinc-900">{{ $agency->tenaga_kerjas_count ?? $agency->tenagaKerjas->count() }}</dd>
@@ -99,49 +97,6 @@
                     </dl>
                 </section>
             </div>
-
-            <section class="rounded-xl border border-zinc-200 bg-white p-6">
-                <header class="mb-4 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-semibold text-zinc-900">Perusahaan Mitra</h3>
-                        <p class="text-sm text-zinc-500">Daftar perusahaan dalam negeri yang bekerja sama dengan agency ini.</p>
-                    </div>
-                    <span class="text-sm text-zinc-500">
-                        Total: {{ $agency->perusahaans_count ?? $agency->perusahaans->count() }}
-                    </span>
-                </header>
-                @if (($agency->perusahaans_count ?? $agency->perusahaans->count()) > 0)
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-zinc-200 text-sm text-zinc-600">
-                            <thead>
-                                <tr class="bg-zinc-100 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                                    <th class="px-4 py-3">Nama Perusahaan</th>
-                                    <th class="px-4 py-3">Kontak</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-zinc-100">
-                                @foreach ($agency->perusahaans as $perusahaan)
-                                    <tr class="transition hover:bg-zinc-50/70">
-                                        <td class="px-4 py-3">
-                                            <div class="font-semibold text-zinc-800">{{ $perusahaan->nama }}</div>
-                                            <div class="text-xs text-zinc-500">
-                                                {{ $perusahaan->pimpinan ?: 'Pimpinan belum diisi' }}
-                                            </div>
-                                        </td>
-                                        <td class="px-4 py-3 text-xs text-zinc-500">
-                                            {{ $perusahaan->email ?: 'Email belum diisi' }}
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <p class="text-sm text-zinc-500">
-                        Belum ada perusahaan yang terhubung dengan agency ini.
-                    </p>
-                @endif
-            </section>
 
             <section class="rounded-xl border border-zinc-200 bg-white p-6">
                 <header class="mb-4 flex items-center justify-between">

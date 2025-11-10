@@ -12,7 +12,7 @@ class Desa extends Model
     /** @use HasFactory<\Database\Factories\DesaFactory> */
     use HasFactory;
 
-    protected $fillable = ['kecamatan_id','nama','tipe'];
+    protected $fillable = ['kecamatan_id','nama'];
 
     public function kecamatan() {
         return $this->belongsTo(Kecamatan::class);

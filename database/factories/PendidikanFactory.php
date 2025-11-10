@@ -3,10 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Pendidikan>
- */
 class PendidikanFactory extends Factory
 {
     /**
@@ -16,8 +14,11 @@ class PendidikanFactory extends Factory
      */
     public function definition(): array
     {
+        $label = fake()->unique()->words(2, true);
+
         return [
-            //
+            'nama' => Str::upper(Str::replace(' ', '_', Str::limit($label, 10, ''))),
+            'label' => Str::headline($label),
         ];
     }
 }

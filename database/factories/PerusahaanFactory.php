@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Agency;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,12 +17,11 @@ class PerusahaanFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama' => $this->faker->unique()->company(),
+            'nama'     => $this->faker->company(),
             'pimpinan' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'alamat' => $this->faker->address(),
-            'gambar' => $this->faker->imageUrl(640, 480, 'business', true),
-            'agency_id' => Agency::factory(),
+            'email'    => $this->faker->unique()->safeEmail(),
+            'alamat'   => $this->faker->address(),
+            'gambar'   => null,
         ];
     }
 }

@@ -2,168 +2,115 @@
 
 namespace App\Http\Controllers;
 
+use Throwable;
 use App\Models\Desa;
 use Illuminate\Http\Request;
-use App\Http\Requests\DesaRequest;
 use App\Models\Kecamatan;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Database\QueryException;
+use App\Http\Requests\DesaRequest;
+use Illuminate\Support\Facades\Redirect;
 
 class DesaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $q = Desa::query()
-            ->with('kecamatan')
-            ->when($request->filled('q'), function ($qq) use ($request) {
-                $term = trim($request->input('q'));
-                $qq->where(function ($w) use ($term) {
-                    $w->where('nama', 'like', "%{$term}%");
+        $search = trim((string) $request->input('q'));
+
+        $desas = Desa::query()
+            ->with(['kecamatan:id,nama'])
+            ->withCount('tenagaKerja')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('nama', 'like', '%' . $search . '%')
+                        ->orWhereHas('kecamatan', function ($kecamatanQuery) use ($search) {
+                            $kecamatanQuery->where('nama', 'like', '%' . $search . '%');
+                        });
                 });
             })
-            ->orderBy('nama');
-
-        $desas = $q->paginate(10)->withQueryString();
+            ->orderBy('nama')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('cruds.desa.index', compact('desas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('cruds.desa.create', [
-            'kecamatans' => Kecamatan::orderBy('nama')->get(['id', 'nama']),
-        ]);
+        $kecamatans = Kecamatan::query()
+            ->select('id', 'nama')
+            ->orderBy('nama')
+            ->get();
+
+        return view('cruds.desa.create', compact('kecamatans'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(DesaRequest $request)
+    public function store(DesaRequest $request): RedirectResponse
     {
+        $validated = $request->validated();
+
         try {
-            DB::transaction(function () use ($request) {
-                Desa::create($request->validated());
-            });
-
-            return redirect()
-                    ->route('sirekap.desa.index')
-                    ->with('success', 'Data baru berhasil ditambahkan');
-        } catch (QueryException $e) {
-            Log::warning("DB error pada Desa@store", [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'payload' => $request->except('_token'),
-            ]);
-
-            return back()->withInput()->withErrors(['db' => $this->mapDbError($e, 'Gagal menyimpan data')]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error pada Desa@store: '.$e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return back()
-                ->withInput()->withErrors(['app' => 'Terjadi Kesalahan tak terduga.']);
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Desa $desa)
-    {
-        return view('cruds.desa.edit', [
-            'desa' => $desa->load('kecamatan'),
-            'kecamatans' => Kecamatan::orderBy('nama')->get(['id', 'nama']),
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(DesaRequest $request, Desa $desa)
-    {
-        try {
-            DB::transaction(function () use ($request, $desa) {
-                $desa->update($request->validated());
-            });
+            Desa::create($validated);
 
             return redirect()
                 ->route('sirekap.desa.index')
-                ->with('success', 'Data berhasil diperbarui');
-        } catch (QueryException $e) {
-            Log::warning("DB Error pada Desa@update", [
-                'sqlState'  => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'id'        => $desa->id,
-                'payload'   => $request->except('_token'),
-            ]);
-
-            return back()
-                    ->withInput()
-                    ->withErrors(['db' => $this->mapDbError($e, 'Gagal memperbarui data')]);
-        } catch (\Throwable $e) {
-            Log::error('Terjadi kesalahan pada Desa@update: '.$e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return back()
-                    ->withInput()
-                    ->withErrors(['app' => 'Terjadi Kesalahan tak terduga.']);
+                ->with('success', 'Data desa berhasil ditambahkan.');
+        } catch (Throwable $e) {
+            Log::warning('Gagal menyimpan data desa.', ['exception' => $e]);
         }
+
+        return Redirect::back()
+            ->withInput()
+            ->withErrors(['db' => 'Terjadi kesalahan saat menyimpan data desa.']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Desa $desa)
+    public function edit(Desa $desa)
     {
+        $kecamatans = Kecamatan::query()
+            ->select('id', 'nama')
+            ->orderBy('nama')
+            ->get();
+
+        return view('cruds.desa.edit', compact('desa', 'kecamatans'));
+    }
+
+    public function update(DesaRequest $request, Desa $desa): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        try {
+            $desa->update($validated);
+
+            return redirect()
+                ->route('sirekap.desa.index')
+                ->with('success', 'Data desa berhasil diperbarui.');
+        } catch (Throwable $e) {
+            Log::warning('Gagal memperbarui data desa.', ['exception' => $e]);
+        }
+
+        return Redirect::back()
+            ->withInput()
+            ->withErrors(['db' => 'Terjadi kesalahan saat memperbarui data desa.']);
+    }
+
+    public function destroy(Desa $desa): RedirectResponse
+    {
+        if ($desa->tenagaKerja()->exists()) {
+            return Redirect::back()
+                ->withErrors(['app' => 'Desa masih memiliki data tenaga kerja dan tidak dapat dihapus.']);
+        }
 
         try {
             $desa->delete();
+
             return redirect()
                 ->route('sirekap.desa.index')
-                ->with('success', 'Data berhasil dihapus');
-        } catch (QueryException $e) {
-            Log::warning('DB Error on Desa@destroy',[
-                    'sqlState' => $e->getCode(),
-                    'errorInfo' => $e->errorInfo ?? null,
-                    'id' => $desa->id,]);
-            return back()
-                ->withInput()
-                ->withErrors(['db' => 'Gagal menghapus data']);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on desa@destroy: '. $e->getMessage());
-        // redirect
-            return back()
-                    ->withInput()
-                    ->withErrors(['app' => 'Terjadi kesalahan tak terduga']);
-        }
-    }
-
-    // terjemahan pesan error
-    private function mapDbError(QueryException $e, string $fallback) : string {
-        $sqlState = $e->getCode();
-        $driverCode = $e->errorInfo[1] ?? null;
-
-        if($driverCode === 1062 ) {
-            return 'Data bentrok: Kombinasi kecamatan, nama, dan tipe sudah digunakan.';
+                ->with('success', 'Data desa berhasil dihapus.');
+        } catch (Throwable $e) {
+            Log::warning('Gagal menghapus data desa.', ['exception' => $e]);
         }
 
-        // 1452: Cannot add or update a child row: a foreign key constraint fails (kecamatan_id tidak valid)
-        if ($driverCode === 1452) {
-            return 'Relasi tidak valid: Kecamatan yang dipilih tidak ditemukan.';
-        }
-
-        // 23000: generic integrity constraint violation
-        if ($sqlState === '23000') {
-            return 'Gagal karena melanggar aturan integritas data.';
-        }
-
-        return $fallback.'.';
+        return Redirect::back()
+            ->withErrors(['db' => 'Terjadi kesalahan saat menghapus data desa.']);
     }
 }

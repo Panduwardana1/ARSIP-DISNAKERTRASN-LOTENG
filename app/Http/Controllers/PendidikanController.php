@@ -4,205 +4,100 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PendidikanRequest;
 use App\Models\Pendidikan;
-use Illuminate\Database\QueryException;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PendidikanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
+        $search = (string) $request->input('q', '');
+
         $pendidikans = Pendidikan::query()
+            ->select('id', 'nama', 'label', 'created_at')
             ->withCount('tenagaKerjas')
-            ->when($request->filled('q'), function ($query) use ($request) {
-                $term = trim((string) $request->input('q'));
-                $query->where(function ($subQuery) use ($term) {
-                    $subQuery->where('nama', 'like', "%{$term}%")
-                        ->orWhere('level', 'like', "%{$term}%");
-                });
-            })
-            ->orderByRaw($this->levelOrderExpression())
+            ->when(
+                $search !== '',
+                fn ($query) => $query->where(function ($builder) use ($search) {
+                    $builder
+                        ->where('nama', 'like', '%' . $search . '%');
+                })
+            )
             ->orderBy('nama')
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString();
 
         return view('cruds.pendidikan.index', [
             'pendidikans' => $pendidikans,
-            'levels' => Pendidikan::LEVELS,
+            'search' => $search,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): View
     {
-        return view('cruds.pendidikan.create', [
-            'levels' => Pendidikan::LEVELS,
-        ]);
+        return view('cruds.pendidikan.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(PendidikanRequest $request)
+    public function store(PendidikanRequest $request): RedirectResponse
     {
         try {
-            DB::transaction(function () use ($request) {
-                Pendidikan::create($request->validated());
-            });
+            Pendidikan::create($request->validated());
 
             return redirect()
                 ->route('sirekap.pendidikan.index')
-                ->with('success', 'Data pendidikan berhasil ditambahkan.');
-        } catch (QueryException $e) {
-            Log::warning('DB error on Pendidikan@store', [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'payload' => $request->except(['_token']),
-            ]);
+                ->with('success', 'Pendidikan baru berhasil ditambahkan.');
+        } catch (\Throwable $t) {
+            report($t);
 
             return back()
                 ->withInput()
-                ->withErrors(['db' => $this->mapDbError($e, 'Gagal menyimpan data pendidikan')]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on Pendidikan@store: '.$e->getMessage(), [
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['app' => 'Terjadi kesalahan tak terduga.']);
+                ->withErrors(['app' => 'Gagal menambahkan data pendidikan.']);
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Pendidikan $pendidikan)
+    public function show(Pendidikan $pendidikan): View
     {
         $pendidikan->loadCount('tenagaKerjas');
 
-        return view('cruds.pendidikan.show', [
-            'pendidikan' => $pendidikan,
-        ]);
+        return view('cruds.pendidikan.show', compact('pendidikan'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Pendidikan $pendidikan)
+    public function edit(Pendidikan $pendidikan): View
     {
-        return view('cruds.pendidikan.edit', [
-            'pendidikan' => $pendidikan,
-            'levels' => Pendidikan::LEVELS,
-        ]);
+        return view('cruds.pendidikan.edit', compact('pendidikan'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(PendidikanRequest $request, Pendidikan $pendidikan)
+    public function update(PendidikanRequest $request, Pendidikan $pendidikan): RedirectResponse
     {
         try {
-            DB::transaction(function () use ($request, $pendidikan) {
-                $pendidikan->update($request->validated());
-            });
-
-            return redirect()
-                ->route('sirekap.pendidikan.show', $pendidikan)
-                ->with('success', 'Data pendidikan berhasil diperbarui.');
-        } catch (QueryException $e) {
-            Log::warning('DB error on Pendidikan@update', [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'id' => $pendidikan->id,
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['db' => $this->mapDbError($e, 'Gagal memperbarui data pendidikan')]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on Pendidikan@update: '.$e->getMessage(), [
-                'id' => $pendidikan->id,
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->withInput()
-                ->withErrors(['app' => 'Terjadi kesalahan tak terduga saat memperbarui data.']);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Pendidikan $pendidikan)
-    {
-        if ($pendidikan->tenagaKerjas()->exists()) {
-            return back()->withErrors([
-                'destroy' => 'Data pendidikan tidak dapat dihapus karena masih digunakan oleh tenaga kerja.',
-            ]);
-        }
-
-        try {
-            DB::transaction(function () use ($pendidikan) {
-                $pendidikan->delete();
-            });
+            $pendidikan->update($request->validated());
 
             return redirect()
                 ->route('sirekap.pendidikan.index')
-                ->with('success', 'Data pendidikan telah dihapus.');
-        } catch (QueryException $e) {
-            Log::warning('DB error on Pendidikan@destroy', [
-                'sqlState' => $e->getCode(),
-                'errorInfo' => $e->errorInfo ?? null,
-                'id' => $pendidikan->id,
-            ]);
+                ->with('success', 'Pendidikan berhasil diperbarui.');
+        } catch (\Throwable $t) {
+            report($t);
 
-            return back()->withErrors([
-                'db' => $this->mapDbError($e, 'Gagal menghapus data pendidikan'),
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Fatal error on Pendidikan@destroy: '.$e->getMessage(), [
-                'id' => $pendidikan->id,
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()->withErrors([
-                'app' => 'Terjadi kesalahan tak terduga saat menghapus data.',
-            ]);
+            return back()
+                ->withInput()
+                ->withErrors(['app' => 'Gagal memperbarui data pendidikan.']);
         }
     }
 
-    private function mapDbError(QueryException $exception, string $fallback): string
+    public function destroy(Pendidikan $pendidikan): RedirectResponse
     {
-        $driverCode = $exception->errorInfo[1] ?? null;
-        $sqlState = $exception->getCode();
+        try {
+            $pendidikan->delete();
 
-        if ($driverCode === 1062) {
-            return 'Nama pendidikan sudah digunakan.';
+            return redirect()
+                ->route('sirekap.pendidikan.index')
+                ->with('success', 'Pendidikan berhasil dihapus.');
+        } catch (\Throwable $t) {
+            report($t);
+
+            return back()
+                ->withErrors(['app' => 'Gagal menghapus data pendidikan.']);
         }
-
-        if (in_array($driverCode, [1451, 1452], true)) {
-            return 'Relasi tidak valid: pastikan data pendidikan tidak terhubung dengan entitas lain.';
-        }
-
-        if ($sqlState === '23000') {
-            return 'Gagal karena melanggar aturan integritas data.';
-        }
-
-        return $fallback.'.';
-    }
-
-    private function levelOrderExpression(): string
-    {
-        $levels = implode("','", Pendidikan::LEVELS);
-
-        return "FIELD(level, '{$levels}')";
     }
 }

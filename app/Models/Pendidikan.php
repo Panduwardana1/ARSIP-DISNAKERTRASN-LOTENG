@@ -10,11 +10,9 @@ class Pendidikan extends Model
 {
     use HasFactory;
 
-    public const LEVELS = ['SD', 'SMP', 'SMA', 'D1', 'D2', 'D3', 'S1', 'S2', 'S3'];
-
     protected $fillable = [
         'nama',
-        'level',
+        'label',
     ];
 
     protected $casts = [

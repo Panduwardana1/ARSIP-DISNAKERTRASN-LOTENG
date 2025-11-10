@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Agency;
 use App\Models\TenagaKerja;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class Perusahaan extends Model
 {
@@ -15,7 +16,6 @@ class Perusahaan extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'agency_id',
         'nama',
         'pimpinan',
         'email',
@@ -26,16 +26,10 @@ class Perusahaan extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     public function tenagaKerja()
     {
         return $this->hasMany(TenagaKerja::class);
-    }
-
-    public function agency()
-    {
-        return $this->belongsTo(Agency::class);
     }
 }

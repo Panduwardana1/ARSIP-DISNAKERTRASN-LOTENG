@@ -3,18 +3,30 @@
 namespace App\Http\Requests;
 
 use App\Models\Desa;
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class DesaRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
+
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
-    {
-        return true;
-    }
+    // public function authorize(): bool
+    // {
+    //     $user = $this->user();
+
+    //     if ($this->isCreate()) {
+    //         return $user?->can('create', Desa::class) ?? false;
+    //     }
+
+    //     if ($this->isUpdate()) {
+    //         return $user?->can('update', $this->route('desa')) ?? false;
+    //     }
+
+    //     return $user?->can('viewAny', Desa::class) ?? false;
+    // }
 
     /**
      * Get the validation rules that apply to the request.
@@ -23,60 +35,48 @@ class DesaRequest extends FormRequest
      */
     public function rules(): array
     {
-        $routeParam = $this->route('desa');
-        $desa = $routeParam instanceof Desa ? $routeParam : Desa::find($routeParam);
-        $id = $desa?->id ?? $routeParam;
+        $desa = $this->route('desa');
+        $desaId = $desa instanceof Desa ? $desa->id : $desa;
 
-        $requireRules = ($this->isMethod('patch') || $this->isMethod('put'))
-            ? ['sometimes', 'required']
-            : ['required'];
+        $uniqueNama = Rule::unique('desas')
+            ->where(fn ($query) => $query->where('kecamatan_id', $this->input('kecamatan_id')));
 
-        $kecamatanId = $this->input('kecamatan_id', $desa?->kecamatan_id);
-        $tipe = $this->input('tipe', $desa?->tipe);
-
-        $namaUnik = Rule::unique('desas', 'nama')
-            ->where(function ($q) use ($kecamatanId, $tipe) {
-                $q->where('kecamatan_id', $kecamatanId)
-                    ->where('tipe', $tipe);
-            })
-            ->ignore($id);
+        if ($this->isUpdate() && $desaId) {
+            $uniqueNama = $uniqueNama->ignore($desaId);
+        }
 
         return [
-            'kecamatan_id' => [...$requireRules, 'integer', Rule::exists('kecamatans', 'id')],
-            'nama' => [...$requireRules, 'string', 'max:100', $namaUnik],
-            'tipe' => [...$requireRules, Rule::in(['desa', 'kelurahan'])],
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'kecamatan_id.required' => 'Kecamatan wajib dipilih.',
-            'kecamatan_id.exists' => 'Kecamatan yang dipilih tidak ditemukan.',
-            'nama.required' => 'Nama desa/kelurahan wajib diisi.',
-            'nama.unique' => 'Nama sudah digunakan dalam kecamatan tersebut.',
-            'tipe.required' => 'Tipe wilayah wajib dipilih.',
-            'tipe.in' => 'Tipe harus salah satu dari desa atau kelurahan.',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'kecamatan_id' => 'Kecamatan',
-            'nama' => 'Nama',
-            'tipe' => 'Tipe',
+            'kecamatan_id' => ['required', 'integer', 'exists:kecamatans,id'],
+            'nama' => ['required', 'string', 'max:50', $uniqueNama],
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $nama = preg_replace('/\s+/u', ' ', trim((string) $this->nama));
-        $tipe = $this->tipe ? strtolower(trim((string) $this->tipe)) : $this->tipe;
+        if ($this->filled('nama')) {
+            $this->merge([
+                'nama' => strtoupper((string) $this->input('nama')),
+            ]);
+        }
+    }
 
-        $this->merge([
-            'nama' => $nama,
-            'tipe' => $tipe,
-        ]);
+    public function messages(): array
+    {
+        return [
+            'nama.required' => 'Nama desa harus diisi',
+            'kecamatan_id.required' => 'Kecamatan harus dipilih',
+            'kecamatan_id.exists' => 'Kecamatan tidak ditemukan',
+            'nama.unique' => 'Nama desa sudah terpakai untuk kecamatan ini',
+        ];
+    }
+
+    public function isCreate(): bool
+    {
+        return $this->isMethod('POST');
+    }
+
+    public function isUpdate(): bool
+    {
+        return $this->isMethod('PUT') || $this->isMethod('PATCH');
     }
 }
