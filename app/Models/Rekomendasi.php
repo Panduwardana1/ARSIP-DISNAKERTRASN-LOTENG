@@ -20,7 +20,6 @@ class Rekomendasi extends Model
         'tanggal',
         'total',
         'author_id',
-        'user_verifikasi_id',
     ];
 
     protected $casts = [
@@ -33,15 +32,9 @@ class Rekomendasi extends Model
         return $this->belongsTo(Author::class);
     }
 
-    public function userVerifikasi(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_verifikasi_id');
-    }
-
     public function tenagaKerjas(): BelongsToMany
     {
-        return $this->belongsToMany(TenagaKerja::class, 'rekomendasi_items')
-            ->withPivot('id');
+        return $this->belongsToMany(TenagaKerja::class, 'rekomendasi_items');
     }
 
     public function items(): HasMany
@@ -49,33 +42,23 @@ class Rekomendasi extends Model
         return $this->hasMany(RekomendasiItem::class);
     }
 
-    public function arsip(): HasMany
+   public static function generateKode(): string
     {
-        return $this->hasMany(ArsipRekomendasi::class);
-    }
+        $year = now()->year;
 
-    public static function generateKode(mixed $tanggal = null, bool $lockForUpdate = false): string
-    {
-        $date = $tanggal ? Carbon::parse($tanggal) : now();
-        $year = $date->format('Y');
+        // kunci baris terakhir tahun berjalan supaya aman concurrent
+        $last = static::whereYear('tanggal', $year)
+            ->where('kode', 'like', "562/%/LTSA/$year")
+            ->lockForUpdate()
+            ->orderByDesc('id')
+            ->first();
 
-        $query = static::withTrashed()
-            ->whereYear('tanggal', $year);
-
-        if ($lockForUpdate) {
-            $query->lockForUpdate();
+        $seq = 1;
+        if ($last && preg_match("/^562\/(\d{4})\/LTSA\/{$year}$/", $last->kode, $m)) {
+            $seq = (int) $m[1] + 1;
         }
 
-        $latestKode = $query->latest('id')->value('kode');
-
-        $lastSequence = 0;
-
-        if ($latestKode && preg_match('/562\/(\d+)\/LTSA\/' . $year . '/i', $latestKode, $matches)) {
-            $lastSequence = (int) $matches[1];
-        }
-
-        $nextSequence = str_pad((string) ($lastSequence + 1), 3, '0', STR_PAD_LEFT);
-
-        return "562/{$nextSequence}/LTSA/{$year}";
+        return sprintf('562/%04d/LTSA/%d', $seq, $year);
     }
+
 }

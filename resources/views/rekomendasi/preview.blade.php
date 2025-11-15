@@ -1,106 +1,88 @@
 @extends('layouts.app')
 
-@section('pageTitle', 'SIREKAP - Preview Rekomendasi')
-@section('Title', 'Preview Rekomendasi Paspor')
+@push('head')
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+@endpush
 
 @section('content')
-    <div class="space-y-4">
-        @if ($errors->any())
-            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <ul class="list-inside list-disc">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+    <section class="container mx-auto px-4 py-6">
+        <h1 class="text-lg font-semibold mb-4">Preview Rekomendasi</h1>
 
-        <form method="POST" action="{{ route('sirekap.rekomendasi.store') }}"
-            class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm space-y-6">
-            @csrf
-
-            <div class="grid gap-4 md:grid-cols-3">
-                <div>
-                    <label class="text-sm font-semibold text-zinc-600" for="kode">Kode Surat</label>
-                    <input type="text" id="kode" name="kode" value="{{ old('kode', $kode) }}"
-                        readonly
-                        class="mt-1 w-full rounded-lg border border-zinc-200 bg-zinc-100 px-3 py-2 text-sm font-semibold text-zinc-800 focus:outline-none">
-                </div>
-                <div>
-                    <label class="text-sm font-semibold text-zinc-600" for="tanggal">Tanggal Surat</label>
-                    <input type="date" id="tanggal" name="tanggal" value="{{ old('tanggal', $tanggal) }}"
-                        class="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900">
-                </div>
-                <div>
-                    <label class="text-sm font-semibold text-zinc-600" for="author_id">Author / Pejabat Penandatangan</label>
-                    <select id="author_id" name="author_id"
-                        class="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900">
-                        <option value="">-- Pilih Author --</option>
-                        @foreach ($authors as $author)
-                            <option value="{{ $author->id }}" @selected(old('author_id') == $author->id)>
-                                {{ $author->nama }} - {{ $author->jabatan }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            @error('author_id')
-                <p class="text-sm text-red-600">{{ $message }}</p>
-            @enderror
-
-            <div class="rounded-lg border border-zinc-100">
-                <div class="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
-                    <div>
-                        <h3 class="text-lg font-semibold text-zinc-800">Data Tenaga Kerja</h3>
-                        <p class="text-sm text-zinc-500">Total {{ $tenagaKerjas->count() }} orang</p>
-                    </div>
-                    <a href="{{ route('sirekap.rekomendasi.index') }}"
-                        class="text-sm font-semibold text-slate-900 underline underline-offset-4">Kembali ke daftar</a>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-zinc-100 text-sm">
-                        <thead class="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                            <tr>
-                                <th class="px-3 py-2 text-left">No</th>
-                                <th class="px-3 py-2 text-left">Nama</th>
-                                <th class="px-3 py-2 text-left">NIK</th>
-                                <th class="px-3 py-2 text-left">Perusahaan</th>
-                                <th class="px-3 py-2 text-left">Destinasi</th>
-                                <th class="px-3 py-2 text-left">Tanggal Lahir</th>
+        <div class="mb-6">
+            <h2 class="font-medium mb-2">Tenaga Kerja ({{ $tenagaKerjas->count() }})</h2>
+            <div class="overflow-x-auto border rounded">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="p-2 text-left">#</th>
+                            <th class="p-2 text-left">Nama</th>
+                            <th class="p-2 text-left">NIK</th>
+                            <th class="p-2 text-left">Perusahaan</th>
+                            <th class="p-2 text-left">Negara Tujuan</th>
+                            <th class="p-2 text-left">Tgl Lahir</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($tenagaKerjas as $i => $tk)
+                            <tr class="border-t">
+                                <td class="p-2">{{ $i + 1 }}</td>
+                                <td class="p-2">{{ $tk->nama }}</td>
+                                <td class="p-2">{{ $tk->nik }}</td>
+                                <td class="p-2">{{ $tk->perusahaan->nama ?? '-' }}</td>
+                                <td class="p-2">{{ $tk->negara->nama ?? '-' }}</td>
+                                <td class="p-2">
+                                    {{ \Illuminate\Support\Carbon::parse($tk->tanggal_lahir)->format('d-m-Y') }}</td>
                             </tr>
-                        </thead>
-                        <tbody class="divide-y divide-zinc-100">
-                            @foreach ($tenagaKerjas as $index => $tenagaKerja)
-                                <tr>
-                                    <td class="px-3 py-2">{{ $index + 1 }}</td>
-                                    <td class="px-3 py-2 font-semibold text-zinc-800">{{ $tenagaKerja->nama }}</td>
-                                    <td class="px-3 py-2">{{ $tenagaKerja->nik }}</td>
-                                    <td class="px-3 py-2">{{ $tenagaKerja->perusahaan->nama ?? '-' }}</td>
-                                    <td class="px-3 py-2">{{ $tenagaKerja->negara->nama ?? '-' }}</td>
-                                    <td class="px-3 py-2">
-                                        {{ optional($tenagaKerja->tanggal_lahir)->translatedFormat('d F Y') ?? '-' }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
+        </div>
 
-            @foreach ($tenagaKerjas as $tenagaKerja)
-                <input type="hidden" name="tenaga_kerja_ids[]" value="{{ $tenagaKerja->id }}">
+        <form method="POST" action="{{ route('sirekap.rekomendasi.store') }}" class="space-y-4" target="_blank">
+            @csrf
+            @foreach ($tenagaKerjas as $tk)
+                <input type="hidden" name="tenaga_kerja_ids[]" value="{{ $tk->id }}">
             @endforeach
 
-            <div class="flex flex-col gap-3 border-t border-zinc-100 pt-4 md:flex-row md:items-center md:justify-between">
-                <p class="text-sm text-zinc-500">
-                    Pastikan data sudah benar sebelum menyimpan. Setelah tersimpan, Anda dapat melakukan export PDF.
-                </p>
-                <button type="submit"
-                    class="inline-flex items-center justify-center rounded-lg bg-slate-900 px-6 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
-                    Simpan Rekomendasi
-                </button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm mb-1">Kode Rekomendasi</label>
+                    <input type="text" name="kode" value="{{ old('kode', $kodeDefault) }}"
+                        class="border rounded px-3 py-2 w-full">
+                    <p class="text-xs text-zinc-500 mt-1">Format: 562/NNNN/LTSA/{{ now()->year }}</p>
+                    @error('kode')
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Tanggal</label>
+                    <input type="date" name="tanggal" value="{{ old('tanggal', now()->toDateString()) }}"
+                        class="border rounded px-3 py-2 w-full">
+                    @error('tanggal')
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Author (Kepala Dinas)</label>
+                    <select name="author_id" class="border rounded px-3 py-2 w-full">
+                        <option value="">-- pilih author --</option>
+                        @foreach ($authors as $a)
+                            <option value="{{ $a->id }}" @selected(old('author_id') == $a->id)>{{ $a->nama }} —
+                                {{ $a->jabatan }}</option>
+                        @endforeach
+                    </select>
+                    @error('author_id')
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button name="action" value="print" class="px-4 py-2 rounded bg-amber-600 text-white">Cetak PDF</button>
             </div>
         </form>
-    </div>
+    </section>
 @endsection

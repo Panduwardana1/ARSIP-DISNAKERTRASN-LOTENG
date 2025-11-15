@@ -1,62 +1,82 @@
 @extends('layouts.app')
-@section('titlePageContent', 'Preview')
 
-{{-- Content page --}}
 @section('content')
-    <div class="min-h-screen space-y-6 bg-zinc-100 px-4 py-6 font-inter md:px-6 md:py-8">
-        <div class="rounded-xl border border-zinc-200 bg-white p-6">
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 pb-4">
-                <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-sm text-zinc-500">
-                    <a href="{{ route('rekomendasi.index') }}"
-                        class="inline-flex items-center text-zinc-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600">
-                        Rekomendasi
-                    </a>
-                    <span class="text-zinc-400">/</span>
-                    <span class="text-zinc-400" aria-current="page">Preview</span>
-                </nav>
-                <a href="{{ route('rekomendasi.index') }}"
-                    class="inline-flex items-center justify-center rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-600">
-                    Kembali
-                </a>
-            </div>
-            <div class="flex flex-wrap items-start justify-between gap-6 pt-4">
-                <div class="space-y-4">
-                    <div>
-                        <h1 class="text-2xl font-semibold text-zinc-900">Preview Rekomendasi Paspor</h1>
-                        <p class="text-sm text-zinc-600">Tinjau kembali identitas CPMI berikut sebelum melanjutkan ke proses
-                            ekspor PDF.</p>
-                    </div>
-                    <div class="flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                        <span class="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1">
-                            Total dipilih: {{ number_format($count) }} data
-                        </span>
-                        <span
-                            class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-600">
-                            Tanggal rekomendasi: {{ $formattedDate }}
-                        </span>
-                    </div>
-                </div>
-                <form method="POST" action="{{ route('rekomendasi.export') }}"
-                    class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-end">
-                    @csrf
-                    @foreach ($ids as $id)
-                        <input type="hidden" name="ids[]" value="{{ $id }}">
-                    @endforeach
+    <section class="container mx-auto px-4 py-6">
+        <h1 class="text-lg font-semibold mb-4">Preview Rekomendasi</h1>
 
-                    {{-- search data --}}
-                    <input type="date" name="tanggal_rekom" value="{{ $selectedDate }}"
-                        class="mt-2 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
-                        required>
-                    {{-- button export --}}
-                    <button
-                        class="inline-flex items-center justify-center gap-2 rounded-md bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 sm:self-end">
-                        <img src="{{ asset('asset/acrobat-reader-svgrepo-com.png') }}" alt="Export PDF" class="h-5 w-5">
-                        <span>Export</span>
-                    </button>
-                </form>
+        <div class="mb-6">
+            <h2 class="font-medium mb-2">Tenaga Kerja ({{ $tenagaKerjas->count() }})</h2>
+            <div class="overflow-x-auto border rounded">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th class="p-2 text-left">#</th>
+                            <th class="p-2 text-left">Nama</th>
+                            <th class="p-2 text-left">NIK</th>
+                            <th class="p-2 text-left">Perusahaan</th>
+                            <th class="p-2 text-left">Negara Tujuan</th>
+                            <th class="p-2 text-left">Tgl Lahir</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($tenagaKerjas as $i => $tk)
+                            <tr class="border-t">
+                                <td class="p-2">{{ $i + 1 }}</td>
+                                <td class="p-2">{{ $tk->nama }}</td>
+                                <td class="p-2">{{ $tk->nik }}</td>
+                                <td class="p-2">{{ $tk->perusahaan->nama ?? '-' }}</td>
+                                <td class="p-2">{{ $tk->negara->nama ?? '-' }}</td>
+                                <td class="p-2">
+                                    {{ \Illuminate\Support\Carbon::parse($tk->tanggal_lahir)->format('d-m-Y') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        @include('rekomendasi._table_preview', ['pages' => $pages])
-    </div>
+        <form method="POST" action="{{ route('sirekap.rekomendasi.store') }}" class="space-y-4" target="_blank">
+            @csrf
+            @foreach ($tenagaKerjas as $tk)
+                <input type="hidden" name="tenaga_kerja_ids[]" value="{{ $tk->id }}">
+            @endforeach
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm mb-1">Kode Rekomendasi</label>
+                    <input type="text" name="kode" value="{{ old('kode', $kodeDefault) }}"
+                        class="border rounded px-3 py-2 w-full">
+                    <p class="text-xs text-zinc-500 mt-1">Format: 562/NNNN/LTSA/{{ now()->year }}</p>
+                    @error('kode')
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Tanggal</label>
+                    <input type="date" name="tanggal" value="{{ old('tanggal', now()->toDateString()) }}"
+                        class="border rounded px-3 py-2 w-full">
+                    @error('tanggal')
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">Author (Kepala Dinas)</label>
+                    <select name="author_id" class="border rounded px-3 py-2 w-full">
+                        <option value="">-- pilih author --</option>
+                        @foreach ($authors as $a)
+                            <option value="{{ $a->id }}" @selected(old('author_id') == $a->id)>{{ $a->nama }} —
+                                {{ $a->jabatan }}</option>
+                        @endforeach
+                    </select>
+                    @error('author_id')
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button name="action" value="print" class="px-4 py-2 rounded bg-amber-600 text-white">Cetak PDF</button>
+            </div>
+        </form>
+    </section>
 @endsection

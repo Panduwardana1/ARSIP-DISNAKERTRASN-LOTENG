@@ -2,204 +2,210 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\RekomendasiRequest;
-use App\Models\ArsipRekomendasi;
 use App\Models\Author;
 use App\Models\Rekomendasi;
 use App\Models\TenagaKerja;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
+use iio\libmergepdf\Merger;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
-use Illuminate\Support\ViewErrorBag;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Throwable;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
+use App\Http\Requests\RekomendasiRequest;
 
 class RekomendasiController extends Controller
 {
-    public function index(Request $request): View
+    private const MALE_GENDERS = ['l', 'laki-laki', 'male', 'm'];
+    private const FEMALE_GENDERS = ['p', 'perempuan', 'female', 'f'];
+
+    public function index(Request $request)
     {
-        $tenagaKerjas = TenagaKerja::query()
+        $q = TenagaKerja::query()
             ->with(['perusahaan:id,nama', 'negara:id,nama'])
-            ->whereDoesntHave('rekomendasis')
-            ->when(
-                $request->filled('q'),
-                fn ($query) => $query->where(function ($subQuery) use ($request) {
-                    $keyword = '%' . $request->input('q') . '%';
-                    $subQuery->where('nama', 'like', $keyword)
-                        ->orWhere('nik', 'like', $keyword);
-                })
-            )
-            ->orderBy('nama')
-            ->paginate(25)
-            ->withQueryString();
+            ->select('id', 'nama', 'nik', 'perusahaan_id', 'negara_id', 'tanggal_lahir')
+            ->orderByDesc('created_at');
+
+        if ($s = $request->get('search')) {
+            $q->where(fn($w) => $w->where('nama', 'like', "%{$s}%")->orWhere('nik', 'like', "%{$s}%"));
+        }
+
+        $tenagaKerjas = $q->paginate(20)->withQueryString();
 
         return view('rekomendasi.index', compact('tenagaKerjas'));
     }
 
-    public function preview(Request $request): View|RedirectResponse
+    public function preview(Request $request)
     {
-        if ($request->isMethod('get')) {
-            // $oldIds = $request->session()->getOldInput('tenaga_kerja_ids', []);
-
-            if (empty($oldIds)) {
-                /** @var ViewErrorBag|null $errorBag */
-                $errorBag = $request->session()->get('errors');
-
-                return redirect()
-                    ->route('sirekap.rekomendasi.index')
-                    ->withErrors(optional($errorBag)->getBag('default') ?? []);
-            }
-
-            $request->merge([
-                'tenaga_kerja_ids' => $oldIds,
-                // 'tanggal' => $request->session()->getOldInput('tanggal'),
-            ]);
+        $selectedIds = $this->resolveSelectedIds($request);
+        if (empty($selectedIds)) {
+            abort(404);
         }
 
-        $validated = $request->validate([
-            'tenaga_kerja_ids' => ['required', 'array', 'min:1'],
-            'tenaga_kerja_ids.*' => ['integer', 'distinct', 'exists:tenaga_kerjas,id'],
-            'tanggal' => ['nullable', 'date'],
-        ]);
-// Terjadi kesalahan saat menyimpan rekomendasi. Coba lagi.
-        $tanggal = $validated['tanggal'] ?? now()->toDateString();
-
-        $selectedIds = collect($validated['tenaga_kerja_ids'])->unique()->values();
-
-        $tenagaKerjaIds = TenagaKerja::query()
+        $tenagaKerjas = TenagaKerja::with(['perusahaan:id,nama', 'negara:id,nama'])
             ->whereIn('id', $selectedIds)
-            ->whereDoesntHave('rekomendasis')
-            ->pluck('id');
-
-        if ($tenagaKerjaIds->isEmpty()) {
-            return redirect()
-                ->route('sirekap.rekomendasi.index')
-                ->withErrors(['tenaga_kerja_ids' => 'Semua tenaga kerja yang dipilih sudah memiliki rekomendasi.']);
-        }
-
-        if ($tenagaKerjaIds->count() !== $selectedIds->count()) {
-            session()->flash('warning', 'Sebagian tenaga kerja telah memiliki rekomendasi dan tidak ditampilkan.');
-        }
-
-        $tenagaKerjas = TenagaKerja::query()
-            ->with(['perusahaan:id,nama', 'negara:id,nama'])
-            ->whereIn('id', $tenagaKerjaIds)
-            ->orderBy('nama')
             ->get();
 
-        $authors = Author::query()
-            ->select('id', 'nama', 'nip', 'jabatan')
-            ->orderBy('nama')
-            ->get();
+        if ($tenagaKerjas->isEmpty()) {
+            abort(404);
+        }
 
-        $kode = Rekomendasi::generateKode($tanggal);
+        $authors = Author::select('id', 'nama', 'nip', 'jabatan')->orderBy('nama')->get();
+        $kodeDefault = DB::transaction(fn() => Rekomendasi::generateKode());
 
-        return view('rekomendasi.preview', [
-            'tenagaKerjas' => $tenagaKerjas,
-            'authors' => $authors,
-            'kode' => $kode,
-            'tanggal' => $tanggal,
-        ]);
+        return response()->view('rekomendasi.preview', compact('tenagaKerjas', 'authors', 'kodeDefault'))->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')->header('Pragma', 'no-cache')->header('Expires', '0');
     }
 
-    public function store(RekomendasiRequest $request): RedirectResponse
+    public function store(RekomendasiRequest $request)
     {
-        $validated = $request->validated();
+        $userId = $request->user()->id ?? null;
+        $ids = array_values(array_unique($request->tenaga_kerja_ids ?: []));
+
+        if (empty($ids)) {
+            return back()
+                ->withErrors([
+                    'tenaga_kerja_ids' => 'Pilih minimal satu tenaga kerja.',
+                ])
+                ->withInput();
+        }
 
         try {
-            $rekomendasi = DB::transaction(function () use ($validated) {
-                $tenagaKerjaIds = collect($validated['tenaga_kerja_ids'])->unique()->values();
+            $rekomendasi = DB::transaction(function () use ($request, $userId, $ids) {
+                $kode = $request->filled('kode') ? (string) $request->input('kode') : Rekomendasi::generateKode();
+                $tanggal = optional($request->date('tanggal'))?->toDateString();
 
-                /** @var \Illuminate\Support\Collection<int, int> $availableIds */
-                $availableIds = TenagaKerja::query()
-                    ->whereIn('id', $tenagaKerjaIds)
-                    ->whereDoesntHave('rekomendasis')
-                    ->lockForUpdate()
-                    ->pluck('id');
-
-                if ($availableIds->count() !== $tenagaKerjaIds->count()) {
-                    throw ValidationException::withMessages([
-                        'tenaga_kerja_ids' => 'Beberapa tenaga kerja sudah memiliki rekomendasi.',
-                    ]);
-                }
-
-                $kodeBaru = Rekomendasi::generateKode($validated['tanggal'], true);
-
-                $rekomendasi = Rekomendasi::query()->create([
-                    'kode' => $kodeBaru,
-                    'tanggal' => $validated['tanggal'],
-                    'total' => $availableIds->count(),
-                    'author_id' => $validated['author_id'],
-                    // 'user_verifikasi_id' => auth()->id(),
+                $rek = Rekomendasi::create([
+                    'kode' => $kode,
+                    'tanggal' => $tanggal ?? now()->toDateString(),
+                    'total' => count($ids),
+                    'author_id' => (int) $request->author_id,
+                    'user_verifikasi_id' => $userId,
                 ]);
 
-                $availableIds->chunk(500)->each(
-                    fn ($chunk) => $rekomendasi->tenagaKerjas()->attach($chunk->all())
-                );
+                $rek->tenagaKerjas()->attach($ids);
 
-                return $rekomendasi;
+                return $rek->load(['author', 'tenagaKerjas.perusahaan', 'tenagaKerjas.negara']);
             });
-        } catch (ValidationException $exception) {
-            throw $exception;
-        } catch (Throwable $exception) {
-            Log::error('Gagal menyimpan rekomendasi paspor.', [
-                'exception' => $exception,
-                // 'user_id' => auth()->id(),
+        } catch (\Throwable $e) {
+            Log::error('Gagal menyimpan rekomendasi', [
+                'error' => $e->getMessage(),
+                'user_id' => $userId,
             ]);
 
             return back()
-                ->withInput()
-                ->withErrors(['app' => 'Terjadi kesalahan saat menyimpan rekomendasi. Coba lagi.']);
+                ->withErrors(['general' => 'Terjadi kesalahan saat menyimpan rekomendasi. Silakan coba lagi.'])
+                ->withInput();
         }
 
-        return redirect()
-            ->route('sirekap.rekomendasi.index')
-            ->with('success', 'Rekomendasi berhasil dibuat. Silakan cetak dokumen melalui tombol Export.')
-            ->with('rekomendasi_baru', $rekomendasi->id);
+        return $this->buildPdfResponse($rekomendasi);
     }
 
-    public function export(Rekomendasi $rekomendasi): BinaryFileResponse
+    public function pdf(Rekomendasi $rekomendasi): Response
     {
-        $rekomendasi->loadMissing([
-            'author',
-            'userVerifikasi',
-            'tenagaKerjas.perusahaan',
-            'tenagaKerjas.negara',
-        ]);
+        $rekomendasi->load(['author', 'tenagaKerjas.perusahaan', 'tenagaKerjas.negara']);
 
-        $tenagaKerjas = $rekomendasi->tenagaKerjas->sortBy('nama')->values();
+        return $this->buildPdfResponse($rekomendasi);
+    }
 
-        $pdf = Pdf::loadView('rekomendasi.pdf.cover', [
-            'rekomendasi' => $rekomendasi,
-            'tenagaKerjas' => $tenagaKerjas,
-        ])->setPaper('a4', 'portrait');
+    private function buildPdfResponse(Rekomendasi $rekomendasi): Response
+    {
+        $stats = $this->buildStats($rekomendasi->tenagaKerjas, $rekomendasi->tanggal);
 
-        $filename = sprintf('rekomendasi-%s.pdf', Str::slug($rekomendasi->kode, '-'));
-        $storageDirectory = storage_path('pdf/rekomendasi');
+        try {
+            $coverPdf = $this->renderPdf(
+                'rekomendasi.pdf.cover',
+                [
+                    'rekomendasi' => $rekomendasi,
+                ],
+                'a4',
+                'portrait',
+            );
 
-        if (! File::isDirectory($storageDirectory)) {
-            File::makeDirectory($storageDirectory, 0755, true);
+            $lampiranPdf = $this->renderPdf(
+                'rekomendasi.pdf.data',
+                [
+                    'rekomendasi' => $rekomendasi,
+                    'stats' => $stats,
+                ],
+                'a4',
+                'landscape',
+            );
+
+            $merged = $this->mergePdfs([$coverPdf, $lampiranPdf]);
+        } catch (\Throwable $e) {
+            Log::error('Gagal membuat PDF rekomendasi', [
+                'rekomendasi_id' => $rekomendasi->id,
+                'kode' => $rekomendasi->kode,
+                'error' => $e->getMessage(),
+            ]);
+
+            abort(500, 'Gagal membuat PDF rekomendasi.');
         }
 
-        $absolutePath = $storageDirectory . DIRECTORY_SEPARATOR . $filename;
+        $filename = Str::of($rekomendasi->kode)->replace(['/', '\\', ' '], '-') . '.pdf';
 
-        File::put($absolutePath, $pdf->output());
-
-        ArsipRekomendasi::create([
-            'rekomendasi_id' => $rekomendasi->id,
-            'file_path' => 'storage/pdf/rekomendasi/' . $filename,
-            'dicetak_pada' => now(),
-            // 'dicetak_oleh' => auth()->id(),
-        ]);
-
-        return response()->download($absolutePath, $filename, [
+        return response($merged, 200, [
             'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
         ]);
+    }
+
+    private function buildStats(Collection $tenagaKerjas, $tanggal): array
+    {
+        $maleCount = $tenagaKerjas->filter(fn($tk) => $this->isGender($tk->gender ?? null, self::MALE_GENDERS))->count();
+
+        $femaleCount = $tenagaKerjas->filter(fn($tk) => $this->isGender($tk->gender ?? null, self::FEMALE_GENDERS))->count();
+
+        $tanggalCarbon = $tanggal instanceof Carbon ? $tanggal : ($tanggal ? Carbon::parse($tanggal) : now());
+
+        return [
+            'tanggal' => $tanggalCarbon->translatedFormat('d F Y'),
+            'total' => $tenagaKerjas->count(),
+            'laki' => $maleCount,
+            'perempuan' => $femaleCount,
+        ];
+    }
+
+    private function renderPdf(string $view, array $data, string $paper, string $orientation): string
+    {
+        return Pdf::loadView($view, $data)->setPaper($paper, $orientation)->output();
+    }
+
+    private function mergePdfs(array $pdfs): string
+    {
+        $merger = new Merger();
+        foreach ($pdfs as $pdf) {
+            $merger->addRaw($pdf);
+        }
+
+        return $merger->merge();
+    }
+
+    private function isGender(?string $value, array $needles): bool
+    {
+        $normalized = strtolower(trim((string) $value));
+
+        return in_array($normalized, $needles, true);
+    }
+
+    private function resolveSelectedIds(Request $request): array
+    {
+        if ($request->isMethod('get')) {
+            return $this->normalizeIds((array) $request->old('tenaga_kerja_ids', []));
+        }
+
+        $validated = $request->validate([
+            'selected_ids' => ['required', 'array', 'min:1'],
+            'selected_ids.*' => ['integer', 'exists:tenaga_kerjas,id'],
+        ]);
+
+        return $this->normalizeIds($validated['selected_ids']);
+    }
+
+    private function normalizeIds(array $ids): array
+    {
+        return collect($ids)->map(fn($id) => (int) $id)->filter(fn($id) => $id > 0)->unique()->values()->all();
     }
 }

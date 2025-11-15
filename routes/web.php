@@ -14,6 +14,7 @@ use App\Http\Controllers\NegaraController;
 use App\Http\Controllers\PerusahaanController;
 use App\Http\Controllers\PendidikanController;
 use App\Http\Controllers\RekomendasiController;
+use App\Http\Controllers\TestingDesignController;
 use App\Http\Controllers\UserProfileController;
 
 // ? Redirect /
@@ -54,5 +55,6 @@ Route::prefix('/sirekap')->name('sirekap.')->group(function () {
         Route::post('/', [RekomendasiController::class, 'store'])->name('store');
         Route::get('/{rekomendasi}/export', [RekomendasiController::class, 'export'])->name('export');
     });
-
 });
+
+Route::resource('/testing', TestingDesignController::class);

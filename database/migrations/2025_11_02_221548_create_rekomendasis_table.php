@@ -13,18 +13,12 @@ return new class extends Migration
     {
         Schema::create('rekomendasis', function (Blueprint $t) {
             $t->id();
-            $t->string('kode')->unique();
-            $t->date('tanggal')->index('rekomendasis_tanggal_index');
+            $t->string('kode');
+            $t->date('tanggal')->index();
             $t->unsignedInteger('total');
             $t->foreignId('author_id')
                 ->constrained('authors')
-                ->cascadeOnDelete()
-                ->index('rekomendasis_author_id_index');
-            $t->foreignId('user_verifikasi_id')
-                ->constrained('users')
-                ->cascadeOnDelete()
-                ->index('rekomendasis_verifikator_id_index');
-
+                ->cascadeOnDelete();
             $t->softDeletes();
             $t->timestamps();
         });

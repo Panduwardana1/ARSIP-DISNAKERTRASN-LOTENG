@@ -7,7 +7,7 @@
     @php
         $activeStatus = $status;
     @endphp
-    <section class="container mx-auto space-y-6 px-4">
+    <section class="container mx-auto space-y-6">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
                 <p class="text-sm font-medium text-indigo-600">Data CPMI</p>
@@ -59,7 +59,7 @@
             $exportNegaras = \App\Models\Negara::select('id', 'nama')->orderBy('nama')->get();
         @endphp
 
-        <div class="max-w-4xl mx-auto bg-white p-6 shadow rounded">
+        <div class="max-w-2xl mx-auto bg-white p-4 shadow rounded">
             <h2 class="text-lg font-semibold mb-4">Export Data Tenaga Kerja</h2>
 
             <form action="{{ route('sirekap.export.download') }}" method="POST" class="grid grid-cols-2 gap-4">
@@ -116,7 +116,7 @@
                 <div>
                     <label class="block text-sm font-medium">Desa</label>
                     <select name="desa_id" class="w-full border rounded p-2" data-export-desa data-placeholder="Semua"
-                        @disabled(! old('kecamatan_id'))>
+                        @disabled(!old('kecamatan_id'))>
                         <option value="">{{ __('Semua') }}</option>
                         @foreach ($exportDesas as $desa)
                             <option value="{{ $desa->id }}" data-kecamatan="{{ $desa->kecamatan_id }}"
@@ -183,7 +183,7 @@
             </form>
         </div>
 
-        <div class="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <div class="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white shadow-sm">
             <form method="GET" action="{{ route('sirekap.tenaga-kerja.index') }}"
                 class="flex flex-col gap-3 sm:flex-row sm:items-center">
                 @foreach (request()->except(['q', 'status', 'page']) as $param => $value)
@@ -244,87 +244,114 @@
             </div>
         @enderror
 
-        <div class="overflow-hidden rounded-lg border border-zinc-200">
-            <table class="min-w-full divide-y divide-zinc-200 text-sm">
-                <thead class="bg-slate-800 text-left text-xs font-semibold uppercase tracking-wide text-white">
+        <div class="relative flex flex-col w-full h-full rounded-lg overflow-hidden max-w-full overflow-x-auto border">
+            <table class="w-full text-left table-auto min-w-max">
+                <thead class="bg-zinc-800 uppercase">
                     <tr>
-                        <th class="px-4 py-3">No</th>
-                        <th class="px-4 py-3">Nama</th>
-                        <th class="px-4 py-3">Gender</th>
-                        <th class="px-4 py-3">Pendidikan</th>
-                        <th class="px-4 py-3">Penempatan</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3 text-center">Aksi</th>
+                        <th class="p-4">
+                            <p class="text-sm font-normal leading-none text-slate-300">
+                                Identitas
+                            </p>
+                        </th>
+                        <th class="p-4">
+                            <p class="text-sm font-normal text-center leading-none text-slate-300">
+                                Gender
+                            </p>
+                        </th>
+                        <th class="p-4">
+                            <p class="text-sm font-normal leading-none text-slate-300">
+                                P3MI
+                            </p>
+                        </th>
+                        <th class="p-4">
+                            <p class="text-sm font-normal leading-none text-slate-300">
+                                Agency
+                            </p>
+                        <th class="p-4">
+                            <p class="text-sm font-normal leading-none text-slate-300">
+                                Pekerjaan
+                            </p>
+                        </th>
+                        <th class="p-4">
+                            <p class="text-sm font-normal leading-none text-slate-300">
+                                Terdata
+                            </p>
+                        </th>
+                        <th class="p-4">
+                            <p class="text-sm font-normal leading-none text-slate-300">
+                                Aksi
+                            </p>
+                        </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-zinc-100 bg-white text-zinc-800">
-                    @forelse ($tenagaKerjas as $index => $tenagaKerja)
-                        <tr class="hover:bg-zinc-50/70">
-                            <td class="px-4 py-4 text-sm text-zinc-500">
-                                {{ $tenagaKerjas->firstItem() + $index }}
-                            </td>
-                            <td class="px-4 py-4">
-                                <div class="space-y-0.5">
-                                    <p class="font-semibold text-[16px] text-zinc-900">{{ $tenagaKerja->nama }}</p>
-                                    {{ $tenagaKerja->nik }}
+                <tbody class="border">
+                    @forelse ($tenagaKerjas as $items)
+                        <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
+                            <td class="p-4">
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('sirekap.tenaga-kerja.show', $items) }}">
+                                        <img src="{{ asset('asset/images/default-profile.jpg') }}" alt="Profile"
+                                            class="h-12 w-auto rounded-full border-[1.5px] hover:border-amber-500">
+                                    </a>
+                                    <span class="grid items-center">
+                                        <p class="text-sm font-semibold text-zinc-800">{{ $items->nama }}</p>
+                                        <p class="text-xs font-medium text-zinc-600">{{ $items->nik }}</p>
+                                    </span>
                                 </div>
                             </td>
-                            <td class="px-4 py-4 text-sm text-zinc-700">
-                                <p class="text-[16px] text-zinc-800 rounded-full p-1">{{ $tenagaKerja->gender }}</p>
+                            <td class="p-4">
+                                <p class="text-sm text-center text-zinc-800">
+                                    {{ $items->gender }}
+                                </p>
                             </td>
-                            <td class="px-4 py-4 text-center">
-                                {{ optional($tenagaKerja->pendidikan)->nama ?? (optional($tenagaKerja->pendidikan)->label ?? '-') }}
+                            <td class="p-4">
+                                <p class="text-sm font-medium text-zinc-800">
+                                    {{ $items->perusahaan->nama ?? 'none' }}
+                                </p>
                             </td>
-                            <td class="px-4 py-4">
-                                <div class="text-sm">
-                                    <p class="font-medium text-zinc-900">
-                                        {{ optional($tenagaKerja->perusahaan)->nama ?? '-' }}</p>
-                                    <p class="text-xs text-zinc-500">Negara:
-                                        {{ optional($tenagaKerja->negara)->nama ?? '-' }}</p>
-                                </div>
+                            <td class="p-4">
+                                <p class="text-sm font-medium text-zinc-800">
+                                    {{ $items->agency->nama ?? 'none' }}
+                                </p>
                             </td>
-                            <td class="px-4 py-4">
-                                @php
-                                    $isActive = $tenagaKerja->is_active === 'Aktif';
-                                    $badgeClasses = $isActive
-                                        ? 'bg-emerald-100 text-emerald-700'
-                                        : 'bg-rose-100 text-rose-700';
-                                @endphp
-                                <span
-                                    class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $badgeClasses }}">
-                                    {{ $tenagaKerja->is_active }}
-                                </span>
+                            <td class="p-4">
+                                <p class="text-sm font-medium text-zinc-800">
+                                    {{ $items->agency->lowongan ?? 'none' }}
+                                </p>
                             </td>
-                            <td class="px-4 py-4 text-right">
-                                <div class="inline-flex items-center gap-2">
-                                    <a href="{{ route('sirekap.tenaga-kerja.show', $tenagaKerja) }}"
-                                        class="rounded-md border border-zinc-200 px-2.5 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-indigo-400 hover:text-indigo-600">
-                                        Detail
+                            <td class="p-4">
+                                <p class="text-sm text-zinc-800">
+                                    {{ $items->created_at->translatedFormat('d F Y') }}
+                                </p>
+                            </td>
+                            <td class="px-4 py-4 text-sm whitespace-nowrap">
+                                <div class="flex items-center gap-x-6">
+                                    <a href="{{ route('sirekap.perusahaan.edit', $items) }}"
+                                        class="text-zinc-600 transition-colors duration-200 hover:text-amber-500">
+                                        <span class="sr-only">Edit</span>
+                                        <x-heroicon-o-pencil class="w-5 h-5" />
                                     </a>
-                                    <a href="{{ route('sirekap.tenaga-kerja.edit', $tenagaKerja) }}"
-                                        class="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-700 transition hover:border-amber-300 hover:bg-amber-100">
-                                        Ubah
-                                    </a>
-                                    <x-modal-delete :action="route('sirekap.tenaga-kerja.destroy', $tenagaKerja)" :title="'Hapus ' . $tenagaKerja->nama" :message="'Data ' . $tenagaKerja->nama . ' akan dihapus permanen.'">
-                                        <button type="button"
-                                            class="rounded-md border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-100">
-                                            Hapus
+
+                                    <x-modal-delete :action="route('sirekap.perusahaan.destroy', $items)" :title="'Hapus Data '" :message="'Datas ' . $items->nama . ' akan dihapus permanen.'"
+                                        confirm-field="confirm_delete">
+                                        <button type="button" class="text-zinc-600 hover:text-rose-600">
+                                            <x-heroicon-o-trash class="h-5 w-5" />
                                         </button>
                                     </x-modal-delete>
                                 </div>
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" class="px-4 py-10 text-center text-sm text-zinc-500">
-                                Data tenaga kerja belum tersedia. Tambahkan CPMI baru untuk mulai mengelola data.
-                            </td>
-                        </tr>
+                        <div>
+                            <span>Belum ada data</span>
+                        </div>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="pb-6">
+
+        {{-- ? pagination --}}
+        <div class="pt-6">
             {{ $tenagaKerjas->onEachSide(2)->links() }}
         </div>
     </section>

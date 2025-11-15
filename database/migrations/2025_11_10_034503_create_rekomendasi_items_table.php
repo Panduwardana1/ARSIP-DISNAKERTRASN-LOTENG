@@ -13,22 +13,11 @@ return new class extends Migration
     {
         Schema::create('rekomendasi_items', function (Blueprint $t) {
             $t->id();
-            $t->foreignId('rekomendasi_id')
-                ->constrained('rekomendasis')
-                ->cascadeOnDelete()
-                ->index('rekomendasi_items_rekomendasi_index');
-            $t->foreignId('tenaga_kerja_id')
-                ->constrained('tenaga_kerjas')
-                ->cascadeOnDelete()
-                ->index('rekomendasi_items_tenaga_kerja_index');
-
-            $t->unique(['rekomendasi_id', 'tenaga_kerja_id'], 'rekomendasi_items_unique');
+            $t->foreignId('rekomendasi_id')->constrained()->cascadeOnDelete();
+            $t->foreignId('tenaga_kerja_id')->constrained('tenaga_kerjas')->cascadeOnDelete();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('rekomendasi_items');

@@ -11,10 +11,12 @@ use App\Models\TenagaKerja;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories.Factory<\App\Models\TenagaKerja>
+ * @extends Factory<TenagaKerja>
  */
 class TenagaKerjaFactory extends Factory
 {
+    protected $model = TenagaKerja::class;
+
     /**
      * Define the model's default state.
      *
@@ -22,24 +24,35 @@ class TenagaKerjaFactory extends Factory
      */
     public function definition(): array
     {
-        $gender = fake()->randomElement(array_keys(TenagaKerja::GENDERS));
+        $faker = fake('id_ID');
+        $gender = $faker->randomElement(array_keys(TenagaKerja::GENDERS));
 
         return [
-            'nama' => fake()->name(),
-            'nik' => fake()->unique()->numerify('################'),
+            'nama' => $faker->name($gender === 'L' ? 'male' : 'female'),
+            'nik' => $faker->unique()->numerify(str_repeat('#', 16)),
             'gender' => $gender,
-            'email' => fake()->unique()->safeEmail(),
-            'no_telpon' => fake()->numerify('08###########'),
-            'tempat_lahir' => fake()->city(),
-            'tanggal_lahir' => fake()->dateTimeBetween('-45 years', '-18 years')->format('Y-m-d'),
-            'alamat_lengkap' => fake()->address(),
+            'email' => $faker->unique()->safeEmail(),
+            'no_telpon' => $faker->numerify('08##########'),
+            'tempat_lahir' => $faker->city(),
+            'tanggal_lahir' => $faker->dateTimeBetween('-45 years', '-18 years')->format('Y-m-d'),
+            'alamat_lengkap' => $faker->address(),
             'desa_id' => Desa::factory(),
-            'kode_pos' => fake()->numerify('#####'),
+            'kode_pos' => $faker->postcode(),
             'pendidikan_id' => Pendidikan::factory(),
             'perusahaan_id' => Perusahaan::factory(),
             'agency_id' => Agency::factory(),
             'negara_id' => Negara::factory(),
-            'is_active' => fake()->randomElement(array_keys(TenagaKerja::STATUSES)),
+            'is_active' => $faker->randomElement(array_keys(TenagaKerja::STATUSES)),
         ];
+    }
+
+    public function aktif(): static
+    {
+        return $this->state(fn () => ['is_active' => 'Aktif']);
+    }
+
+    public function banned(): static
+    {
+        return $this->state(fn () => ['is_active' => 'Banned']);
     }
 }

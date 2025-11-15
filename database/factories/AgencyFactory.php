@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Perusahaan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Agency>
+ * @extends \Illuminate\Database\Eloquent\Factories.Factory<\App\Models\Agency>
  */
 class AgencyFactory extends Factory
 {
@@ -18,9 +19,9 @@ class AgencyFactory extends Factory
     {
         return [
             'nama' => fake()->unique()->company(),
-            'country' => fake()->country(),
-            'lowongan' => fake()->sentence(3),
-            'deskripsi' => fake()->paragraph(),
+            'perusahaan_id' => Perusahaan::factory(),
+            'lowongan' => fake()->optional()->words(3, true),
+            'keterangan' => fake()->optional()->paragraph(),
         ];
     }
 }

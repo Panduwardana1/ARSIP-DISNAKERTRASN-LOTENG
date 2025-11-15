@@ -2,44 +2,42 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
 class RekomendasiRequest extends FormRequest
 {
     protected $redirectRoute = 'sirekap.rekomendasi.preview';
 
-    public function authorize(): bool
-    {
-        return true;
-    }
+    // public function authorize(): bool
+    // {
+    //     return true;
+    // }
 
     public function rules(): array
     {
-        return [
-            'kode' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('rekomendasis', 'kode'),
-            ],
-            'tanggal' => ['required', 'date'],
-            'author_id' => ['required', 'integer', Rule::exists('authors', 'id')],
-            'tenaga_kerja_ids' => ['required', 'array', 'min:1'],
-            'tenaga_kerja_ids.*' => ['integer', 'distinct', Rule::exists('tenaga_kerjas', 'id')],
+       return [
+            'kode' => ['required','string','max:100','unique:rekomendasis,kode'],
+            'tanggal' => ['required','date'],
+            'author_id' => ['required','exists:authors,id'],
+            'tenaga_kerja_ids' => ['required','array','min:1'],
+            'tenaga_kerja_ids.*' => ['integer','exists:tenaga_kerjas,id'],
+            'action' => ['required','in:print'],
         ];
     }
 
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'kode' => str($this->input('kode'))->trim()->toString(),
+            'kode' => trim(Str::upper((string) $this->input('kode'))),
             'tenaga_kerja_ids' => collect($this->input('tenaga_kerja_ids', []))
                 ->filter(fn ($id) => ! empty($id))
                 ->map(fn ($id) => (int) $id)
                 ->unique()
                 ->values()
                 ->all(),
+            'submit_action' => $this->input('submit_action', 'save'),
         ]);
     }
 

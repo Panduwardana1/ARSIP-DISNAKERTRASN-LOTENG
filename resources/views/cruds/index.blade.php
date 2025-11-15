@@ -1,5 +1,0 @@
-
-{{-- Hlaman index --}}
-<section>
-
-</section>

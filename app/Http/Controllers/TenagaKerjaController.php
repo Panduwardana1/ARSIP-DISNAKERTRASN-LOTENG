@@ -42,7 +42,7 @@ class TenagaKerjaController extends Controller
             ->with([
                 'pendidikan:id,nama,label',
                 'perusahaan:id,nama',
-                'agency:id,nama',
+                'agency:id,nama,lowongan',
                 'negara:id,nama',
             ])
             ->when(
