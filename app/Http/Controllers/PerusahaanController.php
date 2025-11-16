@@ -17,7 +17,7 @@ class PerusahaanController extends Controller
     {
         $perusahaans = Perusahaan::query()
             ->select('id', 'nama', 'pimpinan', 'email', 'alamat', 'gambar')
-            ->orderBy('id')
+            ->orderByDesc('id')
             ->paginate(15)->withQueryString();
 
         return view('cruds.perusahaan.index', compact('perusahaans'));
