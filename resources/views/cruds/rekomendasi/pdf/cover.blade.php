@@ -1,157 +1,336 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
-    <title>Surat Rekomendasi</title>
+    <title>Surat Rekomendasi Paspor PMI</title>
     <style>
         @page {
             size: A4 portrait;
-            margin: 20mm 18mm;
+            margin: 25mm 25mm 20mm 25mm;
+        }
+
+        @font-face {
+            font-family: 'ArialCustom';
+            font-style: normal;
+            font-weight: normal;
+            src: url("{{ public_path('asset/fonts/arial.ttf') }}") format('truetype');
         }
 
         body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
-            color: #111;
-        }
-
-        .center {
-            text-align: center;
-        }
-
-        .kop h2 {
+            font-family: 'ArialCustom', sans-serif;
+            font-size: 12pt;
+            color: #000;
+            line-height: 1.35;
             margin: 0;
-            font-size: 16px;
-            letter-spacing: .5px;
         }
 
-        .kop h3 {
-            margin: 2px 0 0;
+        body * {
+            font-family: 'ArialCustom', sans-serif;
+        }
+
+        .page {
+            width: 100%;
+        }
+
+        .kop-table {
+            width: 100%;
+            text-align: center;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+            font-family: Arial, sans-serif;
+        }
+
+        .kop-table td {
+            vertical-align: middle;
+            padding: 0;
+            margin: 0;
+        }
+
+        .kop-logo img {
+            height: 75px;
+            width: auto;
+        }
+
+        .kop-text {
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .kop-title-1 {
+            font-size: 20px;
+            font-weight: 400;
+            margin: 0;
+            letter-spacing: -0.5px;
+            font-family: Arial, sans-serif;
+        }
+
+        .kop-title-2 {
+            font-size: 21px;
+            font-weight: 700;
+            margin: 2px 0 4px 0;
+            letter-spacing: -0.5px;
+            font-family: Arial, sans-serif;
+        }
+
+        .kop-address {
             font-size: 14px;
-        }
-
-        .kop .alamat {
-            font-size: 10px;
+            margin: 0;
             margin-top: 4px;
+            font-family: Arial, sans-serif;
         }
 
-        .hr-1 {
-            border: 0;
-            border-top: 2px solid #000;
-            margin: 8px 0 0;
+        .divider {
+            border-top: 3px solid #000;
+            border-bottom: 1px solid #000;
+            margin: 10px 0 22px;
         }
 
-        .hr-2 {
-            border: 0;
-            border-top: 1px solid #000;
-            margin: 2px 0 14px;
+        .divider {
+            border-top: 3px solid #000;
+            border-bottom: 1px solid #000;
+            margin: 8px 0 24px;
         }
 
-        .kolom {
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .kolom td {
-            vertical-align: top;
-            padding: 2px 0;
-        }
-
-        .mt-24 {
-            margin-top: 24px;
-        }
-
-        .mb-8 {
-            margin-bottom: 8px;
-        }
-
-        .ttd {
-            width: 100%;
-            margin-top: 40px;
-        }
-
-        .ttd td {
-            vertical-align: bottom;
-        }
-
-        .kanan {
-            text-align: right;
-        }
-
-        .bold {
+        .tujuan {
+            padding-bottom: 1rem;
             font-weight: bold;
         }
 
-        .u {
-            text-decoration: underline;
+        .meta {
+            width: 100%;
+            font-size: 12pt;
+            line-height: 1.3;
+            margin-bottom: 18px;
+            padding-bottom: 2rem;
+        }
+
+        .meta td {
+            padding: 3px 5px;
+            vertical-align: top;
+        }
+
+        .meta td:first-child {
+            width: 100px;
+        }
+
+        .meta td:nth-child(2) {
+            width: 15px;
+            text-align: right;
+            letter-spacing: 0;
+        }
+
+        .meta td:last-child {
+            font-weight: normal;
+        }
+
+        .meta strong {
+            text-transform: none;
+            font-weight: bold;
+        }
+
+        .date {
+            text-align: right;
+            margin-bottom: 14px;
+        }
+
+        .content {
+            text-align: left;
+        }
+
+        .content p {
+            margin: 0 0 12px;
+            text-indent: 1.25cm;
+        }
+
+        .content .no-indent {
+            text-indent: 0;
+        }
+
+        .signature-block {
+            width: 50%;
+            margin-left: auto;
+            margin-top: 70px;
+            text-align: left;
+            font-size: 12pt;
+        }
+
+        .signature-block .position {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .signature-block .space {
+            height: 90px;
+        }
+
+        .signature-block .name {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .signature-block .nip {
+            margin: 0;
         }
     </style>
 </head>
 
 <body>
+    <div class="page">
+        @php
+            $perusahaanList = $rekomendasi->tenagaKerjas
+                ->map(fn($tk) => optional($tk->perusahaan)->nama)
+                ->filter()
+                ->unique()
+                ->values();
 
-    {{-- KOP SURAT --}}
-    <div class="kop center">
-        <h2>PEMERINTAH KABUPATEN KUDUS</h2>
-        <h3>DINAS TENAGA KERJA, PERINDUSTRIAN, KOPERASI DAN UKM</h3>
-        <div class="alamat">Jl. Mejobo No. 99 Kudus • Telp (0291) 123456 • email: disnaker@kuduskab.go.id</div>
+            $negaraList = $rekomendasi->tenagaKerjas
+                ->map(fn($tk) => optional($tk->negara)->nama)
+                ->filter()
+                ->unique()
+                ->values();
+
+            $perusahaanName = $perusahaanList->isNotEmpty() ? $perusahaanList->implode(', ') : '-';
+            $destinasiTujuan = $negaraList->isNotEmpty() ? $negaraList->implode(', ') : '-';
+
+            $nomorRekom = $rekomendasi->kode ?? '-';
+            $totalCpmi = $stats['total'] ?? ($rekomendasi->total ?? $rekomendasi->tenagaKerjas->count());
+            $jumlahLaki = $stats['laki'] ?? 0;
+            $jumlahPerempuan = $stats['perempuan'] ?? 0;
+
+            $tanggalCetak =
+                optional($rekomendasi->tanggal)->translatedFormat('d F Y') ?? now()->translatedFormat('d F Y');
+            $author = $rekomendasi->author;
+
+            try {
+                $formatter = class_exists(\NumberFormatter::class)
+                    ? new \NumberFormatter('id_ID', \NumberFormatter::SPELLOUT)
+                    : null;
+            } catch (\Throwable $e) {
+                $formatter = null;
+            }
+
+            $spellNumber = function ($value) use ($formatter) {
+                if (!is_numeric($value) || $formatter === null) {
+                    return null;
+                }
+
+                $spelled = $formatter->format($value);
+                if (!is_string($spelled)) {
+                    return null;
+                }
+
+                $spelled = trim(mb_strtolower($spelled, 'UTF-8'));
+
+                return $spelled !== '' ? $spelled : null;
+            };
+
+            $totalCpmiSpelled = $spellNumber($totalCpmi);
+            $logoPath = public_path('asset/images/lombok_tengah2.png');
+            $logoData = file_exists($logoPath)
+                ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath))
+                : null;
+        @endphp
+
+        <table class="kop-table">
+            <tr>
+                <td style="width:130px;" class="kop-logo">
+                    <img src="{{ $logoData }}" alt="Logo Kabupaten Lombok Tengah">
+                </td>
+
+                <td class="kop-text">
+                    <div class="kop-title-1">PEMERINTAH KABUPATEN LOMBOK TENGAH</div>
+                    <div class="kop-title-2">DINAS TENAGA KERJA DAN TRANSMIGRASI</div>
+                    <div class="kop-address">
+                        Alamat : Jl. S. Parman No. 5 Telepon (0370) 653130, Praya 83511
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <div class="date">
+            Lombok Tengah, {{ $tanggalCetak }}
+        </div>
+
+        <table class="meta">
+            <tr>
+                <td>Nomor</td>
+                <td>:</td>
+                <td style="word-spacing: 4px;">{{ $nomorRekom }}</td>
+            </tr>
+            <tr>
+                <td>Lampiran</td>
+                <td>:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Perihal</td>
+                <td>:</td>
+                <td>
+                    <strong>
+                        Rekomendasi Pembuatan <br>
+                        Paspor PMI{{ $destinasiTujuan !== '-' ? ' ' . $destinasiTujuan : '' }}
+                    </strong>
+                </td>
+            </tr>
+        </table>
+
+        <div class="tujuan">
+            <strong>Kepada Yth.</strong><br>
+            <strong>Kepala KANTOR IMIGRASI MATARAM<br>di<br>
+                <span style="margin-left: 25px; text-decoration: underline">TEMPAT</span>
+            </strong>
+        </div>
+
+        <div class="content">
+            <p>
+                Sesuai dengan permohonan
+                <strong>{{ $perusahaanName ?? '-' }}</strong>
+                perihal tersebut di atas, telah kami adakan verifikasi atas dokumen CPMI.
+            </p>
+
+            <p>
+                Bersama ini kami memberikan rekomendasi untuk pembuatan paspor CPMI sebanyak
+                {{ $totalCpmi }}
+                @if ($totalCpmiSpelled)
+                    ({{ $totalCpmiSpelled }})
+                @endif
+                orang sesuai lampiran dengan rincian:
+            </p>
+
+            <p class="no-indent">
+                Laki-laki : {{ $jumlahLaki }} orang
+            </p>
+            <p class="no-indent">
+                Perempuan : {{ $jumlahPerempuan }} orang
+            </p>
+
+            <p>
+                Sebagai bahan pertimbangan, kami sertakan dokumen PMI yang diperlukan. Demikian disampaikan, atas
+                perhatiannya dan kerja sama yang baik kami ucapkan terima kasih.
+            </p>
+        </div>
+
+        <div class="signature-block">
+            @if ($author)
+                <p class="position">{{ strtoupper($author->jabatan) }}</p>
+                <div class="space"></div>
+                <p class="name"><u>{{ strtoupper($author->nama) }}</u></p>
+                <p class="nip">NIP {{ $author->nip ?? '-' }}</p>
+            @else
+                <p class="position">A.N. KEPALA DISNAKERTRANS KAB. LOMBOK TENGAH</p>
+                <p class="position">KABID PENEMPATAN DAN PERLUASAN KERJA</p>
+                <div class="space"></div>
+                <p class="name"><u>SUPIANDI, S.STP</u></p>
+                <p class="nip">NIP 198201182002121001</p>
+            @endif
+        </div>
     </div>
-    <hr class="hr-1">
-    <hr class="hr-2">
-
-    {{-- Tanggal & Kota --}}
-    <div class="kanan mb-8">Kudus,
-        {{ \Illuminate\Support\Carbon::parse($rekomendasi->tanggal)->translatedFormat('d F Y') }}</div>
-
-    {{-- Nomor / Lampiran / Hal --}}
-    <table class="kolom">
-        <tr>
-            <td width="80">Nomor</td>
-            <td width="10">:</td>
-            <td>{{ $rekomendasi->kode }}</td>
-        </tr>
-        <tr>
-            <td>Lampiran</td>
-            <td>:</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>Hal</td>
-            <td>:</td>
-            <td class="bold">Rekomendasi Pengurusan Paspor</td>
-        </tr>
-    </table>
-
-    <div class="mt-24">
-        Kepada Yth.<br>
-        Kepala Kantor Imigrasi _______________________<br>
-        di tempat
-    </div>
-
-    <div class="mt-24" style="text-align:justify; line-height:1.5;">
-        Dengan hormat,<br>
-        Bersama ini kami mengajukan permohonan rekomendasi penerbitan paspor bagi calon pekerja migran Indonesia
-        sebagaimana tercantum pada lampiran. Seluruh data telah kami verifikasi sesuai ketentuan dan dapat digunakan
-        sebagai bahan pengurusan lebih lanjut.
-    </div>
-
-    <div class="mt-24" style="text-align:justify; line-height:1.5;">
-        Demikian disampaikan, atas perhatian dan kerja samanya kami ucapkan terima kasih.
-    </div>
-
-    {{-- Tanda tangan --}}
-    <table class="ttd">
-        <tr>
-            <td width="50%"></td>
-            <td width="50%" class="kanan">
-                Hormat kami,<br>
-                <span class="bold">KEPALA DINAS</span><br><br><br><br>
-                <span class="bold u">{{ strtoupper($rekomendasi->author->nama) }}</span><br>
-                NIP: {{ $rekomendasi->author->nip ?: '________________' }}
-            </td>
-        </tr>
-    </table>
 </body>
 
 </html>

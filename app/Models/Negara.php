@@ -26,4 +26,9 @@ class Negara extends Model
     {
         return $this->hasMany(TenagaKerja::class);
     }
+
+    public function rekomendasiItems(): HasMany
+    {
+        return $this->hasMany(RekomendasiItem::class);
+    }
 }
