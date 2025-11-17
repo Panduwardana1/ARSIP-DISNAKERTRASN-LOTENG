@@ -24,8 +24,8 @@ class RekomendasiController extends Controller
     public function index(Request $request)
     {
         $q = TenagaKerja::query()
-            ->with(['perusahaan:id,nama', 'negara:id,nama'])
-            ->select('id', 'nama', 'nik', 'perusahaan_id', 'negara_id', 'tanggal_lahir')
+            ->with(['perusahaan:id,nama', 'negara:id,nama', 'agency:id,nama,lowongan'])
+            ->select('id', 'nama', 'nik', 'agency_id', 'gender', 'perusahaan_id', 'negara_id', 'tanggal_lahir')
             ->orderByDesc('created_at');
 
         if ($s = $request->get('search')) {
@@ -34,7 +34,7 @@ class RekomendasiController extends Controller
 
         $tenagaKerjas = $q->paginate(20)->withQueryString();
 
-        return view('rekomendasi.index', compact('tenagaKerjas'));
+        return view('cruds.rekomendasi.index', compact('tenagaKerjas'));
     }
 
     public function preview(Request $request)
@@ -44,7 +44,7 @@ class RekomendasiController extends Controller
             abort(404);
         }
 
-        $tenagaKerjas = TenagaKerja::with(['perusahaan:id,nama', 'negara:id,nama'])
+        $tenagaKerjas = TenagaKerja::with(['perusahaan:id,nama', 'negara:id,nama', 'agency:id,nama,lowongan'])
             ->whereIn('id', $selectedIds)
             ->get();
 
@@ -55,7 +55,7 @@ class RekomendasiController extends Controller
         $authors = Author::select('id', 'nama', 'nip', 'jabatan')->orderBy('nama')->get();
         $kodeDefault = DB::transaction(fn() => Rekomendasi::generateKode());
 
-        return response()->view('rekomendasi.preview', compact('tenagaKerjas', 'authors', 'kodeDefault'))->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')->header('Pragma', 'no-cache')->header('Expires', '0');
+        return response()->view('cruds.rekomendasi.preview', compact('tenagaKerjas', 'authors', 'kodeDefault'))->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')->header('Pragma', 'no-cache')->header('Expires', '0');
     }
 
     public function store(RekomendasiRequest $request)
@@ -115,16 +115,17 @@ class RekomendasiController extends Controller
 
         try {
             $coverPdf = $this->renderPdf(
-                'rekomendasi.pdf.cover',
+                'cruds.rekomendasi.pdf.cover',
                 [
                     'rekomendasi' => $rekomendasi,
+                    'stats' => $stats,
                 ],
                 'a4',
                 'portrait',
             );
 
             $lampiranPdf = $this->renderPdf(
-                'rekomendasi.pdf.data',
+                'cruds.rekomendasi.pdf.data',
                 [
                     'rekomendasi' => $rekomendasi,
                     'stats' => $stats,

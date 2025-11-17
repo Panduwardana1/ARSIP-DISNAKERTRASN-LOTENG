@@ -28,7 +28,7 @@ class KecamatanController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('cruds.kecamatan.index', compact('kecamatans'));
+        return view('cruds.kecamatan.index', compact('kecamatans', 'search'));
     }
 
     public function create()

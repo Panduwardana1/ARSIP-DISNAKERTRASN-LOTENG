@@ -32,7 +32,7 @@ class DesaController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('cruds.desa.index', compact('desas'));
+        return view('cruds.desa.index', compact('desas', 'search'));
     }
 
     public function create()

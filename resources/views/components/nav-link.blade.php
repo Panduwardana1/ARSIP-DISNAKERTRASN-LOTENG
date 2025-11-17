@@ -1,11 +1,12 @@
 @props(['active' => false])
 
 @php
-    $classes = $active
-        ? ' text-amber-500 bg-red-200 rounded-md'
-        : ' text-amber-50 hover:text-amber-500 rounded-md';
+    $baseClasses = 'flex w-full items-center rounded-md px-2 py-1.5 text-zinc-900 transition-all duration-200';
+    $stateClasses = $active
+        ? 'bg-zinc-200'
+        : 'hover:bg-zinc-200/70';
 @endphp
 
-<a {{ $attributes->class($classes) }}>
+<a {{ $attributes->class([$baseClasses, $stateClasses]) }}>
     {{ $slot }}
 </a>

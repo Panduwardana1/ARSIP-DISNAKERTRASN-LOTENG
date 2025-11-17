@@ -12,6 +12,8 @@ class RekomendasiItem extends Model
     protected $fillable = [
         'rekomendasi_id',
         'tenaga_kerja_id',
+        'perusahaan_id',
+        'negara_id',
     ];
 
     public function rekomendasi(): BelongsTo

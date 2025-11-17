@@ -1,44 +1,51 @@
 @extends('layouts.app')
-@section('Title', 'Dashboard Overview')
+
+<section>
+    <span class="font-semibold">
+        @section('titlePageContent', 'Dashboard Overview')
+    </span>
+</section>
+
+
 @section('content')
-    <section class="grid grid-cols-3 gap-3">
-        <div class="col-span-2 border space-y-3">
+    <section class="grid gap-3 lg:grid-cols-3">
+        <div class="col-span-3 space-y-3 lg:col-span-2">
             {{-- card data --}}
-            <div class="grid grid-cols-3 gap-2">
-                <div class="h-36 box-border grid gap-3 border col-span-1 rounded-lg bg-white p-2">
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                <div class="h-36 box-border grid gap-3 border rounded-lg bg-white p-3">
                     <div class="flex items-center gap-2 text-zinc-900">
-                        <x-heroicon-o-user-circle class="h-7 w-auto bg-orange-600 text-white rounded-md p-[1.5px]" />
-                        <span class="font-semibold">Total Tenaga Kerja</span>
+                        <x-heroicon-o-user-circle class="h-7 w-auto bg-emerald-600 text-white rounded-sm p-[2px]" />
+                        <span class="font-semibold">CPMI</span>
                     </div>
                     <h1 class="font-bold text-2xl py-1">90456</h1>
                     <span class="border-t w-full py-2 text-zinc-500 text-sm font-medium">More Details</span>
                 </div>
-                <div class="h-36 box-border grid gap-3 border col-span-1 rounded-lg bg-white p-2">
+                <div class="h-36 box-border grid gap-3 border rounded-lg bg-white p-3">
                     <div class="flex items-center gap-2 text-zinc-900">
-                        <x-heroicon-o-user-circle class="h-7 w-auto bg-orange-600 text-white rounded-md p-[1.5px]" />
-                        <span class="font-semibold">Total Tenaga Kerja</span>
+                        <x-heroicon-o-building-office class="h-7 w-auto bg-amber-600 text-white rounded-sm p-1" />
+                        <span class="font-semibold">P3MI</span>
                     </div>
                     <h1 class="font-bold text-2xl py-1">90456</h1>
                     <span class="border-t w-full py-2 text-zinc-500 text-sm font-medium">More Details</span>
                 </div>
-                <div class="h-36 box-border grid gap-3 border col-span-1 rounded-lg bg-white p-2">
+                <div class="h-36 box-border grid gap-3 border rounded-lg bg-white p-3">
                     <div class="flex items-center gap-2 text-zinc-900">
-                        <x-heroicon-o-user-circle class="h-7 w-auto bg-orange-600 text-white rounded-md p-[1.5px]" />
-                        <span class="font-semibold">Total Tenaga Kerja</span>
+                        <x-heroicon-o-document-text class="h-7 w-auto bg-blue-600 text-white rounded-sm p-1" />
+                        <span class="font-semibold">Rekom</span>
                     </div>
                     <h1 class="font-bold text-2xl py-1">90456</h1>
                     <span class="border-t w-full py-2 text-zinc-500 text-sm font-medium">More Details</span>
                 </div>
             </div>
-            <div class="grid w-full border h-80 rounded-lg bg-white">
+            <div class="grid w-full border min-h-[14rem] rounded-lg bg-white p-4">
 
             </div>
         </div>
-        <div class="col-span-1 border h-[30rem] bg-white p-4">
+        <div class="col-span-3 border min-h-[18rem] bg-white p-4 lg:col-span-1">
             o
         </div>
-        <div class="grid col-span-3 w-full border rounded-lg bg-white p-2">
-            <div class="flex items-center justify-between">
+        <div class="grid col-span-3 w-full border rounded-lg bg-white p-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
                     <x-heroicon-o-clipboard-document-list class="h-7 w-auto rounded-md p-[1.5px]" />
                     <h3 class="font-semibold text-xl">Recent Add</h3>
@@ -47,7 +54,7 @@
                     <x-heroicon-o-arrow-right-circle class="h-7 w-auto -rotate-45" />
                 </a>
             </div>
-            <div class="h-60 p-2">
+            <div class="min-h-[10rem] p-2">
                 <div>
                     Lorem ipsum, dolor sit amet consectetur adipisicing elit. Eum, ea error placeat eligendi facilis itaque sunt ex repellendus esse odio aliquid perspiciatis veritatis. Nesciunt, similique aspernatur aut voluptate enim debitis.
                 </div>

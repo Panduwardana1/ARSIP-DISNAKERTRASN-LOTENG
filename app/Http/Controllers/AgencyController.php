@@ -26,17 +26,14 @@ class AgencyController extends Controller
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery
-                        ->where('nama', 'like', '%' . $search . '%')
-                        ->orWhereHas('perusahaan', function ($perusahaanQuery) use ($search) {
-                            $perusahaanQuery->where('nama', 'like', '%' . $search . '%');
-                        });
+                        ->where('nama', 'like', '%' . $search . '%');
                 });
             })
-            ->orderBy('nama')
+            ->orderBy('id')
             ->paginate(10)
             ->withQueryString();
 
-        return view('cruds.agency.index', compact('agencies'));
+        return view('cruds.agency.index', compact('agencies', 'search'));
     }
 
     /**

@@ -32,4 +32,9 @@ class Perusahaan extends Model
     {
         return $this->hasMany(TenagaKerja::class);
     }
+
+    public function rekomendasiItems()
+    {
+        return $this->hasMany(RekomendasiItem::class);
+    }
 }

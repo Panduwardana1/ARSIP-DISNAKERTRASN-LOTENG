@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('pageTitle', 'SIREKAP - PASMI | P3MI | Ubah')
-@section('titlePageContent', 'Perbarui Data P3MI')
 
 @section('content')
     <div class="max-w-3xl mx-auto space-y-6 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">

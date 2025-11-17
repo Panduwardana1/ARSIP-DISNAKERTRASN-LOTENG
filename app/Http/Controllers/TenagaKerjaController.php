@@ -20,7 +20,7 @@ class TenagaKerjaController extends Controller
 {
     public function index(Request $request): View
     {
-        $search = (string) $request->input('q', '');
+        $search = trim((string) $request->input('q', ''));
         $status = (string) $request->input('status', '');
         if ($status !== '' && ! array_key_exists($status, TenagaKerja::STATUSES)) {
             $status = '';
@@ -57,8 +57,8 @@ class TenagaKerjaController extends Controller
                 $status !== '',
                 fn ($query) => $query->where('is_active', $status)
             )
-            ->orderByDesc('created_at')
-            ->paginate(10)
+            ->orderBy('id')
+            ->paginate(15)
             ->withQueryString();
 
         return view('cruds.tenaga_kerja.index', [

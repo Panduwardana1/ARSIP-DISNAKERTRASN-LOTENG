@@ -1,33 +1,81 @@
 @extends('layouts.app')
 
-@section('content')
-    <section class="container mx-auto px-4 py-6">
-        <h1 class="text-lg font-semibold mb-4">Preview Rekomendasi</h1>
+@section('pageTitle', 'SIREKAP - PASMI | Preview Rekomendasi')
+@section('titlePageContent', 'Preview Rekomendasi')
+@section('description', 'Tinjau kembali data PMI terpilih sebelum mencetak surat rekomendasi.')
 
-        <div class="mb-6">
-            <h2 class="font-medium mb-2">Tenaga Kerja ({{ $tenagaKerjas->count() }})</h2>
-            <div class="overflow-x-auto border rounded">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-slate-100">
+@push('head')
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+@endpush
+
+@section('headerAction')
+    <div class="flex items-center gap-2">
+        <a href="{{ route('sirekap.rekomendasi.index') }}"
+            class="inline-flex items-center gap-2 rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100">
+            <x-heroicon-o-arrow-uturn-left class="w-4 h-4" />
+            Kembali
+        </a>
+    </div>
+@endsection
+
+@section('content')
+    <div class="space-y-6">
+
+        <div class="relative flex flex-col w-full rounded-lg border border-zinc-200 bg-white shadow-sm">
+            <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
+                <div>
+                    <p class="text-sm font-semibold text-zinc-900">Daftar PMI</p>
+                    <p class="text-xs text-zinc-500">Verifikasi ulang data sebelum melanjutkan.</p>
+                </div>
+                <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                    {{ $tenagaKerjas->count() }} PMI
+                </span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left table-auto min-w-max">
+                    <thead class="bg-blue-800 uppercase text-white text-xs">
                         <tr>
-                            <th class="p-2 text-left">#</th>
-                            <th class="p-2 text-left">Nama</th>
-                            <th class="p-2 text-left">NIK</th>
-                            <th class="p-2 text-left">Perusahaan</th>
-                            <th class="p-2 text-left">Negara Tujuan</th>
-                            <th class="p-2 text-left">Tgl Lahir</th>
+                            <th class="p-4 w-12">#</th>
+                            <th class="p-4">
+                                <p class="text-sm font-normal leading-none text-white">Nama</p>
+                            </th>
+                            <th class="p-4">
+                                <p class="text-sm font-normal leading-none text-white">NIK</p>
+                            </th>
+                            <th class="p-4">
+                                <p class="text-sm font-normal leading-none text-white">P3MI</p>
+                            </th>
+                            <th class="p-4">
+                                <p class="text-sm font-normal leading-none text-white">Agency</p>
+                            </th>
+                            <th class="p-4">
+                                <p class="text-sm font-normal leading-none text-white">Lowongan</p>
+                            </th>
+                            <th class="p-4">
+                                <p class="text-sm font-normal leading-none text-white">Destinasi</p>
+                            </th>
+                            <th class="p-4">
+                                <p class="text-sm font-normal leading-none text-white">Tanggal Lahir</p>
+                            </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="border border-t-0 border-zinc-200 bg-white">
                         @foreach ($tenagaKerjas as $i => $tk)
-                            <tr class="border-t">
-                                <td class="p-2">{{ $i + 1 }}</td>
-                                <td class="p-2">{{ $tk->nama }}</td>
-                                <td class="p-2">{{ $tk->nik }}</td>
-                                <td class="p-2">{{ $tk->perusahaan->nama ?? '-' }}</td>
-                                <td class="p-2">{{ $tk->negara->nama ?? '-' }}</td>
-                                <td class="p-2">
-                                    {{ \Illuminate\Support\Carbon::parse($tk->tanggal_lahir)->format('d-m-Y') }}</td>
+                            <tr class="border-b border-zinc-200 bg-white transition hover:bg-zinc-50">
+                                <td class="p-4 text-sm text-zinc-600">{{ $i + 1 }}</td>
+                                <td class="p-4">
+                                    <p class="text-sm font-semibold text-zinc-900">{{ $tk->nama }}</p>
+                                </td>
+                                <td class="p-4 text-sm text-zinc-800">{{ $tk->nik }}</td>
+                                <td class="p-4 text-sm text-zinc-800">{{ $tk->perusahaan->nama ?? '-' }}</td>
+                                <td class="p-4 text-sm text-zinc-800">{{ $tk->agency->nama ?? '-' }}</td>
+                                <td class="p-4 text-sm text-zinc-800">{{ $tk->agency->lowongan ?? 'Belum ditentukan' }}</td>
+                                <td class="p-4 text-sm text-zinc-800">{{ $tk->negara->nama ?? '-' }}</td>
+                                <td class="p-4 text-sm text-zinc-800">
+                                    {{ \Illuminate\Support\Carbon::parse($tk->tanggal_lahir)->format('d-m-Y') }}
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -35,48 +83,53 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('sirekap.rekomendasi.store') }}" class="space-y-4" target="_blank">
+        <form method="POST" action="{{ route('sirekap.rekomendasi.store') }}"
+            class="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm" target="_blank">
             @csrf
             @foreach ($tenagaKerjas as $tk)
                 <input type="hidden" name="tenaga_kerja_ids[]" value="{{ $tk->id }}">
             @endforeach
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm mb-1">Kode Rekomendasi</label>
+            <div class="grid gap-4 md:grid-cols-3">
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-zinc-700">Kode Rekomendasi</label>
                     <input type="text" name="kode" value="{{ old('kode', $kodeDefault) }}"
-                        class="border rounded px-3 py-2 w-full">
-                    <p class="text-xs text-zinc-500 mt-1">Format: 562/NNNN/LTSA/{{ now()->year }}</p>
+                        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                    <p class="text-xs text-zinc-500">Format umum: 562/NNNN/LTSA/{{ now()->year }}</p>
                     @error('kode')
-                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                        <p class="text-xs text-rose-600">{{ $message }}</p>
                     @enderror
                 </div>
-                <div>
-                    <label class="block text-sm mb-1">Tanggal</label>
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-zinc-700">Tanggal</label>
                     <input type="date" name="tanggal" value="{{ old('tanggal', now()->toDateString()) }}"
-                        class="border rounded px-3 py-2 w-full">
+                        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
                     @error('tanggal')
-                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                        <p class="text-xs text-rose-600">{{ $message }}</p>
                     @enderror
                 </div>
-                <div>
-                    <label class="block text-sm mb-1">Author (Kepala Dinas)</label>
-                    <select name="author_id" class="border rounded px-3 py-2 w-full">
-                        <option value="">-- pilih author --</option>
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-zinc-700">Author (Kepala Dinas)</label>
+                    <select name="author_id"
+                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
                         @foreach ($authors as $a)
-                            <option value="{{ $a->id }}" @selected(old('author_id') == $a->id)>{{ $a->nama }} —
-                                {{ $a->jabatan }}</option>
+                            <option value="{{ $a->id }}" @selected(old('author_id') == $a->id)>{{ $a->nama }} ({{ $a->nip }})</option>
                         @endforeach
                     </select>
                     @error('author_id')
-                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                        <p class="text-xs text-rose-600">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
 
-            <div class="flex items-center gap-3">
-                <button name="action" value="print" class="px-4 py-2 rounded bg-amber-600 text-white">Cetak PDF</button>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <p class="text-sm text-zinc-500">Pastikan data sudah benar. Hasil PDF terbuka pada tab baru.</p>
+                <button name="action" value="print"
+                    class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-amber-700 transition">
+                    <x-heroicon-o-printer class="w-5 h-5" />
+                    Cetak PDF
+                </button>
             </div>
         </form>
-    </section>
+    </div>
 @endsection

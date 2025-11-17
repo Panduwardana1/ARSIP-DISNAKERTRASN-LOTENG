@@ -7,26 +7,39 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 25mm 25mm 20mm 25mm;
+            margin: 20mm 30mm 25mm 30mm;
         }
 
         @font-face {
-            font-family: 'ArialCustom';
+            font-family: 'Arial';
             font-style: normal;
-            font-weight: normal;
+            font-weight: 400;
             src: url("{{ public_path('asset/fonts/arial.ttf') }}") format('truetype');
         }
 
+        @font-face {
+            font-family: 'Arial';
+            font-style: normal;
+            font-weight: 600;
+            src: url("{{ public_path('asset/fonts/arialmd.ttf') }}") format('truetype');
+        }
+
         body {
-            font-family: 'ArialCustom', sans-serif;
+            font-family: 'Arial', Arial, sans-serif;
             font-size: 12pt;
             color: #000;
             line-height: 1.35;
             margin: 0;
+            font-weight: 400;
         }
 
         body * {
-            font-family: 'ArialCustom', sans-serif;
+            font-family: 'Arial', Arial, sans-serif;
+        }
+
+        strong,
+        b {
+            font-weight: 600;
         }
 
         .page {
@@ -45,11 +58,12 @@
             vertical-align: middle;
             padding: 0;
             margin: 0;
+            line-height: 0.8;
         }
 
         .kop-logo img {
             height: 75px;
-            width: auto;
+            width: 78px;
         }
 
         .kop-text {
@@ -58,55 +72,47 @@
         }
 
         .kop-title-1 {
-            font-size: 20px;
+            font-size: 15pt;
             font-weight: 400;
             margin: 0;
             letter-spacing: -0.5px;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial';
         }
 
         .kop-title-2 {
-            font-size: 21px;
-            font-weight: 700;
+            font-size: 16pt;
+            font-weight: 600;
             margin: 2px 0 4px 0;
             letter-spacing: -0.5px;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial';
         }
 
         .kop-address {
-            font-size: 14px;
+            font-size: 10pt;
             margin: 0;
             margin-top: 4px;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial';
         }
 
         .divider {
-            border-top: 3px solid #000;
+            border-top: 2px solid #000;
             border-bottom: 1px solid #000;
-            margin: 10px 0 22px;
-        }
-
-        .divider {
-            border-top: 3px solid #000;
-            border-bottom: 1px solid #000;
-            margin: 8px 0 24px;
+            margin: 6px 0 8px;
         }
 
         .tujuan {
             padding-bottom: 1rem;
-            font-weight: bold;
+            font-weight: 400;
+            font-size: 12pt
         }
 
         .meta {
             width: 100%;
             font-size: 12pt;
-            line-height: 1.3;
-            margin-bottom: 18px;
-            padding-bottom: 2rem;
+            line-height: 1;
         }
 
         .meta td {
-            padding: 3px 5px;
             vertical-align: top;
         }
 
@@ -117,16 +123,19 @@
         .meta td:nth-child(2) {
             width: 15px;
             text-align: right;
-            letter-spacing: 0;
         }
 
-        .meta td:last-child {
-            font-weight: normal;
+        .perihal-text {
+            padding: 0;
+            display: block;
+            width: 100%;
+            line-height: 1.1;
+            text-indent: 0;
         }
 
-        .meta strong {
-            text-transform: none;
-            font-weight: bold;
+        .perihal-text span {
+            display: block;
+            margin-left: 3px;
         }
 
         .date {
@@ -135,39 +144,51 @@
         }
 
         .content {
+            font-size: 12pt;
             text-align: left;
-        }
-
-        .content p {
-            margin: 0 0 12px;
-            text-indent: 1.25cm;
-        }
-
-        .content .no-indent {
-            text-indent: 0;
+            line-height: 1;
         }
 
         .signature-block {
-            width: 50%;
-            margin-left: auto;
-            margin-top: 70px;
-            text-align: left;
+            width: 80%;
+            margin-left: 9rem;
+            margin-top: 50px;
+            font-weight: 400;
+            text-align: center;
             font-size: 12pt;
         }
 
         .signature-block .position {
-            font-weight: bold;
+            font-weight: 600;
             text-transform: uppercase;
             margin: 0;
-            line-height: 1.4;
+            line-height: 0%;
         }
 
         .signature-block .space {
             height: 90px;
         }
 
-        .signature-block .name {
+        .author {
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .name {
             font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+            display: block;
+        }
+
+        .nip {
+            margin: 0;
+            display: block;
+            font-weight: bold;
+        }
+
+        .signature-block .name {
+            font-weight: 600;
             text-transform: uppercase;
             margin: 0;
         }
@@ -237,7 +258,7 @@
 
         <table class="kop-table">
             <tr>
-                <td style="width:130px;" class="kop-logo">
+                <td style="width:110px;" class="kop-logo">
                     <img src="{{ $logoData }}" alt="Logo Kabupaten Lombok Tengah">
                 </td>
 
@@ -272,9 +293,9 @@
                 <td>Perihal</td>
                 <td>:</td>
                 <td>
-                    <strong>
-                        Rekomendasi Pembuatan <br>
-                        Paspor PMI{{ $destinasiTujuan !== '-' ? ' ' . $destinasiTujuan : '' }}
+                    <strong class="perihal-text">
+                        Rekomendasi Pembuatan
+                        <span>Paspor PMI{{ $destinasiTujuan !== '-' ? ' ' . $destinasiTujuan : '' }}</span>
                     </strong>
                 </td>
             </tr>
@@ -303,12 +324,20 @@
                 orang sesuai lampiran dengan rincian:
             </p>
 
-            <p class="no-indent">
-                Laki-laki : {{ $jumlahLaki }} orang
-            </p>
-            <p class="no-indent">
-                Perempuan : {{ $jumlahPerempuan }} orang
-            </p>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Laki-laki</td>
+                        <td>:</td>
+                        <td style="word-spacing: 4px;">{{ $jumlahLaki }}</td>
+                    </tr>
+                    <tr>
+                        <td>Perempuan</td>
+                        <td>:</td>
+                        <td style="word-spacing: 4px;">{{ $jumlahPerempuan }} </td>
+                    </tr>
+                </tbody>
+            </table>
 
             <p>
                 Sebagai bahan pertimbangan, kami sertakan dokumen PMI yang diperlukan. Demikian disampaikan, atas
@@ -318,16 +347,22 @@
 
         <div class="signature-block">
             @if ($author)
-                <p class="position">{{ strtoupper($author->jabatan) }}</p>
+                <strong class="position">{{ strtoupper($author->jabatan) }}</strong>
                 <div class="space"></div>
-                <p class="name"><u>{{ strtoupper($author->nama) }}</u></p>
-                <p class="nip">NIP {{ $author->nip ?? '-' }}</p>
+
+                <div class="author">
+                    <strong class="name"><u>{{ strtoupper($author->nama) }}</u></strong>
+                    <strong class="nip">NIP {{ $author->nip ?? '-' }}</strong>
+                </div>
             @else
-                <p class="position">A.N. KEPALA DISNAKERTRANS KAB. LOMBOK TENGAH</p>
-                <p class="position">KABID PENEMPATAN DAN PERLUASAN KERJA</p>
+                <strong class="position">A.N. KEPALA DISNAKERTRANS KAB. LOMBOK TENGAH</strong>
+                <strong class="position">KABID PENEMPATAN DAN PERLUASAN KERJA</strong>
                 <div class="space"></div>
-                <p class="name"><u>SUPIANDI, S.STP</u></p>
-                <p class="nip">NIP 198201182002121001</p>
+
+                <div class="author">
+                    <strong class="nip">NIP 198201182002121001</strong>
+                </div>
+                    <strong class="name"><u>SUPIANDI, S.STP</u></strong>
             @endif
         </div>
     </div>

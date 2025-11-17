@@ -24,7 +24,7 @@ class PendidikanController extends Controller
                         ->where('nama', 'like', '%' . $search . '%');
                 })
             )
-            ->orderBy('nama')
+            ->orderBy('id')
             ->paginate(10)
             ->withQueryString();
 

@@ -8,136 +8,250 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('pageTitle', 'Sirekap Pasmi - Disnakertrans')</title>
     <link rel="icon" href="{{ asset('asset/logo/icon.png') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    @stack('head')
     <style>
         [x-cloak] {
             display: none !important;
         }
     </style>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    @stack('head')
 </head>
 
-@if (session('success'))
-    <x-alert type="success" message="{{ session('success') }}" />
-@endif
+<body x-data="{ sidebarOpen: false }" class="min-h-screen bg-zinc-100 font-inter">
+    {{-- ? allert info --}}
+    @if (session('success'))
+        <x-alert type="success" message="{{ session('success') }}" />
+    @endif
 
-@if (session('error'))
-    <x-alert type="error" message="{{ session('error') }}" />
-@endif
+    @if (session('error'))
+        <x-alert type="error" message="{{ session('error') }}" />
+    @endif
 
-@if (session('warning'))
-    <x-alert type="warning" message="{{ session('warning') }}" />
-@endif
+    @if (session('warning'))
+        <x-alert type="warning" message="{{ session('warning') }}" />
+    @endif
 
-<body class="bg-gray-100 font-inter">
+    {{-- * header  --}}
+    <header
+        class="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between bg-blue-800 px-4 shadow-sm backdrop-blur">
+        <div class="flex items-center gap-3">
+            <button type="button" class="rounded-md border border-amber-600/50 p-1 text-amber-50 lg:hidden"
+                @click="sidebarOpen = true">
+                <x-heroicon-o-bars-3 class="h-6 w-6" />
+            </button>
+            <img src="{{ asset('asset/logo/W-logo.png') }}" alt="Logo" class="h-9 w-auto">
+        </div>
+        <div class="flex items-center gap-3 text-xs font-medium text-amber-100/80 sm:text-sm">
+            <x-heroicon-o-bell class="h-5 w-5" />
+            <span class="hidden sm:inline">Selamat datang kembali</span>
+        </div>
+    </header>
 
-    <div x-data="{ open: true }" class="flex">
+    <div class="flex pt-14">
+        <div x-cloak x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-30 bg-white lg:hidden"
+            @click="sidebarOpen = false"></div>
 
-        <aside
-            class="fixed inset-y-0 left-0 z-30 flex flex-col bg-white border-r flex-shrink-0 overflow-hidden
-           transform transition-all duration-300 ease-in-out
-           md:static md:inset-auto"
-            :class="open
-                ?
-                'translate-x-0 w-64 md:w-64' :
-                '-translate-x-full w-64 md:translate-x-0 md:w-[5.5rem]'">
-            {{-- HEADER --}}
-            <div class="flex items-center h-16 flex-shrink-0"
-                :class="open ? 'px-4 justify-between' : 'px-2 justify-center'">
-                {{-- Logo hanya muncul saat open --}}
-                <div class="flex items-center gap-2" x-show="open" x-transition.opacity.duration.200 x-cloak>
-                    <img src="{{ asset('asset/logo/primary.png') }}" alt="" class="h-8 w-auto">
-                </div>
+        {{-- todo sidebar --}}
+        <aside id="sidebar-multi-level-sidebar"
+            class="fixed left-0 top-14 z-40 flex h-[calc(100vh-3.5rem)] w-60 flex-col border-r bg-zinc-100 px-4 py-4 backdrop-blur transition-transform duration-300 lg:translate-x-0"
+            aria-label="Sidebar" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:-translate-x-0'">
 
-                {{-- Toggle --}}
-                <button @click="open = !open"
-                    class="flex items-center justify-center h-9 w-9
-                   rounded-md hover:bg-gray-100 transition-colors duration-200"
-                    aria-label="Toggle sidebar">
-                    <x-heroicon-o-bars-3 class="h-5 w-5" />
-                </button>
-            </div>
+            <div class="flex-1 overflow-y-auto">
+                <ul class="space-y-2 font-medium">
+                    <li>
+                        <x-nav-link :active="request()->routeIs('sirekap.dashboard.index')" href="{{ route('sirekap.dashboard.index') }}">
+                            <div class="flex items-center rounded-md gap-2 transition-all duration-200">
+                                <x-heroicon-o-home class="h-5 w-5 shrink-0" />
+                                <span class="text-sm font-semibold">Dashboard</span>
+                            </div>
+                        </x-nav-link>
+                    </li>
 
-            {{-- NAV --}}
-            <nav class="flex-1 px-2 py-3 space-y-2 overflow-y-auto">
+                    <li x-data>
+                        <button type="button"
+                            class="flex items-center w-full justify-between rounded-md px-2 py-2 text-sm text-body transition hover:bg-neutral-tertiary hover:text-fg-brand"
+                            @click="$store.sidebar.toggle('master')">
 
-                {{-- ITEM: Perusahaan (contoh) --}}
-                <x-nav-link :active="request()->routeIs('sirekap.perusahaan.index')" href="{{ route('sirekap.perusahaan.index') }}">
-                    <div class="flex items-center rounded-md px-2 py-2 gap-2 transition-all duration-300"
-                        :class="open ? 'justify-start' : 'justify-center'">
-                        {{-- ICON dalam kotak, selalu kelihatan --}}
-                        <div class="flex items-center justify-center h-9 w-9 rounded-md bg-gray-100 flex-shrink-0">
-                            <x-heroicon-o-building-library class="h-5 w-5" />
-                        </div>
+                            <span class="inline-flex items-center gap-2">
+                                <x-heroicon-o-folder-open class="h-5 w-5 shrink-0" />
+                                <span class="font-semibold">Master</span>
+                            </span>
 
-                        {{-- LABEL hanya saat open --}}
-                        <span x-show="open" x-transition:enter="transform opacity-0 -translate-x-2"
-                            x-transition:enter-end="transform opacity-100 translate-x-0"
-                            x-transition:leave="transform opacity-100 translate-x-0"
-                            x-transition:leave-end="transform opacity-0 -translate-x-2" x-cloak
-                            class="text-sm font-medium">
-                            Perusahaan
+                            <span class="transition-transform duration-200"
+                                x-bind:class="$store.sidebar.state.master ? 'rotate-180' : ''">
+                                <x-heroicon-s-chevron-down class="w-5 h-5" />
+                            </span>
+                        </button>
+
+                        <ul x-show="$store.sidebar.state.master" x-collapse x-cloak
+                            class="space-y-2 border-l border-zinc-200 pl-4">
+                            <li class="ml-4">
+                                <x-nav-link :active="request()->routeIs('sirekap.tenaga-kerja.index')" href="{{ route('sirekap.tenaga-kerja.index') }}">
+                                    <div class="flex items-center gap-2 transition-all duration-200">
+                                        <span class="text-sm font-medium">CPMI</span>
+                                    </div>
+                                </x-nav-link>
+                            </li>
+                            <li class="ml-4">
+                                <x-nav-link :active="request()->routeIs('sirekap.perusahaan.index')" href="{{ route('sirekap.perusahaan.index') }}">
+                                    <div class="flex items-center gap-2 transition-all duration-200">
+                                        <span class="text-sm font-medium">P3MI</span>
+                                    </div>
+                                </x-nav-link>
+                            </li>
+                            <li class="ml-4">
+                                <x-nav-link :active="request()->routeIs('sirekap.agency.index')" href="{{ route('sirekap.agency.index') }}">
+                                    <div class="flex items-center gap-2 transition-all duration-200">
+                                        <span class="text-sm font-medium">Agency</span>
+                                    </div>
+                                </x-nav-link>
+                            </li>
+                            <li class="ml-4">
+                                <x-nav-link :active="request()->routeIs('sirekap.pendidikan.index')" href="{{ route('sirekap.pendidikan.index') }}">
+                                    <div class="flex items-center gap-2 transition-all duration-200">
+                                        <span class="text-sm font-medium">Pendidikan</span>
+                                    </div>
+                                </x-nav-link>
+                            </li>
+                            <li class="ml-4">
+                                <x-nav-link :active="request()->routeIs('sirekap.negara.index')" href="{{ route('sirekap.negara.index') }}">
+                                    <div class="flex items-center gap-2 transition-all duration-200">
+                                        <span class="text-sm font-medium">Destinasi</span>
+                                    </div>
+                                </x-nav-link>
+                            </li>
+                        </ul>
+                    </li>
+
+                    {{-- rekomendasi --}}
+                    <li x-data>
+                        <button @click="$store.sidebar.toggle('rekomendasi')"
+                            class="flex items-center w-full justify-between rounded-md px-2 py-2 text-sm text-body transition hover:bg-neutral-tertiary hover:text-fg-brand">
+
+                            <span class="inline-flex items-center gap-2">
+                                <x-heroicon-o-document-text class="h-5 w-5" />
+                                <span class="font-semibold">Rekomendasi</span>
+                            </span>
+
+                            <span class="transition-transform duration-200"
+                                x-bind:class="$store.sidebar.state.rekomendasi ? 'rotate-180' : ''">
+                                <x-heroicon-s-chevron-down class="w-5 h-5" />
+                            </span>
+                        </button>
+
+                        <ul x-show="$store.sidebar.state.rekomendasi" x-collapse x-cloak
+                            class="space-y-2 border-l border-zinc-200 pl-4">
+                            <li class="ml-4">
+                                <x-nav-link :active="request()->routeIs('sirekap.author.index')" href="{{ route('sirekap.author.index') }}">
+                                    <div class="flex items-center gap-2 transition-all duration-200">
+                                        <span class="text-sm font-medium">Author</span>
+                                    </div>
+                                </x-nav-link>
+                            </li>
+                            <li class="ml-4">
+                                <x-nav-link :active="request()->routeIs('sirekap.rekomendasi.index')" href="{{ route('sirekap.rekomendasi.index') }}">
+                                    <div class="flex items-center gap-2 transition-all duration-200">
+                                        <span class="text-sm font-medium">Rekom</span>
+                                    </div>
+                                </x-nav-link>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li x-data>
+                        <button @click="$store.sidebar.toggle('wilayah')"
+                            class="flex items-center w-full justify-between rounded-md px-2 py-2 text-sm text-body transition hover:bg-neutral-tertiary hover:text-fg-brand">
+
+                            <span class="inline-flex items-center gap-2">
+                                <x-heroicon-o-map-pin class="h-5 w-5" />
+                                <span class="font-semibold">Wilayah</span>
+                            </span>
+
+                            <span class="transition-transform duration-200"
+                                x-bind:class="$store.sidebar.state.wilayah ? 'rotate-180' : ''">
+                                <x-heroicon-s-chevron-down class="w-5 h-5" />
+                            </span>
+                        </button>
+
+                        <ul x-show="$store.sidebar.state.wilayah" x-collapse x-cloak
+                            class="space-y-2 border-l border-zinc-200 pl-4">
+                            <li class="ml-4">
+                                <x-nav-link :active="request()->routeIs('sirekap.kecamatan.index')" href="{{ route('sirekap.kecamatan.index') }}">
+                                    <div class="flex items-center gap-2 transition-all duration-200">
+                                        <span class="text-sm font-medium">Kecamatan</span>
+                                    </div>
+                                </x-nav-link>
+                            </li>
+                            <li class="ml-4">
+                                <x-nav-link :active="request()->routeIs('sirekap.desa.index')" href="{{ route('sirekap.desa.index') }}">
+                                    <div class="flex items-center gap-2 transition-all duration-200">
+                                        <span class="text-sm font-medium">Desa</span>
+                                    </div>
+                                </x-nav-link>
+                            </li>
+                        </ul>
+                    </li>
+
+                    {{-- ! logs --}}
+                    <li>
+                        <x-nav-link :active="request()->routeIs('sirekap.dashboard.index')" href="{{ route('sirekap.dashboard.index') }}">
+                            <div class="flex items-center rounded-md gap-2 transition-all duration-200">
+                                <x-heroicon-o-trash class="h-5 w-5 shrink-0" />
+                                <span class="text-sm font-semibold">Logs</span>
+                            </div>
+                        </x-nav-link>
+                    </li>
+                </ul>
+                <div class="pt-6">
+                    <div class="grid items-center gap-2 border p-2 w-full bg-blue-600 text-white rounded-lg">
+                        <span class="flex items-center gap-2">
+                            <x-heroicon-o-information-circle class="h-5 w-5" />
+                            <p class="font-semibold">Beta Version</p>
                         </span>
+                        <p class="text-sm">Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
                     </div>
-                </x-nav-link>
-
-                {{-- Duplikat item lain tinggal ganti route + label + icon --}}
-                <x-nav-link :active="request()->routeIs('sirekap.kecamatan.index')" href="{{ route('sirekap.kecamatan.index') }}">
-                    <div class="flex items-center rounded-md px-2 py-2 gap-2 transition-all duration-300"
-                        :class="open ? 'justify-start' : 'justify-center'">
-                        <div class="flex items-center justify-center h-9 w-9 rounded-md bg-gray-100 flex-shrink-0">
-                            <x-heroicon-o-map class="h-5 w-5" />
-                        </div>
-                        <span x-show="open" x-transition x-cloak class="text-sm font-medium">
-                            Kecamatan
-                        </span>
-                    </div>
-                </x-nav-link>
-
-                {{-- dst... --}}
-            </nav>
-
-            {{-- FOOTER / PROFILE --}}
-            <div class="p-3 border-t">
-                <div class="flex items-center" :class="open ? 'justify-start' : 'justify-center'">
-                    <img class="w-8 h-8 rounded-full flex-shrink-0"
-                        src="https://ui-avatars.com/api/?name=Sandra+Marx&background=random" alt="Sandra Marx">
-
-                    <div x-show="open" x-transition.opacity.duration.200 x-cloak class="ml-2 whitespace-nowrap">
-                        <h4 class="text-sm font-medium">Sandra Marx</h4>
-                        <p class="text-xs text-gray-500">sandra@gmail.com</p>
-                    </div>
-
-                    <button x-show="open" x-transition.opacity.duration.200 x-cloak class="ml-auto p-1">
-                        <x-heroicon-o-chevron-down class="w-5 h-5 text-gray-500" />
-                    </button>
                 </div>
             </div>
         </aside>
 
-        {{-- backdrop untuk mobile (opsional tapi enak dipakai) --}}
-        <div class="fixed inset-0 bg-black/30 z-20 md:hidden" x-show="open" x-transition.opacity @click="open = false"
-            x-cloak></div>
+        {{-- MAIN CONTENT --}}
+        <main
+            class="ml-0 h-[calc(100vh-3.5rem)] w-full flex-1 overflow-y-auto border-zinc-200 bg-white py-6 px-4 sm:px-6 lg:ml-60">
+            {{-- todo Header action --}}
+            <div class="grid w-full pb-4 space-y-4 font-inter">
+                <span>
+                    <h2 class="text-3xl font-medium">@yield('titlePageContent', '')</h2>
+                    <p class="text-sm">@yield('description', '')</p>
+                </span>
+                <div class="flex items-center justify-between gap-2">
+                    @yield('headerAction')
+                </div>
+            </div>
 
-
-        <main class="flex-1 p-8 h-screen overflow-y-auto">
-
-            <button @click="open = !open"
-                class="mb-4 p-2 bg-white rounded-lg shadow border hover:bg-gray-50 flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-                <span x-show="open">Collapse</span>
-                <span x-show="!open">Expand</span>
-            </button>
-            <div>
+            <div class="rounded-base">
                 @yield('content')
             </div>
         </main>
     </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('sidebar', {
+                state: JSON.parse(localStorage.getItem('sidebar-menus')) || {
+                    master: false,
+                    rekomendasi: false,
+                    wilayah: false,
+                },
+
+                toggle(menu) {
+                    this.state[menu] = !this.state[menu];
+                    localStorage.setItem('sidebar-menus', JSON.stringify(this.state));
+                }
+            });
+        });
+    </script>
+
 </body>
 
 </html>

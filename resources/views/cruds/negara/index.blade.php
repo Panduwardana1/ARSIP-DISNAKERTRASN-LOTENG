@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('pageTitle', 'Daftar Negara')
+@section('titlePageContent', 'Negara Tujuan')
 
 @section('content')
     @if (session('success'))
@@ -15,88 +16,120 @@
         </div>
     @enderror
 
-    <div class="relative flex flex-col w-full h-full rounded-lg overflow-hidden">
-        <table class="w-full text-left table-auto min-w-max">
-            <thead class="bg-slate-800 uppercase">
-                <tr>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-slate-300">
-                            Kode
+    {{-- header action (search dan button) --}}
+@section('headerAction')
+    {{-- search --}}
+    <div>
+        <form method="GET" action="{{ route('sirekap.negara.index') }}" class="relative w-full max-w-sm font-inter">
+            <span class="absolute inset-y-0 left-3 flex items-center text-zinc-400">
+                <x-heroicon-o-magnifying-glass class="w-5 h-5" />
+            </span>
+
+            <input type="search" name="q" placeholder="Cari nama negara atau kode ISO..." value="{{ $search ?? '' }}"
+                class="w-full pl-10 py-1.5 rounded-md bg-white border border-zinc-300
+               text-zinc-700 placeholder-zinc-400 transition-all duration-200 outline-none" />
+        </form>
+    </div>
+    {{-- button --}}
+    <div class="flex items-center">
+        <a href="{{ route('sirekap.negara.create') }}"
+            class="flex items-center px-3 gap-2 py-1.5 bg-blue-600 text-white rounded-md border hover:bg-blue-700">
+            <x-heroicon-o-plus class="w-5 h-5" />
+            Tambah
+        </a>
+    </div>
+@endsection
+
+<div class="relative flex flex-col w-full h-full rounded-lg overflow-hidden">
+    <table class="w-full text-left table-auto min-w-max">
+        <thead class="bg-blue-800 uppercase font-semibold">
+            <tr>
+                <th class="p-4 w-12">
+                    <p class="text-sm font-normal leading-none text-white">
+                        No
+                    </p>
+                </th>
+                <th class="p-4">
+                    <p class="text-sm font-normal leading-none text-white">
+                        Negara
+                    </p>
+                </th>
+                <th class="p-4">
+                    <p class="text-sm font-normal leading-none text-white">
+                        Kode ISO
+                    </p>
+                </th>
+                <th class="p-4">
+                    <p class="text-sm font-normal leading-none text-white">
+                        Status
+                    </p>
+                </th>
+                <th class="p-4">
+                    <p class="text-sm font-normal leading-none text-white">
+                        Aksi
+                    </p>
+                </th>
+            </tr>
+        </thead>
+        <tbody class="border">
+            @forelse ($negara as $items)
+                <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
+                    <td class="p-4">
+                        <p class="text-sm text-zinc-800">
+                            {{ $loop->iteration }}
                         </p>
-                    </th>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-slate-300">
-                            Label
-                        </p>
-                    </th>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-slate-300">
-                            Kontribusi
-                        </p>
-                    </th>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-slate-300">
-                            Ditambahkan
-                        </p>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-slate-300">
-                            Aksi
-                        </p>
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="border">
-                @forelse ($negara as $items)
-                    <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
-                        <td class="p-4">
-                            <p class="text-sm text-zinc-800">
+                    </td>
+                    <td class="p-4">
+                        <div class="flex items-center gap-2">
+                            <x-heroicon-o-map-pin class="w-7 h-7 text-zinc-500" />
+                            <p class="text-[16px] font-semibold text-zinc-800">
                                 {{ $items->nama }}
                             </p>
-                        </td>
-                        <td class="p-4">
-                            <p class="text-sm text-zinc-800">
-                                {{ $items->label }}
-                            </p>
-                        </td>
-                        <td class="p-4">
-                            <p class="text-sm text-zinc-800">
-                                {{ $items->tki ?? 'none' }}
-                            </p>
-                        </td>
-                        <td class="p-4">
-                            <p class="text-sm text-zinc-800">
-                                {{-- {{ $items->created_at->translatedFormat('d F Y') }} --}}
-                            </p>
-                        </td>
-                        <td class="px-4 py-4 text-sm whitespace-nowrap">
-                            <div class="flex items-center gap-x-6">
-                                <a href="{{ route('sirekap.perusahaan.edit', $items) }}"
-                                    class="text-zinc-600 transition-colors duration-200 hover:text-amber-500">
-                                    <span class="sr-only">Edit</span>
-                                    <x-heroicon-o-pencil class="w-5 h-5" />
-                                </a>
+                        </div>
+                    </td>
+                    <td class="p-4">
+                        <p class="text-sm text-zinc-800">
+                            {{ $items->kode_iso }}
+                        </p>
+                    </td>
+                    <td class="p-4">
+                        <span
+                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold
+                                {{ $items->is_active === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-600' }}">
+                            {{ $items->is_active ?? 'Tidak Diketahui' }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-4 text-sm whitespace-nowrap">
+                        <div class="flex items-center gap-x-6">
+                            <a href="{{ route('sirekap.negara.edit', $items) }}"
+                                class="text-zinc-600 transition-colors duration-200 hover:text-amber-500">
+                                <span class="sr-only">Edit</span>
+                                <x-heroicon-o-pencil class="w-5 h-5" />
+                            </a>
 
-                                <x-modal-delete :action="route('sirekap.perusahaan.destroy', $items)" :title="'Hapus Data '" :message="'Datas ' . $items->nama . ' akan dihapus permanen.'"
-                                    confirm-field="confirm_delete">
-                                    <button type="button" class="text-zinc-600 hover:text-rose-600">
-                                        <x-heroicon-o-trash class="h-5 w-5" />
-                                    </button>
-                                </x-modal-delete>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <div>
-                        <span>Belum ada data</span>
-                    </div>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+                            <x-modal-delete :action="route('sirekap.negara.destroy', $items)" :title="'Hapus Data '" :message="'Data ' . $items->nama . ' akan dihapus permanen.'"
+                                confirm-field="confirm_delete">
+                                <button type="button" class="text-zinc-600 hover:text-rose-600">
+                                    <x-heroicon-o-trash class="h-5 w-5" />
+                                </button>
+                            </x-modal-delete>
+                        </div>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" class="p-6 text-center text-sm text-zinc-500">
+                        Belum ada data negara.
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
 
-    {{-- ? pagination --}}
-    <div class="pt-6">
-        {{ $negara->onEachSide(2)->links() }}
-    </div>
-    </section>
+{{-- ? pagination --}}
+<div class="pt-6">
+    {{ $negara->onEachSide(2)->links() }}
+</div>
+</section>
 @endsection

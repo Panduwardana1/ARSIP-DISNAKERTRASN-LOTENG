@@ -15,14 +15,19 @@ class PerusahaanController extends Controller
 {
     public function index(Request $request)
     {
+        $search = trim((string) $request->input('search', ''));
+
         $perusahaans = Perusahaan::query()
             ->select('id', 'nama', 'pimpinan', 'email', 'alamat', 'gambar')
-            ->orderByDesc('id')
-            ->paginate(15)->withQueryString();
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('nama', 'like', '%' . $search . '%');
+            })
+            ->orderBy('id')
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('cruds.perusahaan.index', compact('perusahaans'));
+        return view('cruds.perusahaan.index', compact('perusahaans', 'search'));
     }
-
     public function create()
     {
         return view('cruds.perusahaan.create');
@@ -54,7 +59,7 @@ class PerusahaanController extends Controller
     }
 
     public function show(Perusahaan $perusahaan) {
-        return view('cruds.perusahaan.show');
+        return view('cruds.perusahaan.show', compact('perusahaan'));
     }
 
     public function edit(Perusahaan $perusahaan) {

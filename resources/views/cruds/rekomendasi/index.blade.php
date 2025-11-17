@@ -45,8 +45,8 @@
         selected: JSON.parse(localStorage.getItem('rekomendasi_selected') || '[]'),
 
         // data di halaman saat ini
-        pageItems: {{ $tenagaKerjas->map(fn($tk) => ['id' => $tk->id, 'nama' => $tk->nama, 'nik' => $tk->nik])->values()->toJson() }},
-        pageIds: {{ $tenagaKerjas->pluck('id')->toJson() }},
+        pageItems: {{ $tenagaKerjas->getCollection()->map(fn($tk) => ['id' => $tk->id, 'nama' => $tk->nama, 'nik' => $tk->nik])->values()->toJson() }},
+        pageIds: {{ $tenagaKerjas->getCollection()->pluck('id')->toJson() }},
 
         master: false,
 

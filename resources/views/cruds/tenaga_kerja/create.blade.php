@@ -33,11 +33,6 @@
                     Lengkapi identitas, domisili, dan relasi penempatan CPMI secara terstruktur.
                 </p>
             </div>
-            <a href="{{ route('sirekap.tenaga-kerja.index') }}"
-                class="inline-flex items-center rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
-                <x-heroicon-o-arrow-left class="mr-2 h-4 w-4" />
-                Kembali ke daftar
-            </a>
         </div>
         @error('app')
             <div class="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -57,13 +52,13 @@
         @endif
 
         <div class="mx-auto w-full max-w-6xl">
-            <form action="{{ $formAction }}" method="POST" class="space-y-6">
+            <form action="{{ $formAction }}" method="POST" class="space-y-2 border">
                 @csrf
                 @if ($isEdit)
                     @method('PUT')
                 @endif
 
-                <section class="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                <section class="space-y-4 bg-white p-6">
                     <div>
                         <h2 class="text-lg font-semibold text-zinc-900">Data Pribadi</h2>
                         <p class="text-sm text-zinc-500">Isi identitas CPMI sesuai dokumen resmi.</p>
@@ -146,7 +141,7 @@
                     </div>
                 </section>
 
-                <section class="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                <section class="space-y-4 bg-white p-6">
                     <div>
                         <h2 class="text-lg font-semibold text-zinc-900">Kontak & Domisili</h2>
                         <p class="text-sm text-zinc-500">Hubungi CPMI dan pastikan alamat terbaru.</p>
@@ -222,7 +217,7 @@
                     </div>
                 </section>
 
-                <section class="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                <section class="space-y-4 bg-white p-6">
                     <div>
                         <h2 class="text-lg font-semibold text-zinc-900">Relasi Penempatan</h2>
                         <p class="text-sm text-zinc-500">Hubungkan CPMI dengan pendidikan, perusahaan, dan negara tujuan.
@@ -301,14 +296,13 @@
                     </div>
                 </section>
 
-                <div class="flex items-center justify-end gap-3 rounded-2xl border border-zinc-200 bg-white px-6 py-4 shadow-sm">
+                <div class="flex items-center justify-end gap-3 bg-white px-6 pb-6">
                     <a href="{{ route('sirekap.tenaga-kerja.index') }}"
                         class="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
                         Batal
                     </a>
                     <button type="submit"
                         class="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
-                        <x-heroicon-o-check class="mr-2 h-4 w-4" />
                         {{ $submitLabel }}
                     </button>
                 </div>

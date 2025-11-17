@@ -13,13 +13,22 @@ class AuthorController extends Controller
 {
     public function index(): View
     {
+        $search = trim((string) request('q', ''));
+
         $authors = Author::query()
             ->select('id', 'nama', 'nip', 'jabatan', 'created_at')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($builder) use ($search) {
+                    $builder
+                        ->where('nama', 'like', '%' . $search . '%')
+                        ->orWhere('nip', 'like', '%' . $search . '%');
+                });
+            })
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view('cruds.author.index', compact('authors'));
+        return view('cruds.author.index', compact('authors', 'search'));
     }
 
     public function create(): View

@@ -15,6 +15,8 @@ return new class extends Migration
             $t->id();
             $t->foreignId('rekomendasi_id')->constrained()->cascadeOnDelete();
             $t->foreignId('tenaga_kerja_id')->constrained('tenaga_kerjas')->cascadeOnDelete();
+            $t->foreignId('perusahaan_id')->constrained('perusahaans')->cascadeOnDelete();
+            $t->foreignId('negara_id')->constrained('negaras')->cascadeOnDelete();
         });
     }
 
