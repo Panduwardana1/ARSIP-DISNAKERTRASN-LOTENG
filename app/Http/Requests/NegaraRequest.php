@@ -35,13 +35,12 @@ class NegaraRequest extends FormRequest
                 Rule::unique('negaras', 'nama')->ignore($negaraId),
             ],
             'kode_iso' => [
-                'required',
+                'nullable',
                 'string',
                 'uppercase',
                 'max:5',
                 Rule::unique('negaras', 'kode_iso')->ignore($negaraId),
             ],
-            'is_active' => ['nullable', Rule::in(['Aktif', 'Banned'])],
         ];
     }
 

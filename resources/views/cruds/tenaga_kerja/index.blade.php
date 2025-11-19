@@ -88,7 +88,7 @@
 @endsection
 
 {{-- todo Tabel data CPMI --}}
-<div class="relative flex flex-col w-full h-screen rounded-lg overflow-hidden max-w-full overflow-x-auto border">
+<div class="relative flex flex-col w-full h-auto rounded-lg overflow-hidden max-w-full overflow-x-auto border">
     <table class="w-full text-left table-auto min-w-max">
         <thead class="bg-blue-800 uppercase">
             <tr>
@@ -200,10 +200,11 @@
                     </td>
                 </tr>
             @empty
-                <div class="py-4 px-2 flex gap-3 items-center justify-center bg-white h-20">
-                    <x-heroicon-o-circle-stack class="h-5 w-5 text-zinc-600" />
-                    <span class="text-zinc-600">Belum ada data / Data tidak ditemukan</span>
-                </div>
+                <tr>
+                    <td colspan="6" class="p-6 text-center text-sm text-zinc-500">
+                        <span class="text-zinc-600">Belum ada data / Data tidak ditemukan</span>
+                    </td>
+                </tr>
             @endforelse
         </tbody>
     </table>
@@ -216,7 +217,7 @@
 @endsection
 
 @push('scripts')
-<script>
+{{-- <script>
     document.addEventListener('DOMContentLoaded', () => {
         const kecamatanSelect = document.querySelector('[data-export-kecamatan]');
         const desaSelect = document.querySelector('[data-export-desa]');
@@ -262,5 +263,5 @@
             refreshDesaOptions(kecamatanSelect.value);
         });
     });
-</script>
+</script> --}}
 @endpush

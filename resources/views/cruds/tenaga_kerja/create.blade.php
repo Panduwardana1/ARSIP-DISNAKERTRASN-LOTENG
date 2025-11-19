@@ -124,20 +124,6 @@
                                 <p class="text-sm text-rose-600">{{ $message }}</p>
                             @enderror
                         </div>
-                        <div class="space-y-1">
-                            <label for="is_active" class="text-sm font-medium text-zinc-700">Status</label>
-                            <select id="is_active" name="is_active"
-                                class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200">
-                                @foreach ($statusOptions as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('is_active', $tenagaKerja->is_active ?? 'Aktif') === $value)>
-                                        {{ $label }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('is_active')
-                                <p class="text-sm text-rose-600">{{ $message }}</p>
-                            @enderror
-                        </div>
                     </div>
                 </section>
 

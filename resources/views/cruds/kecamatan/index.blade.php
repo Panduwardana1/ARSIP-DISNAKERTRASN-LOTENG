@@ -33,7 +33,7 @@
     {{-- button --}}
     <div class="flex items-center">
         <a href="{{ route('sirekap.kecamatan.create') }}"
-            class="flex items-center px-3 gap-2 py-1.5 bg-blue-600 text-white rounded-md border hover:bg-blue-700">
+            class="flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
             <x-heroicon-o-plus class="w-5 h-5" />
             Tambah
         </a>

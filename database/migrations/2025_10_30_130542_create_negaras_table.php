@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('negaras', function (Blueprint $t) {
             $t->id();
             $t->string('nama')->unique()->index();
-            $t->string('kode_iso', 5)->unique();
-            $t->enum('is_active', ['Aktif', 'Banned'])->default('Aktif');
+            $t->string('kode_iso', 5)->unique()->nullable();
             $t->softDeletes();
             $t->timestamps();
         });

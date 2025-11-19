@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('perusahaans', function (Blueprint $t) {
             $t->id();
-            $t->string('nama', 100)->index();
+            $t->string('nama', 100)->index()->unique();
             $t->string('pimpinan', 100)->nullable();
-            $t->string('email', 100)->unique();
+            $t->string('email', 100)->unique()->nullable();
             $t->text('alamat')->nullable();
             $t->string('gambar')->nullable();
             $t->timestamps();

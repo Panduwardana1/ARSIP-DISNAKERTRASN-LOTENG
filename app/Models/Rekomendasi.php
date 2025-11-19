@@ -34,7 +34,8 @@ class Rekomendasi extends Model
 
     public function tenagaKerjas(): BelongsToMany
     {
-        return $this->belongsToMany(TenagaKerja::class, 'rekomendasi_items');
+        return $this->belongsToMany(TenagaKerja::class, 'rekomendasi_items')
+            ->withPivot(['perusahaan_id', 'negara_id']);
     }
 
     public function items(): HasMany

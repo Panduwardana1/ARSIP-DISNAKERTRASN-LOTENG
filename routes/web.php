@@ -38,6 +38,11 @@ Route::prefix('/sirekap')->name('sirekap.')->group(function () {
     Route::resource('/pendidikan', PendidikanController::class);
     // dashboard controller
     Route::resource('/dashboard', DashboardController::class);
+    Route::get('/dashboard/chart/data', [DashboardController::class, 'chartTenagaKerja'])
+    ->name('dashboard.chart');
+    Route::get('/dashboard/chart/gender', [DashboardController::class, 'chartTenagaKerjaGender'])
+    ->name('dashboard.chart.gender');
+
     // profiel controller
     Route::resource('/user/profile', UserProfileController::class);
     // import controller
@@ -46,7 +51,7 @@ Route::prefix('/sirekap')->name('sirekap.')->group(function () {
     Route::get('/export', [TenagaKerjaExportController::class, 'index'])->name('export.index');
     Route::post('/export/download', [TenagaKerjaExportController::class, 'export'])->name('export.download');
 
-    //! rekomendasi controller
+    // rekomendasi controller
     Route::resource('/author', AuthorController::class);
 
     Route::prefix('/rekomendasi')->name('rekomendasi.')->group(function () {

@@ -25,7 +25,7 @@
                 <x-heroicon-o-magnifying-glass class="w-5 h-5" />
             </span>
 
-            <input type="search" name="q" placeholder="Cari nama negara atau kode ISO..." value="{{ $search ?? '' }}"
+            <input type="search" name="q" placeholder="Cari" value="{{ $search ?? '' }}"
                 class="w-full pl-10 py-1.5 rounded-md bg-white border border-zinc-300
                text-zinc-700 placeholder-zinc-400 transition-all duration-200 outline-none" />
         </form>
@@ -61,11 +61,6 @@
                 </th>
                 <th class="p-4">
                     <p class="text-sm font-normal leading-none text-white">
-                        Status
-                    </p>
-                </th>
-                <th class="p-4">
-                    <p class="text-sm font-normal leading-none text-white">
                         Aksi
                     </p>
                 </th>
@@ -89,15 +84,8 @@
                     </td>
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
-                            {{ $items->kode_iso }}
+                            {{ $items->kode_iso ?? '-'}}
                         </p>
-                    </td>
-                    <td class="p-4">
-                        <span
-                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold
-                                {{ $items->is_active === 'Aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-600' }}">
-                            {{ $items->is_active ?? 'Tidak Diketahui' }}
-                        </span>
                     </td>
                     <td class="px-4 py-4 text-sm whitespace-nowrap">
                         <div class="flex items-center gap-x-6">

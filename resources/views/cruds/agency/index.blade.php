@@ -75,13 +75,13 @@
                 <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
-                            {{ $items->id }}
+                            {{ $loop->iteration }}
                         </p>
                     </td>
                     <td class="p-4">
                         <div class="flex items-center gap-2">
                             <div>
-                                <a href="{{ route('sirekap.agency.show', $items) }}" >
+                                <a href="{{ route('sirekap.agency.show', $items) }}">
                                     <x-heroicon-o-building-library class="w-9 h-9 text-zinc-500" />
                                 </a>
                             </div>

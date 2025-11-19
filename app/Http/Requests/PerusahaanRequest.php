@@ -39,7 +39,7 @@ class PerusahaanRequest extends FormRequest
         }
 
         return [
-            'nama' => ['required', 'string', 'max:100'],
+            'nama' => ['required', 'string', 'max:100', Rule::unique('perusahaans', 'nama')],
             'pimpinan' => ['nullable', 'string', 'max:100'],
             'email' => [
                 'nullable',

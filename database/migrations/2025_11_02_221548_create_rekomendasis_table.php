@@ -18,7 +18,8 @@ return new class extends Migration
             $t->unsignedInteger('total');
             $t->foreignId('author_id')
                 ->constrained('authors')
-                ->cascadeOnDelete();
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
             $t->softDeletes();
             $t->timestamps();
         });

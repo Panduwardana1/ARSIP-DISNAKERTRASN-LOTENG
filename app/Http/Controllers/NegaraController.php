@@ -14,7 +14,7 @@ class NegaraController extends Controller
         $search = (string) $request->input('q', '');
 
         $negara = Negara::query()
-            ->select('id', 'nama', 'kode_iso', 'is_active')
+            ->select('id', 'nama', 'kode_iso')
             ->when(
                 $search !== '',
                 fn ($query) => $query->where(function ($builder) use ($search) {

@@ -25,4 +25,14 @@ class RekomendasiItem extends Model
     {
         return $this->belongsTo(TenagaKerja::class);
     }
+
+    public function perusahaan(): BelongsTo
+    {
+        return $this->belongsTo(Perusahaan::class);
+    }
+
+    public function negara(): BelongsTo
+    {
+        return $this->belongsTo(Negara::class);
+    }
 }

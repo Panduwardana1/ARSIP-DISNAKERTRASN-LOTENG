@@ -14,11 +14,17 @@ class PendidikanFactory extends Factory
      */
     public function definition(): array
     {
-        $label = fake()->unique()->words(2, true);
+        $labelBase = fake()->words(2, true);
+        $suffix = strtoupper(Str::random(2));
+        $slug = strtoupper(Str::slug($labelBase, '_'));
+        $slug = substr($slug, 0, max(1, 10 - (strlen($suffix) + 1)));
+        if ($slug === '') {
+            $slug = strtoupper(Str::random(3));
+        }
 
         return [
-            'nama' => Str::upper(Str::replace(' ', '_', Str::limit($label, 10, ''))),
-            'label' => Str::headline($label),
+            'nama' => rtrim($slug, '_') . '_' . $suffix,
+            'label' => Str::headline($labelBase) . " {$suffix}",
         ];
     }
 }

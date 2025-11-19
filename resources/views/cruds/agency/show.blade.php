@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('pageTitle', 'SIREKAP - PASMI | Agency | Detail')
-@section('titlePageContent', 'Profil Agency Penempatan')
 
 @section('content')
     <div class="min-h-screen bg-zinc-100 px-4 py-6 font-inter md:px-6 md:py-8">

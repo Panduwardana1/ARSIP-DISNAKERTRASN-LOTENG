@@ -170,8 +170,15 @@
 <body>
 
     @php
-        $perusahaanNames = $rekomendasi->tenagaKerjas->pluck('perusahaan.nama')->filter()->unique();
-        $negaraNames = $rekomendasi->tenagaKerjas->pluck('negara.nama')->filter()->unique();
+        $perusahaanNames = $rekomendasi->items->pluck('perusahaan.nama')->filter()->unique();
+        if ($perusahaanNames->isEmpty()) {
+            $perusahaanNames = $rekomendasi->tenagaKerjas->pluck('perusahaan.nama')->filter()->unique();
+        }
+
+        $negaraNames = $rekomendasi->items->pluck('negara.nama')->filter()->unique();
+        if ($negaraNames->isEmpty()) {
+            $negaraNames = $rekomendasi->tenagaKerjas->pluck('negara.nama')->filter()->unique();
+        }
         $author = $rekomendasi->author;
         $authorLine = $author
             ? trim($author->nama . ($author->jabatan ? ' - ' . $author->jabatan : ''))
@@ -215,7 +222,7 @@
                     <th style="width:220px; font-weight: 600; line-height: 1;">Alamat PMI</th>
                     <th style="width:70px; font-weight: 600; line-height: 1;">Agency</th>
                     <th style="width:70px; font-weight: 600; line-height: 1;">Jenis Pekerjaan</th>
-                    <th style="width:10px; font-weight: 600; line-height: 1;">Pendidikan</th>
+                    <th style="width:7px; font-weight: 600; line-height: 1;">Pendidikan</th>
                 </tr>
             </thead>
             <tbody>

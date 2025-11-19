@@ -32,7 +32,6 @@ class TenagaKerjaRequest extends FormRequest
             'perusahaan_id' => ['required', Rule::exists('perusahaans', 'id')],
             'agency_id' => ['required', Rule::exists('agencies', 'id')],
             'negara_id' => ['required', Rule::exists('negaras', 'id')],
-            'is_active' => ['required', Rule::in(array_keys(TenagaKerja::STATUSES))],
         ];
     }
 
@@ -46,7 +45,6 @@ class TenagaKerjaRequest extends FormRequest
             'nik' => preg_replace('/\D/', '', (string) $this->input('nik')),
             'no_telpon' => $cleanPhone !== '' ? $cleanPhone : null,
             'kode_pos' => $cleanPostal !== '' ? $cleanPostal : null,
-            'is_active' => trim((string) $this->input('is_active', 'Aktif')),
         ]);
     }
 
@@ -70,7 +68,6 @@ class TenagaKerjaRequest extends FormRequest
             'tempat_lahir' => 'Tempat Lahir',
             'alamat_lengkap' => 'Alamat Lengkap',
             'negara_id' => 'Negara Tujuan',
-            'is_active' => 'Status',
         ];
     }
 }

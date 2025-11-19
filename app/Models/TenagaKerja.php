@@ -20,11 +20,6 @@ class TenagaKerja extends Model
         'P' => 'Perempuan',
     ];
 
-    public const STATUSES = [
-        'Aktif' => 'Aktif',
-        'Banned' => 'Banned',
-    ];
-
     protected $fillable = [
         'nama',
         'nik',
@@ -40,14 +35,12 @@ class TenagaKerja extends Model
         'perusahaan_id',
         'agency_id',
         'negara_id',
-        'is_active',
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
     ];
 
-    // Relasi Eloquent
     public function desa() {
         return $this->belongsTo(Desa::class);
     }

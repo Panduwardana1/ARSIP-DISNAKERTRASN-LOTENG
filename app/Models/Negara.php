@@ -15,7 +15,6 @@ class Negara extends Model
     protected $fillable = [
         'nama',
         'kode_iso',
-        'is_active',
     ];
 
     protected $casts = [

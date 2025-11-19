@@ -23,7 +23,8 @@ class AuthorRequest extends FormRequest
             'nip' => [
                 'required',
                 'string',
-                'size:20',
+                'min:18',
+                'max:20',
                 'regex:/^[0-9]+$/',
                 Rule::unique('authors', 'nip')->ignore($authorId),
             ],

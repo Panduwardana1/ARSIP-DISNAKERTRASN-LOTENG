@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Author;
+use App\Models\Negara;
+use App\Models\Perusahaan;
 use App\Models\Rekomendasi;
 use App\Models\TenagaKerja;
 use iio\libmergepdf\Merger;
@@ -20,6 +22,7 @@ class RekomendasiController extends Controller
 {
     private const MALE_GENDERS = ['l', 'laki-laki', 'male', 'm'];
     private const FEMALE_GENDERS = ['p', 'perempuan', 'female', 'f'];
+    private const PREVIEW_SESSION_KEY = 'rekomendasi.preview.selected_ids';
 
     public function index(Request $request)
     {
@@ -39,7 +42,13 @@ class RekomendasiController extends Controller
 
     public function preview(Request $request)
     {
-        $selectedIds = $this->resolveSelectedIds($request);
+        if ($request->isMethod('post')) {
+            $this->storeSelectedIdsFromRequest($request);
+
+            return redirect()->route('sirekap.rekomendasi.preview');
+        }
+
+        $selectedIds = $this->getSelectedIdsFromSession();
         if (empty($selectedIds)) {
             abort(404);
         }
@@ -53,9 +62,28 @@ class RekomendasiController extends Controller
         }
 
         $authors = Author::select('id', 'nama', 'nip', 'jabatan')->orderBy('nama')->get();
+        $perusahaans = Perusahaan::select('id', 'nama')->orderBy('nama')->get();
+        $negaras = Negara::select('id', 'nama')->orderBy('nama')->get();
         $kodeDefault = DB::transaction(fn() => Rekomendasi::generateKode());
+        $defaultPerusahaanId = $tenagaKerjas->pluck('perusahaan_id')->filter()->first();
+        $defaultNegaraId = $tenagaKerjas->pluck('negara_id')->filter()->first();
 
-        return response()->view('cruds.rekomendasi.preview', compact('tenagaKerjas', 'authors', 'kodeDefault'))->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')->header('Pragma', 'no-cache')->header('Expires', '0');
+        return response()
+            ->view(
+                'cruds.rekomendasi.preview',
+                compact(
+                    'tenagaKerjas',
+                    'authors',
+                    'perusahaans',
+                    'negaras',
+                    'kodeDefault',
+                    'defaultPerusahaanId',
+                    'defaultNegaraId'
+                )
+            )
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function store(RekomendasiRequest $request)
@@ -84,9 +112,27 @@ class RekomendasiController extends Controller
                     'user_verifikasi_id' => $userId,
                 ]);
 
-                $rek->tenagaKerjas()->attach($ids);
+                $perusahaanId = (int) $request->perusahaan_id;
+                $negaraId = (int) $request->negara_id;
 
-                return $rek->load(['author', 'tenagaKerjas.perusahaan', 'tenagaKerjas.negara']);
+                $pivotData = collect($ids)
+                    ->mapWithKeys(fn($id) => [
+                        $id => [
+                            'perusahaan_id' => $perusahaanId,
+                            'negara_id' => $negaraId,
+                        ],
+                    ])
+                    ->all();
+
+                $rek->tenagaKerjas()->attach($pivotData);
+
+                return $rek->load([
+                    'author',
+                    'tenagaKerjas.perusahaan',
+                    'tenagaKerjas.negara',
+                    'items.perusahaan',
+                    'items.negara',
+                ]);
             });
         } catch (\Throwable $e) {
             Log::error('Gagal menyimpan rekomendasi', [
@@ -104,7 +150,13 @@ class RekomendasiController extends Controller
 
     public function pdf(Rekomendasi $rekomendasi): Response
     {
-        $rekomendasi->load(['author', 'tenagaKerjas.perusahaan', 'tenagaKerjas.negara']);
+        $rekomendasi->load([
+            'author',
+            'tenagaKerjas.perusahaan',
+            'tenagaKerjas.negara',
+            'items.perusahaan',
+            'items.negara',
+        ]);
 
         return $this->buildPdfResponse($rekomendasi);
     }
@@ -191,18 +243,20 @@ class RekomendasiController extends Controller
         return in_array($normalized, $needles, true);
     }
 
-    private function resolveSelectedIds(Request $request): array
+    private function storeSelectedIdsFromRequest(Request $request): void
     {
-        if ($request->isMethod('get')) {
-            return $this->normalizeIds((array) $request->old('tenaga_kerja_ids', []));
-        }
-
         $validated = $request->validate([
             'selected_ids' => ['required', 'array', 'min:1'],
             'selected_ids.*' => ['integer', 'exists:tenaga_kerjas,id'],
         ]);
 
-        return $this->normalizeIds($validated['selected_ids']);
+        $ids = $this->normalizeIds($validated['selected_ids']);
+        session([self::PREVIEW_SESSION_KEY => $ids]);
+    }
+
+    private function getSelectedIdsFromSession(): array
+    {
+        return $this->normalizeIds(session(self::PREVIEW_SESSION_KEY, []));
     }
 
     private function normalizeIds(array $ids): array

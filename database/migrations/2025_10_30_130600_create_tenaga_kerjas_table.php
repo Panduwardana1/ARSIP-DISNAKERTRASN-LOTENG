@@ -22,27 +22,26 @@ return new class extends Migration
             $t->date('tanggal_lahir');
             $t->text('alamat_lengkap');
             $t->foreignId('desa_id')
-            ->constrained('desas')
-            ->cascadeOnUpdate()
-            ->restrictOnDelete();
+                ->constrained('desas')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();;
             $t->string('kode_pos', 10)->nullable();
             $t->foreignId('pendidikan_id')
                 ->constrained('pendidikans')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();;
             $t->foreignId('perusahaan_id')
                 ->constrained('perusahaans')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
             $t->foreignId('agency_id')
                 ->constrained('agencies')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
             $t->foreignId('negara_id')
                 ->constrained('negaras')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
-            $t->enum('is_active', ['Aktif', 'Banned'])->default('Aktif');
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
 
             $t->timestamps();
             $t->softDeletes();

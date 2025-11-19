@@ -42,17 +42,6 @@ class TenagaKerjaFactory extends Factory
             'perusahaan_id' => Perusahaan::factory(),
             'agency_id' => Agency::factory(),
             'negara_id' => Negara::factory(),
-            'is_active' => $faker->randomElement(array_keys(TenagaKerja::STATUSES)),
         ];
-    }
-
-    public function aktif(): static
-    {
-        return $this->state(fn () => ['is_active' => 'Aktif']);
-    }
-
-    public function banned(): static
-    {
-        return $this->state(fn () => ['is_active' => 'Banned']);
     }
 }

@@ -51,13 +51,10 @@
                                 <p class="text-sm font-normal leading-none text-white">Agency</p>
                             </th>
                             <th class="p-4">
-                                <p class="text-sm font-normal leading-none text-white">Lowongan</p>
+                                <p class="text-sm font-normal leading-none text-white">Pekerjaan</p>
                             </th>
                             <th class="p-4">
-                                <p class="text-sm font-normal leading-none text-white">Destinasi</p>
-                            </th>
-                            <th class="p-4">
-                                <p class="text-sm font-normal leading-none text-white">Tanggal Lahir</p>
+                                <p class="text-sm font-normal leading-none text-white">Penempatan</p>
                             </th>
                         </tr>
                     </thead>
@@ -73,9 +70,6 @@
                                 <td class="p-4 text-sm text-zinc-800">{{ $tk->agency->nama ?? '-' }}</td>
                                 <td class="p-4 text-sm text-zinc-800">{{ $tk->agency->lowongan ?? 'Belum ditentukan' }}</td>
                                 <td class="p-4 text-sm text-zinc-800">{{ $tk->negara->nama ?? '-' }}</td>
-                                <td class="p-4 text-sm text-zinc-800">
-                                    {{ \Illuminate\Support\Carbon::parse($tk->tanggal_lahir)->format('d-m-Y') }}
-                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -113,10 +107,46 @@
                     <select name="author_id"
                         class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
                         @foreach ($authors as $a)
-                            <option value="{{ $a->id }}" @selected(old('author_id') == $a->id)>{{ $a->nama }} ({{ $a->nip }})</option>
+                            <option value="{{ $a->id }}" @selected(old('author_id') == $a->id)>{{ $a->nama }}
+                                ({{ $a->nip }})
+                            </option>
                         @endforeach
                     </select>
                     @error('author_id')
+                        <p class="text-xs text-rose-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-zinc-700">Perusahaan (P3MI)</label>
+                    <select name="perusahaan_id"
+                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="" disabled {{ old('perusahaan_id', $defaultPerusahaanId) ? '' : 'selected' }}>
+                            Pilih perusahaan
+                        </option>
+                        @foreach ($perusahaans as $perusahaan)
+                            <option value="{{ $perusahaan->id }}" @selected(old('perusahaan_id', $defaultPerusahaanId) == $perusahaan->id)>
+                                {{ $perusahaan->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('perusahaan_id')
+                        <p class="text-xs text-rose-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="space-y-1">
+                    <label class="text-sm font-medium text-zinc-700">Negara Tujuan</label>
+                    <select name="negara_id"
+                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="" disabled {{ old('negara_id', $defaultNegaraId) ? '' : 'selected' }}>
+                            Pilih negara tujuan
+                        </option>
+                        @foreach ($negaras as $negara)
+                            <option value="{{ $negara->id }}" @selected(old('negara_id', $defaultNegaraId) == $negara->id)>
+                                {{ $negara->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('negara_id')
                         <p class="text-xs text-rose-600">{{ $message }}</p>
                     @enderror
                 </div>

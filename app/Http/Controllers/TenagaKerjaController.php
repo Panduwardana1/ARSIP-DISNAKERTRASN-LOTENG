@@ -22,9 +22,6 @@ class TenagaKerjaController extends Controller
     {
         $search = trim((string) $request->input('q', ''));
         $status = (string) $request->input('status', '');
-        if ($status !== '' && ! array_key_exists($status, TenagaKerja::STATUSES)) {
-            $status = '';
-        }
 
         $tenagaKerjas = TenagaKerja::query()
             ->select([
@@ -36,7 +33,6 @@ class TenagaKerjaController extends Controller
                 'perusahaan_id',
                 'agency_id',
                 'negara_id',
-                'is_active',
                 'created_at',
             ])
             ->with([
@@ -65,7 +61,6 @@ class TenagaKerjaController extends Controller
             'tenagaKerjas' => $tenagaKerjas,
             'search' => $search,
             'status' => $status,
-            'statusOptions' => TenagaKerja::STATUSES,
         ]);
     }
 
@@ -159,7 +154,6 @@ class TenagaKerjaController extends Controller
             'agencies' => Agency::query()->select('id', 'nama', 'lowongan')->orderBy('nama')->get(),
             'negaras' => Negara::query()->select('id', 'nama')->orderBy('nama')->get(),
             'genders' => TenagaKerja::GENDERS,
-            'statusOptions' => TenagaKerja::STATUSES,
         ];
     }
 }

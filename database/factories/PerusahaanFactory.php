@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Perusahaan>
@@ -17,11 +18,18 @@ class PerusahaanFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama'     => $this->faker->company(),
+            'nama'     => $this->uniqueCompanyName(),
             'pimpinan' => $this->faker->name(),
             'email'    => $this->faker->unique()->safeEmail(),
             'alamat'   => $this->faker->address(),
             'gambar'   => null,
         ];
+    }
+
+    private function uniqueCompanyName(): string
+    {
+        $base = $this->faker->company();
+
+        return "{$base} " . strtoupper(Str::random(4));
     }
 }

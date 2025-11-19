@@ -133,9 +133,11 @@
                     </td>
                 </tr>
             @empty
-                <div>
-                    <span>Belum ada data</span>
-                </div>
+                <tr>
+                    <td colspan="6" class="p-6 text-center text-sm text-zinc-500">
+                        Belum ada data P3MI
+                    </td>
+                </tr>
             @endforelse
         </tbody>
     </table>

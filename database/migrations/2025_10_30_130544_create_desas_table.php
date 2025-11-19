@@ -15,8 +15,8 @@ return new class extends Migration
             $t->id();
             $t->foreignId('kecamatan_id')
                 ->constrained('kecamatans')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
             $t->string('nama');
             $t->timestamps();
         });

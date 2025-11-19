@@ -202,17 +202,33 @@
 <body>
     <div class="page">
         @php
-            $perusahaanList = $rekomendasi->tenagaKerjas
-                ->map(fn($tk) => optional($tk->perusahaan)->nama)
+            $perusahaanList = $rekomendasi->items
+                ->map(fn($item) => optional($item->perusahaan)->nama)
                 ->filter()
                 ->unique()
                 ->values();
 
-            $negaraList = $rekomendasi->tenagaKerjas
-                ->map(fn($tk) => optional($tk->negara)->nama)
+            if ($perusahaanList->isEmpty()) {
+                $perusahaanList = $rekomendasi->tenagaKerjas
+                    ->map(fn($tk) => optional($tk->perusahaan)->nama)
+                    ->filter()
+                    ->unique()
+                    ->values();
+            }
+
+            $negaraList = $rekomendasi->items
+                ->map(fn($item) => optional($item->negara)->nama)
                 ->filter()
                 ->unique()
                 ->values();
+
+            if ($negaraList->isEmpty()) {
+                $negaraList = $rekomendasi->tenagaKerjas
+                    ->map(fn($tk) => optional($tk->negara)->nama)
+                    ->filter()
+                    ->unique()
+                    ->values();
+            }
 
             $perusahaanName = $perusahaanList->isNotEmpty() ? $perusahaanList->implode(', ') : '-';
             $destinasiTujuan = $negaraList->isNotEmpty() ? $negaraList->implode(', ') : '-';
@@ -362,7 +378,7 @@
                 <div class="author">
                     <strong class="nip">NIP 198201182002121001</strong>
                 </div>
-                    <strong class="name"><u>SUPIANDI, S.STP</u></strong>
+                <strong class="name"><u>SUPIANDI, S.STP</u></strong>
             @endif
         </div>
     </div>

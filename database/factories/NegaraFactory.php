@@ -3,10 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories.Factory<\App\Models\Negara>
- */
 class NegaraFactory extends Factory
 {
     /**
@@ -16,10 +14,11 @@ class NegaraFactory extends Factory
      */
     public function definition(): array
     {
+        $country = $this->faker->country();
+
         return [
-            'nama' => $this->faker->unique()->country(),
-            'kode_iso' => $this->faker->unique()->countryISOAlpha3(),
-            'is_active' => $this->faker->randomElement(['Aktif', 'Banned']),
+            'nama' => "{$country} " . Str::upper(Str::random(3)),
+            'kode_iso' => Str::upper(Str::random(3)),
         ];
     }
 }

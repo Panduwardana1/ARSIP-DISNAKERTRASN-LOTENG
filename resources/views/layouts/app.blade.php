@@ -44,7 +44,10 @@
         </div>
         <div class="flex items-center gap-3 text-xs font-medium text-amber-100/80 sm:text-sm">
             <x-heroicon-o-bell class="h-5 w-5" />
-            <span class="hidden sm:inline">Selamat datang kembali</span>
+            <a href="{{ route('sirekap.profile.index') }}" class="p-2 bg-white border">
+                <div class="">
+                </div>
+            </a>
         </div>
     </header>
 
@@ -251,7 +254,7 @@
             });
         });
     </script>
-
+    @stack('scripts')
 </body>
 
 </html>
