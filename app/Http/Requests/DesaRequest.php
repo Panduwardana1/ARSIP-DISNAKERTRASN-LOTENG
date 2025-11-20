@@ -10,39 +10,20 @@ class DesaRequest extends FormRequest
 {
     protected $stopOnFirstFailure = true;
 
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    // public function authorize(): bool
-    // {
-    //     $user = $this->user();
+     public function authorize(): bool
+    {
+        return true;
+    }
 
-    //     if ($this->isCreate()) {
-    //         return $user?->can('create', Desa::class) ?? false;
-    //     }
-
-    //     if ($this->isUpdate()) {
-    //         return $user?->can('update', $this->route('desa')) ?? false;
-    //     }
-
-    //     return $user?->can('viewAny', Desa::class) ?? false;
-    // }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        $desa = $this->route('desa');
-        $desaId = $desa instanceof Desa ? $desa->id : $desa;
+        $id = $this->route('desa')?->id;
 
         $uniqueNama = Rule::unique('desas')
             ->where(fn ($query) => $query->where('kecamatan_id', $this->input('kecamatan_id')));
 
-        if ($this->isUpdate() && $desaId) {
-            $uniqueNama = $uniqueNama->ignore($desaId);
+        if ($this->isUpdate() && $id) {
+            $uniqueNama = $uniqueNama->ignore($id);
         }
 
         return [
@@ -55,7 +36,7 @@ class DesaRequest extends FormRequest
     {
         if ($this->filled('nama')) {
             $this->merge([
-                'nama' => strtoupper((string) $this->input('nama')),
+                'nama' => trim($this->input('nama')),
             ]);
         }
     }

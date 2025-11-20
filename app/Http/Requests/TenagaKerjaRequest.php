@@ -9,19 +9,31 @@ use Illuminate\Validation\Rule;
 
 class TenagaKerjaRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
 
-    protected $stopOnFirstFailurel;
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
-        $tenagaKerja = $this->route('tenaga_kerja');
-
-        $tenagaKerjaId = is_object($tenagaKerja) ? $tenagaKerja->getKey() : $tenagaKerja;
+        $id = $this->tenagaKerjaId();
 
         return [
             'nama' => ['required', 'string','regex:/^[A-Za-z\s\',\.]+$/', 'max:100'],
-            'nik' => ['required', 'digits:16', 'regex:/^[0-9]+$/', Rule::unique('tenaga_kerjas', 'nik')->ignore($tenagaKerjaId)],
-            'gender' => ['required', Rule::in(array_keys(TenagaKerja::GENDERS))],
-            'email' => ['nullable', 'string', 'email', 'max:100', Rule::unique('tenaga_kerjas', 'email')->ignore($tenagaKerjaId)],
+            'nik' => ['required', 'digits:16', 'regex:/^[0-9]+$/', Rule::unique('tenaga_kerjas', 'nik')->ignore($id)],
+            'gender' => [
+                'required',
+                    Rule::in(array_keys(TenagaKerja::GENDERS))
+                ],
+            'email' => [
+                'nullable',
+                'string',
+                'email',
+                'max:100',
+                Rule::unique('tenaga_kerjas', 'email')->ignore($id)
+                ],
             'no_telpon' => ['nullable', 'digits_between:10,15', 'regex:/^[0-9]+$/'],
             'tempat_lahir' => ['required', 'string', 'max:100'],
             'tanggal_lahir' => ['required', 'date', 'before_or_equal:today'],
@@ -69,5 +81,12 @@ class TenagaKerjaRequest extends FormRequest
             'alamat_lengkap' => 'Alamat Lengkap',
             'negara_id' => 'Negara Tujuan',
         ];
+    }
+
+    protected function tenagaKerjaId(): ?int
+    {
+        $tenagaKerja = $this->route('tenaga_kerja');
+
+        return $tenagaKerja instanceof TenagaKerja ? $tenagaKerja->getKey() : $tenagaKerja;
     }
 }

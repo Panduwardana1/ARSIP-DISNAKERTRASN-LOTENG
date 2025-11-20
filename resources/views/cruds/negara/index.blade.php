@@ -4,13 +4,7 @@
 @section('titlePageContent', 'Negara Tujuan')
 
 @section('content')
-    @if (session('success'))
-        <div class="rounded-md border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm text-emerald-700">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @error('app')
+    @error('error')
         <div class="rounded-md border border-rose-200 bg-rose-50 px-5 py-3 text-sm text-rose-700">
             {{ $message }}
         </div>
@@ -84,7 +78,7 @@
                     </td>
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
-                            {{ $items->kode_iso ?? '-'}}
+                            {{ $items->kode_iso ?? '-' }}
                         </p>
                     </td>
                     <td class="px-4 py-4 text-sm whitespace-nowrap">

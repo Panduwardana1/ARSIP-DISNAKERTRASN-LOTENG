@@ -49,28 +49,30 @@ class AgencyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(AgencyRequest $request): RedirectResponse
+    public function store(AgencyRequest $request, Agency $agency): RedirectResponse
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 
         try {
-            Agency::create($validated);
+            Agency::create($data);
 
             return redirect()
                 ->route('sirekap.agency.index')
                 ->with('success', 'Agency berhasil ditambahkan.');
         } catch (Throwable $e) {
-            Log::warning('Gagal menyimpan data agency.', ['exception' => $e]);
+            Log::warning('Gagal menyimpan data agency.',
+             [
+                'exception' => $e,
+                'message' => $e->getMessage(),
+                'payload' => $agency,
+            ]);
         }
 
         return Redirect::back()
             ->withInput()
-            ->withErrors(['db' => 'Terjadi kesalahan saat menyimpan data agency.']);
+            ->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data agency.']);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Agency $agency)
     {
         $agency->load([
@@ -81,9 +83,6 @@ class AgencyController extends Controller
         return view('cruds.agency.show', compact('agency'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Agency $agency)
     {
         $perusahaans = $this->perusahaanOptions();
@@ -91,15 +90,12 @@ class AgencyController extends Controller
         return view('cruds.agency.edit', compact('agency', 'perusahaans'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(AgencyRequest $request, Agency $agency): RedirectResponse
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 
         try {
-            $agency->update($validated);
+            $agency->update($data);
 
             return redirect()
                 ->route('sirekap.agency.index')
@@ -116,9 +112,6 @@ class AgencyController extends Controller
             ->withErrors(['db' => 'Terjadi kesalahan saat memperbarui data agency.']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Agency $agency): RedirectResponse
     {
         if ($agency->tenagaKerjas()->exists()) {

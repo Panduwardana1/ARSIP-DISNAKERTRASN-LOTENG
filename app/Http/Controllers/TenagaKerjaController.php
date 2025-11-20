@@ -101,7 +101,7 @@ class TenagaKerjaController extends Controller
 
     public function edit(TenagaKerja $tenagaKerja): View
     {
-        return view('cruds.tenaga_kerja.create', array_merge(
+        return view('cruds.tenaga_kerja.edit', array_merge(
             ['tenagaKerja' => $tenagaKerja],
             $this->formSelections()
         ));

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\PendidikanRequest;
+use Throwable;
 use App\Models\Pendidikan;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\PendidikanRequest;
 
 class PendidikanController extends Controller
 {
@@ -41,18 +43,24 @@ class PendidikanController extends Controller
 
     public function store(PendidikanRequest $request): RedirectResponse
     {
+
+        $data = $request->validated();
+
         try {
-            Pendidikan::create($request->validated());
+            Pendidikan::create($data);
 
             return redirect()
                 ->route('sirekap.pendidikan.index')
-                ->with('success', 'Pendidikan baru berhasil ditambahkan.');
-        } catch (\Throwable $t) {
-            report($t);
+                ->with('success', 'Data berhasil dibuat');
+        } catch (Throwable $t) {
+           Log::error('Gagal membuat data', [
+            'message' => $t->getMessage(),
+            'payload' => $data,
+           ]);
 
             return back()
                 ->withInput()
-                ->withErrors(['app' => 'Gagal menambahkan data pendidikan.']);
+                ->withErrors(['error' => 'Gagal membuat data baru.']);
         }
     }
 
@@ -75,13 +83,18 @@ class PendidikanController extends Controller
 
             return redirect()
                 ->route('sirekap.pendidikan.index')
-                ->with('success', 'Pendidikan berhasil diperbarui.');
-        } catch (\Throwable $t) {
+                ->with('success', 'Data telah diperbaharui');
+        } catch (Throwable $t) {
             report($t);
+            Log::error('Gagal memperbaharui data', [
+                'message' => $t->getMessage(),
+                'pendidikan_id' => $pendidikan->id,
+                'payload' => $pendidikan,
+            ]);
 
             return back()
                 ->withInput()
-                ->withErrors(['app' => 'Gagal memperbarui data pendidikan.']);
+                ->withErrors(['error' => 'Gagal memperbarui data ']);
         }
     }
 
@@ -93,7 +106,7 @@ class PendidikanController extends Controller
             return redirect()
                 ->route('sirekap.pendidikan.index')
                 ->with('success', 'Pendidikan berhasil dihapus.');
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             report($t);
 
             return back()

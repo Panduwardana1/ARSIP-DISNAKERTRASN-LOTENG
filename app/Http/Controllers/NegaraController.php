@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Throwable;
 use App\Models\Negara;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Requests\NegaraRequest;
 use Illuminate\Http\RedirectResponse;
 
@@ -39,20 +41,24 @@ class NegaraController extends Controller
 
     public function store(NegaraRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 
         try {
-            $validated['is_active'] ??= 'Aktif';
+            Negara::create($data);
 
-            Negara::create($validated);
-
-            return redirect()->route('sirekap.negara.index')->with('success', 'Berhasil ditambahkan');
-        } catch (\Throwable $t) {
+            return redirect()
+                ->route('sirekap.negara.index')
+                ->with('success', 'Berhasil ditambahkan');
+        } catch (Throwable $t) {
+            Log::error('Gagal membuat data baru', [
+                'message' => $t->getMessage(),
+                'payload' => $data,
+            ]);
             report($t);
 
             return back()
                 ->withInput()
-                ->withErrors(['app' => $t->getMessage()]);
+                ->withErrors(['error' => $t->getMessage()]);
         }
     }
 
@@ -63,18 +69,24 @@ class NegaraController extends Controller
 
     public function update(NegaraRequest $request, Negara $negara): RedirectResponse
     {
-        $updateData = $request->validated();
+        $data = $request->validated();
 
         try {
-            $negara->update($updateData);
+            $negara->update($data);
 
             return redirect()->route('sirekap.negara.index')->with('success', 'Berhasil diperbarui');
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
+            Log::error('Gagal mengupdate data', [
+                'message' => $t->getMessage(),
+                'negara_id' => $negara->id,
+                'payload' => $negara,
+            ]);
+
             report($t);
 
             return back()
                 ->withInput()
-                ->withErrors(['app' => $t->getMessage()]);
+                ->withErrors(['error' => $t->getMessage()]);
         }
     }
 }

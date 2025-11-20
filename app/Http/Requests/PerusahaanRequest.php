@@ -25,21 +25,17 @@ class PerusahaanRequest extends FormRequest
      */
     public function rules(): array
     {
-        $perusahaanId = $this->route('perusahaan');
-
-        if ($perusahaanId instanceof Perusahaan) {
-            $perusahaanId = $perusahaanId->getKey();
-        }
+        $id = $this->route('perusahaan')?->id;
 
         $emailRule = Rule::unique('perusahaans', 'email')
             ->where(fn ($query) => $query->whereNull('deleted_at'));
 
-        if ($perusahaanId) {
-            $emailRule->ignore($perusahaanId);
+        if ($id) {
+            $emailRule->ignore($id);
         }
 
         return [
-            'nama' => ['required', 'string', 'max:100', Rule::unique('perusahaans', 'nama')],
+            'nama' => ['required', 'string', 'max:100', Rule::unique('perusahaans', 'nama')->ignore($id)],
             'pimpinan' => ['nullable', 'string', 'max:100'],
             'email' => [
                 'nullable',
@@ -55,6 +51,7 @@ class PerusahaanRequest extends FormRequest
     public function messages() : array {
         return [
             'nama.required' => 'Nama perusahaan wajib diisi.',
+            'nama.unique' => 'Nama sudah digunakan.',
             'nama.max' => 'Nama perusahaan terlalu panjang.',
             'email.email' => 'Format email perusahaan tidak valid.',
             'email.unique' => 'Email perusahaan sudah terdaftar.',
@@ -70,7 +67,7 @@ class PerusahaanRequest extends FormRequest
         $email = $this->input('email');
 
         $this->merge([
-            'nama' => $nama ? Str::upper(trim((string) $nama)) : null,
+            'nama' => $nama ? trim((string) $nama) : null,
             'email' => $email ? Str::lower(trim((string) $email)) : null,
         ]);
     }

@@ -91,7 +91,7 @@
                                     <img src="{{ asset($imagePath) }}" alt="Logo {{ $items->nama }}"
                                         class="h-9 w-9 rounded-full object-cover">
                                 @else
-                                    <x-heroicon-o-building-office class="h-9 w-9 text-gray-400" />
+                                    <x-heroicon-o-building-office class="h-8 w-8 text-gray-500" />
                                 @endif
                             </a>
                             <div class="grid space-y-0">
@@ -123,7 +123,7 @@
                                 <x-heroicon-o-pencil class="w-5 h-5" />
                             </a>
 
-                            <x-modal-delete :action="route('sirekap.perusahaan.destroy', $items)" :title="'Hapus Data '" :message="'Datas ' . $items->nama . ' akan dihapus permanen.'"
+                            <x-modal-delete :action="route('sirekap.perusahaan.destroy', $items)" :title="'Hapus Data '" :message="'Datas akan dihapus permanen.'"
                                 confirm-field="confirm_delete">
                                 <button type="button" class="text-zinc-600 hover:text-rose-600">
                                     <x-heroicon-o-trash class="h-5 w-5" />

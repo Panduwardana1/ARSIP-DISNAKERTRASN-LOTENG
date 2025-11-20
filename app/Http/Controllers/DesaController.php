@@ -22,10 +22,7 @@ class DesaController extends Controller
             ->withCount('tenagaKerja')
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {
-                    $subQuery->where('nama', 'like', '%' . $search . '%')
-                        ->orWhereHas('kecamatan', function ($kecamatanQuery) use ($search) {
-                            $kecamatanQuery->where('nama', 'like', '%' . $search . '%');
-                        });
+                    $subQuery->where('nama', 'like', '%' . $search . '%');
                 });
             })
             ->orderBy('nama')
@@ -47,21 +44,21 @@ class DesaController extends Controller
 
     public function store(DesaRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 
         try {
-            Desa::create($validated);
+            Desa::create($data);
 
             return redirect()
                 ->route('sirekap.desa.index')
-                ->with('success', 'Data desa berhasil ditambahkan.');
+                ->with('success', 'Desa baru berhasil ditambahkan.');
         } catch (Throwable $e) {
             Log::warning('Gagal menyimpan data desa.', ['exception' => $e]);
         }
 
         return Redirect::back()
             ->withInput()
-            ->withErrors(['db' => 'Terjadi kesalahan saat menyimpan data desa.']);
+            ->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data desa.']);
     }
 
     public function edit(Desa $desa)

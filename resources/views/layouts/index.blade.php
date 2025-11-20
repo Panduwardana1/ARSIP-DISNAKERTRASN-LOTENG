@@ -133,7 +133,7 @@
             </div>
         </div>
 
-        <div class="mt-6 rounded-xl border bg-white p-5 shadow-sm">
+        <div class="mt-6 rounded-xl overflow-hidden border bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 class="text-base font-semibold text-zinc-900">5 Data Terbaru</h2>
@@ -143,21 +143,24 @@
                     class="inline-flex text-sm font-medium text-blue-600 hover:text-blue-700">Lihat semua</a>
             </div>
 
-            <div class="mt-4 overflow-x-auto rounded-xl border border-zinc-100">
+            <div class="mt-4 overflow-x-auto rounded-md border border-zinc-100">
                 <table class="min-w-full divide-y divide-zinc-200 text-xs text-zinc-700 sm:text-sm">
-                    <thead class="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    <thead class="bg-blue-600 text-xs font-semibold uppercase tracking-wide text-white">
                         <tr>
-                            <th class="px-4 py-2 text-left">Nama</th>
-                            <th class="px-4 py-2 text-left">Gender</th>
-                            <th class="px-4 py-2 text-left">Desa/Kecamatan</th>
-                            <th class="px-4 py-2 text-left">Dibuat</th>
+                            <th class="px-4 py-3 text-left">Nama</th>
+                            <th class="px-4 py-3 text-left">Gender</th>
+                            <th class="px-4 py-3 text-left">Desa/Kecamatan</th>
+                            <th class="px-4 py-3 text-left">Dibuat</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100">
                         @forelse ($lastAdd as $row)
                             <tr>
                                 <td class="px-4 py-3 font-medium text-zinc-900">
-                                    {{ $row->nama ?? '-' }}
+                                    <div class="grid items-center space-y-0">
+                                        <span class="font-medium">{{ $row->nama ?? '-' }}</span>
+                                        <strong>{{ $row->id ?? '-' }}</strong>
+                                    </div>
                                 </td>
                                 <td class="px-4 py-3">
                                     {{ $row->getLabelGender() }}

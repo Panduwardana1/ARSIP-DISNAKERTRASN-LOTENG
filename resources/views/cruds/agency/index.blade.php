@@ -82,7 +82,7 @@
                         <div class="flex items-center gap-2">
                             <div>
                                 <a href="{{ route('sirekap.agency.show', $items) }}">
-                                    <x-heroicon-o-building-library class="w-9 h-9 text-zinc-500" />
+                                    <x-heroicon-o-building-library class="w-8 h-8 text-zinc-500" />
                                 </a>
                             </div>
                             <div class="grid items-center space-y-0">

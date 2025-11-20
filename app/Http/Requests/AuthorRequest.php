@@ -15,8 +15,7 @@ class AuthorRequest extends FormRequest
 
     public function rules(): array
     {
-        $author = $this->route('author');
-        $authorId = $author instanceof Author ? $author->getKey() : $author;
+        $id = $this->route('author')?->id;
 
         return [
             'nama' => ['required', 'string', 'max:100'],
@@ -26,7 +25,7 @@ class AuthorRequest extends FormRequest
                 'min:18',
                 'max:20',
                 'regex:/^[0-9]+$/',
-                Rule::unique('authors', 'nip')->ignore($authorId),
+                Rule::unique('authors', 'nip')->ignore($id),
             ],
             'jabatan' => ['required', 'string', 'max:150'],
         ];
@@ -43,6 +42,14 @@ class AuthorRequest extends FormRequest
 
     public function attributes(): array
     {
+        return [
+            'nama' => 'Nama',
+            'nip' => 'NIP',
+            'jabatan' => 'Jabatan',
+        ];
+    }
+
+    public function messages() : array {
         return [
             'nama' => 'Nama',
             'nip' => 'NIP',

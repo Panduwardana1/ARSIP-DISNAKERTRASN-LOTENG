@@ -48,6 +48,11 @@
                         Pendidikan
                     </p>
                 </th>
+                <th class="p-4">
+                    <p class="text-sm font-normal leading-none text-white">
+                        Label
+                    </p>
+                </th>
                 <th class="p-4 text-left">
                     <p class="flex items-center gap-1 text-sm font-normal leading-none text-white">
                         <x-heroicon-o-information-circle class="w-4 h-4"
@@ -77,16 +82,16 @@
                     </td>
                     <td class="p-4">
                         <div class="flex items-center gap-2">
-                            <x-heroicon-o-academic-cap class="w-8 h-8 text-zinc-500" />
-                            <div class="grid space-y-0">
-                                <p class="text-[16px] font-semibold text-zinc-800">
-                                    {{ $items->nama }}
-                                </p>
-                                <p class="text-xs font-medium text-zinc-600">
-                                    {{ $items->label }}
-                                </p>
-                            </div>
+                            <x-heroicon-o-academic-cap class="w-6 h-6 text-zinc-700" />
+                            <p class="text-[16px] font-semibold text-zinc-800">
+                                {{ $items->nama }}
+                            </p>
                         </div>
+                    </td>
+                    <td class="p-4">
+                        <p class="text-sm font-medium text-zinc-600">
+                            {{ $items->label }}
+                        </p>
                     </td>
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
@@ -106,7 +111,7 @@
                                 <x-heroicon-o-pencil class="w-5 h-5" />
                             </a>
 
-                            <x-modal-delete :action="route('sirekap.pendidikan.destroy', $items)" :title="'Hapus Data '" :message="'Data ' . $items->nama . ' akan dihapus permanen.'"
+                            <x-modal-delete :action="route('sirekap.pendidikan.destroy', $items)" :title="'Hapus Data '" :message="'Data akan dihapus permanen.'"
                                 confirm-field="confirm_delete">
                                 <button type="button" class="text-zinc-600 hover:text-rose-600">
                                     <x-heroicon-o-trash class="h-5 w-5" />

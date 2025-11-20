@@ -17,23 +17,11 @@ class KecamatanRequest extends FormRequest
 
     public function rules(): array
     {
-        $kecamatanId = $this->route('kecamatan');
-
-        if ($kecamatanId instanceof Kecamatan) {
-            $kecamatanId = $kecamatanId->getKey();
-        }
-
-        $namaRule = Rule::unique('kecamatans', 'nama');
-        $kodeRule = Rule::unique('kecamatans', 'kode');
-
-        if ($kecamatanId) {
-            $namaRule->ignore($kecamatanId);
-            $kodeRule->ignore($kecamatanId);
-        }
+        $id = $this->route('kecamatan')?->id;
 
         return [
-            'nama' => ['required', 'string', 'max:100', $namaRule],
-            'kode' => ['nullable', 'string', 'max:10', $kodeRule],
+            'nama' => ['required', 'string', 'max:100', Rule::unique('kecamatans', 'nama')->ignore($id)],
+            'kode' => ['nullable', 'string', 'max:10', Rule::unique('kecamatans', 'kode')->ignore($id)],
         ];
     }
 
@@ -42,8 +30,8 @@ class KecamatanRequest extends FormRequest
         $kode = $this->input('kode');
 
         $this->merge([
-            'nama' => $nama ? strtoupper(trim($nama)) : null,
-            'kode' => $kode ? strtoupper(trim($kode)) : null,
+            'nama' => $nama ? trim($nama) : null,
+            'kode' => $kode ? trim($kode) : null,
         ]);
     }
 

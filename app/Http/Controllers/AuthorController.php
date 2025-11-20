@@ -43,7 +43,11 @@ class AuthorController extends Controller
         try {
             Author::create($data);
         } catch (Throwable $e) {
-            Log::error('Gagal menambahkan author.', ['exception' => $e]);
+            Log::error('Gagal menambahkan data pimpinan.',
+            [
+                'exception' => $e,
+                'message' => $e->getMessage(),
+            ]);
 
             return back()
                 ->withInput()
@@ -52,7 +56,7 @@ class AuthorController extends Controller
 
         return redirect()
             ->route('sirekap.author.index')
-            ->with('success', 'Author berhasil ditambahkan.');
+            ->with('success', 'Pimpinan berhasil ditambahkan.');
     }
 
     public function edit(Author $author): View
@@ -67,19 +71,19 @@ class AuthorController extends Controller
         try {
             $author->update($data);
         } catch (Throwable $e) {
-            Log::error('Gagal memperbarui author.', [
+            Log::error('Gagal memperbarui data.', [
                 'exception' => $e,
                 'author_id' => $author->id,
             ]);
 
             return back()
                 ->withInput()
-                ->withErrors(['app' => 'Terjadi kesalahan saat memperbarui author.']);
+                ->withErrors(['app' => 'Terjadi kesalahan saat memperbarui data.']);
         }
 
         return redirect()
             ->route('sirekap.author.index')
-            ->with('success', 'Author berhasil diperbarui.');
+            ->with('success', 'Pimpian berhasil diperbarui.');
     }
 
     public function destroy(Author $author): RedirectResponse
@@ -97,6 +101,6 @@ class AuthorController extends Controller
 
         return redirect()
             ->route('sirekap.author.index')
-            ->with('success', 'Author berhasil dihapus.');
+            ->with('success', 'Pimpinan berhasil dihapus.');
     }
 }

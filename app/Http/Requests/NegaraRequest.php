@@ -24,31 +24,33 @@ class NegaraRequest extends FormRequest
      */
     public function rules(): array
     {
-        $negaraId = $this->route('negara')?->id;
+        $id = $this->route('negara')?->id;
 
         return [
             'nama' => [
                 'required',
                 'string',
-                'uppercase',
                 'max:100',
-                Rule::unique('negaras', 'nama')->ignore($negaraId),
+                Rule::unique('negaras', 'nama')->ignore($id),
             ],
             'kode_iso' => [
                 'nullable',
                 'string',
-                'uppercase',
                 'max:5',
-                Rule::unique('negaras', 'kode_iso')->ignore($negaraId),
+                Rule::unique('negaras', 'kode_iso')->ignore($id),
             ],
         ];
     }
 
     protected function prepareForValidation() : void {
         $this->merge([
-            'nama' => trim(Str::upper((string) $this->input('nama'))),
-            'kode_iso' => trim(Str::upper((string) $this->input('kode_iso'))),
+            'nama' => $this->normalize($this->input('nama')),
+            'kode_iso' => $this->normalize($this->input('kode_iso')),
         ]);
+    }
+
+    private function normalize($value) : string {
+        return trim(preg_replace('/\s+/', ' ', (string) $value));
     }
 
     public function messages() : array {

@@ -17,30 +17,18 @@ class AgencyRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        $agency = $this->route('agency');
-        $agencyId = $agency instanceof Agency ? $agency->getKey() : $agency;
-
-        $uniqueNama = Rule::unique('agencies', 'nama')
-            ->where(fn ($query) => $query->whereNull('deleted_at'));
-
-        if ($agencyId !== null) {
-            $uniqueNama = $uniqueNama->ignore($agencyId);
-        }
+        $id = optional($this->route('agency'))->id;
 
         return [
-            'nama' => ['required', 'string', 'max:100', $uniqueNama],
+            'nama' => ['required', 'string', 'max:100', Rule::unique('agencies', 'nama')
+                ->ignore($id)],
             'perusahaan_id' => [
                 'required',
-                Rule::exists('perusahaans', 'id')->whereNull('deleted_at'),
+                'exists:perusahaans,id',
             ],
-            'lowongan' => ['nullable', 'string', 'max:100'],
+            'lowongan' => ['required', 'string', 'max:100'],
             'keterangan' => ['nullable', 'string'],
         ];
     }
@@ -62,22 +50,9 @@ class AgencyRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $normalized = collect($this->only(['nama', 'lowongan', 'keterangan']))
-            ->map(function ($value) {
-                if (is_string($value)) {
-                    $value = trim($value);
-                    return $value === '' ? null : $value;
-                }
-
-                return $value;
-            })
-            ->toArray();
-
-        $this->merge(array_merge($normalized, [
-            'perusahaan_id' => $this->filled('perusahaan_id')
-                ? (int) $this->input('perusahaan_id')
-                : null,
-        ]));
+        $this->merge([
+            'nama'
+        ]);
     }
 
     public function attributes() : array {

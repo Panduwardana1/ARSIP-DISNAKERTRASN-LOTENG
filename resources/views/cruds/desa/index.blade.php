@@ -1,16 +1,10 @@
 @extends('layouts.app')
 
 @section('pageTitle', 'Sirekap Pasmi | Desa/Kelurahan')
-@section('titlePageContent', 'Desa/Kelurahan')
+@section('titlePageContent', 'Desa')
 
 @section('content')
-    @if (session('success'))
-        <div class="rounded-md border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm text-emerald-700">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @error('app')
+    @error('error')
         <div class="rounded-md border border-rose-200 bg-rose-50 px-5 py-3 text-sm text-rose-700">
             {{ $message }}
         </div>
