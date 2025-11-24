@@ -27,7 +27,7 @@
     {{-- button --}}
     <div class="flex items-center">
         <a href="{{ route('sirekap.pendidikan.create') }}"
-            class="flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
+            class="flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
             <x-heroicon-o-plus class="w-5 h-5" />
             Tambah
         </a>
@@ -36,7 +36,7 @@
 
 <div class="relative flex flex-col w-full h-full rounded-lg overflow-hidden">
     <table class="w-full text-left table-auto min-w-max">
-        <thead class="bg-blue-800 uppercase font-semibold">
+        <thead class="bg-zinc-800 uppercase font-semibold">
             <tr>
                 <th class="p-4 w-12">
                     <p class="text-sm font-normal leading-none text-white">
@@ -51,13 +51,6 @@
                 <th class="p-4">
                     <p class="text-sm font-normal leading-none text-white">
                         Label
-                    </p>
-                </th>
-                <th class="p-4 text-left">
-                    <p class="flex items-center gap-1 text-sm font-normal leading-none text-white">
-                        <x-heroicon-o-information-circle class="w-4 h-4"
-                            title="Distribusi PMI yang terhubung dengan pendidikan" />
-                        PMI
                     </p>
                 </th>
                 <th class="p-4">
@@ -77,13 +70,12 @@
                 <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
-                            {{ $loop->iteration }}
+                            {{ ($pendidikans->firstItem() ?? 0) + $loop->index }}
                         </p>
                     </td>
                     <td class="p-4">
                         <div class="flex items-center gap-2">
-                            <x-heroicon-o-academic-cap class="w-6 h-6 text-zinc-700" />
-                            <p class="text-[16px] font-semibold text-zinc-800">
+                            <p class="text-[14px] font-semibold text-zinc-800">
                                 {{ $items->nama }}
                             </p>
                         </div>
@@ -91,11 +83,6 @@
                     <td class="p-4">
                         <p class="text-sm font-medium text-zinc-600">
                             {{ $items->label }}
-                        </p>
-                    </td>
-                    <td class="p-4">
-                        <p class="text-sm text-zinc-800">
-                            {{ number_format($items->tenaga_kerjas_count) }}
                         </p>
                     </td>
                     <td class="p-4">
@@ -122,7 +109,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="p-6 text-center text-sm text-zinc-500">
+                    <td colspan="5" class="p-6 text-center text-sm text-zinc-500">
                         Belum ada data pendidikan.
                     </td>
                 </tr>

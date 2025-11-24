@@ -1,15 +1,13 @@
 @extends('layouts.app')
 
 @section('pageTitle', 'SIREKAP - PASMI | P3MI | Detail')
-@section('titlePageContent', 'Profil P3MI')
-@section('description', 'Profil lengkap perusahaan penempatan tenaga kerja.')
 
 @section('headerAction')
     <div class="flex flex-wrap items-center gap-2">
         <a href="{{ route('sirekap.perusahaan.index') }}"
             class="inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400">
             <x-heroicon-o-arrow-left class="h-4 w-4" />
-            Kembali ke daftar
+            Kembali
         </a>
         <a href="{{ route('sirekap.perusahaan.edit', $perusahaan) }}"
             class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-amber-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500">
@@ -20,10 +18,9 @@
 @endsection
 
 @section('content')
-    <section class="mx-auto w-full max-w-5xl space-y-6">
-        <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+    <section class="mx-auto w-full max-w-6xl space-y-6">
+        <div class="rounded-md border border-zinc-200 bg-white p-6">
             <div class="space-y-1">
-                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600">Perusahaan Penempatan</p>
                 <h2 class="text-2xl font-semibold text-zinc-900">{{ $perusahaan->nama }}</h2>
                 <p class="text-sm text-zinc-500">
                     Profil lengkap perusahaan penempatan tenaga kerja.
@@ -32,7 +29,7 @@
         </div>
 
         <div class="grid gap-6 lg:grid-cols-[2fr,1fr]">
-            <section class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <section class="rounded-md border border-zinc-200 bg-white p-6">
                 <header class="mb-4">
                     <h3 class="text-lg font-semibold text-zinc-900">Informasi Perusahaan</h3>
                     <p class="text-sm text-zinc-500">Data utama perusahaan dan pimpinan.</p>
@@ -63,7 +60,7 @@
                 </dl>
             </section>
 
-            <section class="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <section class="space-y-4 rounded-md border border-zinc-200 bg-white p-6">
                 <header>
                     <h3 class="text-lg font-semibold text-zinc-900">Identitas & Status</h3>
                 </header>
@@ -102,47 +99,5 @@
                 </div>
             </section>
         </div>
-
-        <section class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-            <header class="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h3 class="text-lg font-semibold text-zinc-900">Tenaga Kerja Terkait</h3>
-                    <p class="text-sm text-zinc-500">Daftar CPMI yang terkait dengan perusahaan ini.</p>
-                </div>
-                <span class="text-sm text-zinc-500">
-                    Total: {{ $perusahaan->tenaga_kerja_count ?? $perusahaan->tenagaKerja->count() }}
-                </span>
-            </header>
-            @if (($perusahaan->tenaga_kerja_count ?? $perusahaan->tenagaKerja->count()) > 0)
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-zinc-200 text-sm text-zinc-600">
-                        <thead>
-                            <tr class="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                                <th class="px-4 py-3">Nama</th>
-                                <th class="px-4 py-3">NIK</th>
-                                <th class="px-4 py-3">Gender</th>
-                                <th class="px-4 py-3">Ditambahkan</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-zinc-100">
-                            @foreach ($perusahaan->tenagaKerja as $tenaga)
-                                <tr class="transition hover:bg-zinc-50/70">
-                                    <td class="px-4 py-3">{{ $tenaga->nama }}</td>
-                                    <td class="px-4 py-3 font-mono text-xs text-zinc-700">{{ $tenaga->nik }}</td>
-                                    <td class="px-4 py-3">{{ $tenaga->getLabelGender() ?? '-' }}</td>
-                                    <td class="px-4 py-3">
-                                        {{ $tenaga->created_at?->translatedFormat('d M Y') ?? '-' }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <p class="text-sm text-zinc-500">
-                    Belum ada CPMI yang terhubung dengan perusahaan ini.
-                </p>
-            @endif
-        </section>
     </section>
 @endsection

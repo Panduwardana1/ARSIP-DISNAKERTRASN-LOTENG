@@ -10,7 +10,7 @@ class DesaRequest extends FormRequest
 {
     protected $stopOnFirstFailure = true;
 
-     public function authorize(): bool
+    public function authorize(): bool
     {
         return true;
     }

@@ -10,77 +10,26 @@
 
 @section('content')
 
-    {{-- title page content --}}
-@section('titlePageContent', 'Data PMI')
-
-{{-- description title --}}
-@section('description', 'Daftar semua data PMI pada sistem sirekap')
-
 {{-- header action (search dan button) --}}
 @section('headerAction')
     {{-- search --}}
     <div>
-        <form method="GET" action="{{ route('sirekap.tenaga-kerja.index') }}" class="relative w-full max-w-sm font-inter">
+        <form method="GET" action="{{ route('sirekap.tenaga-kerja.index') }}" class="frelative w-full max-w-sm font-inter pt-4">
             <input type="hidden" name="status" value="{{ $status }}">
             <span class="absolute inset-y-0 left-3 flex items-center text-zinc-400">
                 <x-heroicon-o-magnifying-glass class="w-5 h-5" />
             </span>
 
-            <input type="search" name="q" placeholder="Cari nama atau NIK..." value="{{ $search ?? '' }}"
+            <input type="search" name="q" placeholder="Cari nama atau NIK" value="{{ $search ?? '' }}"
                 class="w-full pl-10 py-1.5 rounded-md bg-white border border-zinc-300
                 text-zinc-700 placeholder-zinc-400 transition-all duration-200 outline-none" />
         </form>
     </div>
 
-    @error('file')
-        <p class="text-red-600 text-sm mb-2">{{ $message }}</p>
-    @enderror
-
     {{-- button --}}
     <div class="flex items-center">
-        <div x-data="{ open: false }" x-cloak class="p-4">
-            <!-- BUTTON -->
-            <button @click="open = true"
-                class="flex items-center gap-2 px-4 py-1.5 rounded-md border bg-yellow-600 text-white font-medium hover:bg-yellow-800 transition">
-                <x-heroicon-o-document-arrow-down class="w-5 h-5" />
-                Import
-            </button>
-
-            <!-- MODAL BACKDROP -->
-            <div x-show="open" x-transition.opacity class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-                @click="open = false">
-            </div>
-
-            <!-- MODAL CONTAINER -->
-            <div x-show="open" x-cloak x-transition x-transition.duration.300ms
-                class="fixed inset-0 flex items-center justify-center z-50">
-                <div @click.stop class="w-full max-w-md bg-white rounded-xl p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-center">Upload File</h2>
-
-                    <form>
-                        <label class="block mb-3 text-sm font-medium">Pilih File</label>
-
-                        <input type="file"
-                            class="w-full border border-zinc-300 rounded-md py-1.5 px-2 cursor-pointer focus:ring-teal-600" />
-
-                        <div class="mt-6 flex justify-end gap-3">
-                            <button type="button" @click="open = false"
-                                class="px-4 py-2 rounded-lg bg-zinc-200 hover:bg-zinc-300 transition">
-                                Batal
-                            </button>
-
-                            <button class="px-4 py-2 rounded-lg bg-green-700 text-white hover:bg-green-800 transition">
-                                Upload
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-
         <a href="{{ route('sirekap.tenaga-kerja.create') }}"
-            class="flex items-center px-3 gap-2 py-1.5 bg-blue-600 text-white rounded-md border hover:bg-blue-700">
+            class="flex items-center px-3 gap-2 py-1.5 bg-green-600 text-white rounded-md border hover:bg-green-700">
             <x-heroicon-o-plus class="w-5 h-5" />
             Tambah
         </a>
@@ -90,11 +39,11 @@
 {{-- todo Tabel data CPMI --}}
 <div class="relative flex flex-col w-full h-auto rounded-lg overflow-hidden max-w-full overflow-x-auto border">
     <table class="w-full text-left table-auto min-w-max">
-        <thead class="bg-blue-800 uppercase">
+        <thead class="bg-zinc-800 uppercase">
             <tr>
                 <th class="p-4">
                     <p class="text-sm font-normal leading-none text-slate-300">
-                        ID
+                        No
                     </p>
                 </th>
                 <th class="p-4">
@@ -116,6 +65,7 @@
                     <p class="text-sm font-normal leading-none text-slate-300">
                         Agency
                     </p>
+                </th>
                 <th class="p-4">
                     <p class="text-sm font-normal leading-none text-slate-300">
                         Pekerjaan
@@ -133,16 +83,13 @@
                 </th>
             </tr>
         </thead>
-        @php
-            $index = 1;
-        @endphp
         <tbody class="border">
             @forelse ($tenagaKerjas as $items)
                 <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
                     <td class="p-4">
 
                         <p class="text-sm text-center text-zinc-800">
-                            {{-- {{ $loop }} --}}
+                            {{ ($tenagaKerjas->firstItem() ?? 0) + $loop->index }}
                         </p>
                     </td>
                     <td class="p-4">
@@ -201,7 +148,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="p-6 text-center text-sm text-zinc-500">
+                    <td colspan="8" class="p-6 text-center text-sm text-zinc-500">
                         <span class="text-zinc-600">Belum ada data / Data tidak ditemukan</span>
                     </td>
                 </tr>

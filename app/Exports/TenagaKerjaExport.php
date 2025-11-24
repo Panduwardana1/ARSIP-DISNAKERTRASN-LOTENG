@@ -35,7 +35,6 @@ class TenagaKerjaExport implements FromQuery, WithMapping, WithHeadings, ShouldA
                 'perusahaan_id',
                 'agency_id',
                 'negara_id',
-                'is_active',
                 'created_at',
             ])
             ->with([

@@ -18,7 +18,7 @@ class PerusahaanController extends Controller
         $search = trim((string) $request->input('search', ''));
 
         $perusahaans = Perusahaan::query()
-            ->select('id', 'nama', 'pimpinan', 'email', 'alamat', 'gambar')
+            ->select('id', 'nama', 'pimpinan', 'email', 'alamat', 'gambar', 'created_at')
             ->when($search !== '', function ($query) use ($search) {
                 $query->where('nama', 'like', '%' . $search . '%');
             })

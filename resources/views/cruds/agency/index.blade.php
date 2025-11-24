@@ -2,8 +2,6 @@
 
 @section('pageTitle', 'Sirekap Pasmi | Agency')
 
-@section('titlePageContent', 'Agency')
-
 @section('content')
 
     {{-- header action (search dan button) --}}
@@ -23,7 +21,7 @@
     {{-- button --}}
     <div class="flex items-center">
         <a href="{{ route('sirekap.agency.create') }}"
-            class="flex items-center px-3 gap-2 py-1.5 bg-blue-600 text-white rounded-md border hover:bg-blue-700">
+            class="flex items-center px-3 gap-2 py-1.5 bg-green-600 text-white rounded-md border hover:bg-green-700">
             <x-heroicon-o-plus class="w-5 h-5" />
             Tambah
         </a>
@@ -32,7 +30,7 @@
 
 <div class="relative flex flex-col w-full h-full rounded-lg overflow-hidden">
     <table class="w-full text-left table-auto min-w-max">
-        <thead class="bg-blue-800 uppercase font-semibold">
+        <thead class="bg-zinc-800 uppercase font-semibold">
             <tr>
                 <th class="p-4 w-12">
                     <p class="text-sm font-normal leading-none text-white">
@@ -75,14 +73,17 @@
                 <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
-                            {{ $loop->iteration }}
+                            {{ ($agencies->firstItem() ?? 0) + $loop->index }}
                         </p>
                     </td>
                     <td class="p-4">
                         <div class="flex items-center gap-2">
                             <div>
                                 <a href="{{ route('sirekap.agency.show', $items) }}">
-                                    <x-heroicon-o-building-library class="w-8 h-8 text-zinc-500" />
+                                    <div
+                                        class="flex h-10 w-10 items-center justify-center rounded-md bg-blue-600 text-sm font-semibold text-white">
+                                        {{ strtoupper(substr($items->nama, 0, 2)) }}
+                                    </div>
                                 </a>
                             </div>
                             <div class="grid items-center space-y-0">

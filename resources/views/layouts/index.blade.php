@@ -145,7 +145,7 @@
 
             <div class="mt-4 overflow-x-auto rounded-md border border-zinc-100">
                 <table class="min-w-full divide-y divide-zinc-200 text-xs text-zinc-700 sm:text-sm">
-                    <thead class="bg-blue-600 text-xs font-semibold uppercase tracking-wide text-white">
+                    <thead class="bg-zinc-800 text-xs font-semibold uppercase tracking-wide text-white">
                         <tr>
                             <th class="px-4 py-3 text-left">Nama</th>
                             <th class="px-4 py-3 text-left">Gender</th>

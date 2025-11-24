@@ -9,8 +9,6 @@
 @endif
 
 @section('content')
-    {{-- title page content --}}
-@section('titlePageContent', 'P3MI')
 
 {{-- header action (search dan button) --}}
 @section('headerAction')
@@ -21,7 +19,7 @@
                 <x-heroicon-o-magnifying-glass class="w-5 h-5" />
             </span>
 
-            <input type="search" name="search" placeholder="Cari nama perusahaan..." value="{{ $search ?? '' }}"
+            <input type="search" name="search" placeholder="Cari nama perusahaan" value="{{ $search ?? '' }}"
                 class="w-full pl-10 py-1.5 rounded-md bg-white border border-zinc-300
                text-zinc-700 placeholder-zinc-400 transition-all duration-200 outline-none" />
         </form>
@@ -29,7 +27,7 @@
     {{-- button --}}
     <div class="flex items-center">
         <a href="{{ route('sirekap.perusahaan.create') }}"
-            class="flex items-center px-3 gap-2 py-1.5 bg-blue-600 text-white rounded-md border hover:bg-blue-700">
+            class="flex items-center px-3 gap-2 py-1.5 bg-green-600 text-white rounded-md border hover:bg-green-700">
             <x-heroicon-o-plus class="w-5 h-5" />
             Tambah
         </a>
@@ -38,11 +36,11 @@
 
 <div class="relative flex flex-col w-full h-full rounded-lg overflow-hidden">
     <table class="w-full text-left table-auto min-w-max">
-        <thead class="bg-blue-800 uppercase font-semibold">
+        <thead class="bg-zinc-800 uppercase font-semibold">
             <tr>
                 <th class="p-4 w-12">
                     <p class="text-sm font-normal leading-none text-white">
-                        ID
+                        No
                     </p>
                 </th>
                 <th class="p-4">
@@ -62,7 +60,7 @@
                 </th>
                 <th class="p-4">
                     <p class="text-sm font-normal leading-none text-white">
-                        Kontribusi
+                        Dibuat
                     </p>
                 </th>
                 <th class="p-4">
@@ -77,7 +75,7 @@
                 <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
-                            {{ $items->id }}
+                            {{ ($perusahaans->firstItem() ?? 0) + $loop->index }}
                         </p>
                     </td>
                     <td class="p-4">
@@ -91,7 +89,10 @@
                                     <img src="{{ asset($imagePath) }}" alt="Logo {{ $items->nama }}"
                                         class="h-9 w-9 rounded-full object-cover">
                                 @else
-                                    <x-heroicon-o-building-office class="h-8 w-8 text-gray-500" />
+                                    <div
+                                        class="flex h-10 w-10 items-center justify-center rounded-md bg-blue-600 text-sm font-semibold text-white">
+                                        {{ strtoupper(substr($items->nama, 4, 1)) }}
+                                    </div>
                                 @endif
                             </a>
                             <div class="grid space-y-0">
@@ -112,7 +113,7 @@
                     </td>
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
-                            {{ $items->tki ?? '90' }}
+                            {{ optional($items->created_at)->format('d M Y') ?? '-' }}
                         </p>
                     </td>
                     <td class="px-4 py-4 text-sm whitespace-nowrap">

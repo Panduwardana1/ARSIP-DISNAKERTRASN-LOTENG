@@ -125,7 +125,7 @@
             <div class="relative flex flex-col w-full max-w-full rounded-lg border border-zinc-200 bg-white">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left table-auto min-w-max">
-                        <thead class="bg-blue-800 uppercase text-white text-xs">
+                        <thead class="bg-zinc-800 uppercase text-white text-xs">
                             <tr>
                                 <th class="p-4 w-12">
                                     <span class="sr-only">Pilih semua</span>

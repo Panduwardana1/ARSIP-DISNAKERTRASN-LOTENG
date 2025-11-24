@@ -6,14 +6,20 @@
 @section('content')
 
     <section class="container mx-auto space-y-6 px-4">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-semibold text-zinc-900">{{ $tenagaKerja->nama }}</h1>
-                <p class="text-sm text-zinc-600">
-                    NIK {{ $tenagaKerja->nik }}
-                    <span class="mx-2 text-zinc-300">&middot;</span>
-                    {{ $tenagaKerja->getLabelGender() }}
-                </p>
+        <div class="flex flex-col gap-4 rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 text-white shadow flex items-center justify-center text-lg font-semibold">
+                    {{ strtoupper(substr($tenagaKerja->nama, 0, 1)) }}
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600">CPMI</p>
+                    <h1 class="text-2xl font-semibold text-zinc-900">{{ $tenagaKerja->nama }}</h1>
+                    <p class="text-sm text-zinc-600">
+                        NIK {{ $tenagaKerja->nik }}
+                        <span class="mx-2 text-zinc-300">&middot;</span>
+                        {{ $tenagaKerja->getLabelGender() }}
+                    </p>
+                </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('sirekap.tenaga-kerja.index') }}"
@@ -95,7 +101,7 @@
                     </div>
                     <div class="md:col-span-2">
                         <dt class="font-medium text-zinc-700">Alamat Lengkap</dt>
-                        <dd class="mt-1 text-zinc-900">{{ $tenagaKerja->alamat_lengkap ?? '-' }}</dd>
+                        <dd class="mt-1 text-zinc-900 leading-relaxed">{{ $tenagaKerja->alamat_lengkap ?? '-' }}</dd>
                     </div>
                 </dl>
             </section>
@@ -144,7 +150,8 @@
                                     ? 'bg-emerald-100 text-emerald-700'
                                     : 'bg-rose-100 text-rose-700';
                             @endphp
-                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $badgeClasses }}">
+                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold {{ $badgeClasses }}">
+                                <span class="h-2 w-2 rounded-full {{ $isActive ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
                                 {{ $tenagaKerja->is_active }}
                             </span>
                         </dd>

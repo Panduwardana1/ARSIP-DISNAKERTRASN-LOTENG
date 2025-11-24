@@ -24,8 +24,7 @@
             </label>
             <input type="text" name="kode" id="kode" value="{{ old('kode', optional($kecamatan)->kode) }}"
                 maxlength="10"
-                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm uppercase tracking-wide text-zinc-800 focus:outline-none focus:border-blue-300"
-                placeholder="Contoh: KC-01">
+                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm uppercase tracking-wide text-zinc-800 focus:outline-none focus:border-blue-300">
             @error('kode')
                 <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
             @enderror

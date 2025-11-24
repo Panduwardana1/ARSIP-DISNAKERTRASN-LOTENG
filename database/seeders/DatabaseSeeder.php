@@ -2,13 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Agency;
 use Illuminate\Database\Seeder;
-use Database\Seeders\AgencySeeder;
-use Database\Seeders\WilayahSeeder;
-use Database\Seeders\PendidikanSeeder;
-use Database\Seeders\PerusahaanSeeder;
-use Database\Seeders\TenagaKerjaSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,7 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-
+            RoleSeeder::class,
         ]);
     }
 }

@@ -35,7 +35,7 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left table-auto min-w-max">
-                    <thead class="bg-blue-800 uppercase text-white text-xs">
+                    <thead class="bg-zinc-800 uppercase text-white text-xs">
                         <tr>
                             <th class="p-4 w-12">#</th>
                             <th class="p-4">

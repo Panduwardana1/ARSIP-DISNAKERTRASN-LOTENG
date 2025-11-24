@@ -27,7 +27,7 @@
     {{-- button --}}
     <div class="flex items-center">
         <a href="{{ route('sirekap.negara.create') }}"
-            class="flex items-center px-3 gap-2 py-1.5 bg-blue-600 text-white rounded-md border hover:bg-blue-700">
+            class="flex items-center px-3 gap-2 py-1.5 bg-green-600 text-white rounded-md border hover:bg-green-700">
             <x-heroicon-o-plus class="w-5 h-5" />
             Tambah
         </a>
@@ -36,7 +36,7 @@
 
 <div class="relative flex flex-col w-full h-full rounded-lg overflow-hidden">
     <table class="w-full text-left table-auto min-w-max">
-        <thead class="bg-blue-800 uppercase font-semibold">
+        <thead class="bg-zinc-800 uppercase font-semibold">
             <tr>
                 <th class="p-4 w-12">
                     <p class="text-sm font-normal leading-none text-white">
@@ -55,6 +55,11 @@
                 </th>
                 <th class="p-4">
                     <p class="text-sm font-normal leading-none text-white">
+                        Dibuat
+                    </p>
+                </th>
+                <th class="p-4">
+                    <p class="text-sm font-normal leading-none text-white">
                         Aksi
                     </p>
                 </th>
@@ -65,13 +70,16 @@
                 <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
-                            {{ $loop->iteration }}
+                            {{ ($negara->firstItem() ?? 0) + $loop->index }}
                         </p>
                     </td>
                     <td class="p-4">
                         <div class="flex items-center gap-2">
-                            <x-heroicon-o-map-pin class="w-7 h-7 text-zinc-500" />
-                            <p class="text-[16px] font-semibold text-zinc-800">
+                            {{-- <div
+                                class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+                                {{ strtoupper(substr($items->nama, 0, 1)) }}
+                            </div> --}}
+                            <p class="text-[14px] font-semibold text-zinc-800">
                                 {{ $items->nama }}
                             </p>
                         </div>
@@ -79,6 +87,11 @@
                     <td class="p-4">
                         <p class="text-sm text-zinc-800">
                             {{ $items->kode_iso ?? '-' }}
+                        </p>
+                    </td>
+                    <td class="p-4">
+                        <p class="text-sm text-zinc-800">
+                            {{ optional($items->created_at)->format('d M Y') }}
                         </p>
                     </td>
                     <td class="px-4 py-4 text-sm whitespace-nowrap">

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name')->index();
             $table->string('email')->unique();
             $table->char('nip', 18)->unique()->index();
-            $table->string('gambar');
-            $table->string('role');
+            $table->string('gambar')->nullable();
+            $table->enum('is_active',['active', 'nonactive'])->default('active');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
