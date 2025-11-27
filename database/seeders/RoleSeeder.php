@@ -35,7 +35,6 @@ class RoleSeeder extends Seeder
             Permission::firstOrCreate(['name' => $p, 'guard_name' => 'web']);
         }
 
-        // Role admin mendapatkan semua permission
         $admin->givePermissionTo(Permission::all());
 
         $staf->givePermissionTo(['manage_master']);
@@ -44,7 +43,7 @@ class RoleSeeder extends Seeder
             ['nip' => '198201182002121001'],
             [
                 'name' => 'Admin',
-                'email' => 'admin@disnaker.go.id',
+                'email' => 'disnaker@gmail.com',
                 'password' => Hash::make('#admin123'),
                 'is_active' => 'active',
             ]

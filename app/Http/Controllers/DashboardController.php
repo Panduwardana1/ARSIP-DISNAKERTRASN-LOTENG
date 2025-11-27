@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agency;
 use App\Models\Desa;
 use App\Models\Kecamatan;
 use App\Models\Perusahaan;
@@ -19,6 +20,7 @@ class DashboardController extends Controller
 
         $cast = [
             'totalTenagaKerja' => $this->countTenagaKerja(),
+            'totalAgency'      => $this->countAgency(),
             'totalPerusahaan'  => $this->countPerusahaan(),
             'totalRekomendasi' => $this->countRekomendasi(),
         ];
@@ -37,6 +39,11 @@ class DashboardController extends Controller
     private function countPerusahaan()
     {
         return Perusahaan::count();
+    }
+
+    private function countAgency()
+    {
+        return Agency::count();
     }
 
     private function countRekomendasi()

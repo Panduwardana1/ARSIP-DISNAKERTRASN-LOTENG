@@ -33,19 +33,12 @@ class NegaraRequest extends FormRequest
                 'max:100',
                 Rule::unique('negaras', 'nama')->ignore($id),
             ],
-            'kode_iso' => [
-                'nullable',
-                'string',
-                'max:5',
-                Rule::unique('negaras', 'kode_iso')->ignore($id),
-            ],
         ];
     }
 
     protected function prepareForValidation() : void {
         $this->merge([
             'nama' => $this->normalize($this->input('nama')),
-            'kode_iso' => $this->normalize($this->input('kode_iso')),
         ]);
     }
 
@@ -58,16 +51,12 @@ class NegaraRequest extends FormRequest
             'nama.required' => 'Nama negara harus diisi',
             'nama.unique' => 'Nama negara telah digunakan',
             'nama.max' => 'Nama terlalu panjang',
-            'kode_iso.required' => 'Kode Iso harus diisi',
-            'kode_iso.unique' => 'Kode iso telah digunakan',
-            'kode_iso.max' => 'Kode iso terlalu panjang',
         ];
     }
 
     public function attributes() : array {
         return [
             'nama' => 'Nama',
-            'kode_iso' => 'Kode Iso',
         ];
     }
 }

@@ -12,6 +12,10 @@
     $isEdit = isset($tenagaKerja);
     $submitLabel = $isEdit ? 'Perbarui' : 'Simpan';
     $tanggalLahirValue = old('tanggal_lahir', optional(optional($tenagaKerja)->tanggal_lahir)->format('Y-m-d'));
+    $selectedDesaId = old('desa_id', optional($tenagaKerja)->desa_id);
+    $selectedKecamatanId = old('kecamatan_id', optional(optional($tenagaKerja)->desa)->kecamatan_id);
+    $selectedPerusahaanId = old('perusahaan_id', optional($tenagaKerja)->perusahaan_id);
+    $selectedAgencyId = old('agency_id', optional($tenagaKerja)->agency_id);
 @endphp
 
 <section class="space-y-4 bg-white p-6">
@@ -25,7 +29,7 @@
                     class="text-red-500">*</span></label>
             <input type="text" id="nama" name="nama" value="{{ old('nama', optional($tenagaKerja)->nama) }}"
                 class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-                placeholder="Masukkan nama sesuai KTP" required>
+                required>
             @error('nama')
                 <p class="text-sm text-rose-600">{{ $message }}</p>
             @enderror
@@ -35,7 +39,7 @@
                     class="text-red-500">*</span></label>
             <input type="text" id="nik" name="nik" value="{{ old('nik', optional($tenagaKerja)->nik) }}"
                 class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-                placeholder="16 digit NIK" inputmode="numeric" maxlength="16" required>
+                inputmode="numeric" maxlength="16" required>
             @error('nik')
                 <p class="text-sm text-rose-600">{{ $message }}</p>
             @enderror
@@ -63,7 +67,7 @@
             <input type="text" id="tempat_lahir" name="tempat_lahir"
                 value="{{ old('tempat_lahir', optional($tenagaKerja)->tempat_lahir) }}"
                 class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-                placeholder="Kota/Kabupaten" required>
+                required>
             @error('tempat_lahir')
                 <p class="text-sm text-rose-600">{{ $message }}</p>
             @enderror
@@ -91,8 +95,7 @@
             <label for="email" class="text-sm font-medium text-zinc-700">Email</label>
             <input type="email" id="email" name="email"
                 value="{{ old('email', optional($tenagaKerja)->email) }}"
-                class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-                placeholder="contoh@email.com">
+                class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300">
             @error('email')
                 <p class="text-sm text-rose-600">{{ $message }}</p>
             @enderror
@@ -102,39 +105,57 @@
             <input type="text" id="no_telpon" name="no_telpon"
                 value="{{ old('no_telpon', optional($tenagaKerja)->no_telpon) }}"
                 class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-                placeholder="08XXXXXXXXXX" inputmode="numeric">
+                inputmode="numeric">
             @error('no_telpon')
                 <p class="text-sm text-rose-600">{{ $message }}</p>
             @enderror
         </div>
     </div>
     <div class="grid gap-4 sm:grid-cols-2">
-        <div class="space-y-1 sm:col-span-1">
-            <label for="desa_id" class="text-sm font-medium text-zinc-700">Kecamatan & Desa<span
-                    class="text-red-500">*</span></label>
-            <select id="desa_id" name="desa_id"
+        <div class="space-y-1">
+            <div class="flex items-center justify-between gap-2">
+                <label for="kecamatan_id" class="text-sm font-medium text-zinc-700">Kecamatan <span
+                        class="text-red-500">*</span></label>
+                <p class="text-xs text-zinc-500">Pilih kecamatan untuk memfilter desa.</p>
+            </div>
+            <select id="kecamatan_id" name="kecamatan_id"
                 class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-                required>
+                data-kecamatan-select required>
+                <option value="">Pilih Kecamatan</option>
                 @foreach ($kecamatans as $kecamatan)
-                    @php
-                        $desaByKecamatan = $desas->where('kecamatan_id', $kecamatan->id);
-                    @endphp
-                    @if ($desaByKecamatan->isNotEmpty())
-                        <optgroup label="{{ $kecamatan->nama }}">
-                            @foreach ($desaByKecamatan as $desa)
-                                <option value="{{ $desa->id }}" @selected(old('desa_id', optional($tenagaKerja)->desa_id) == $desa->id)>
-                                    {{ $kecamatan->nama }} | {{ $desa->nama }}
-                                </option>
-                            @endforeach
-                        </optgroup>
-                    @endif
+                    <option value="{{ $kecamatan->id }}" @selected((int) $selectedKecamatanId === $kecamatan->id)>
+                        {{ $kecamatan->nama }}
+                    </option>
+                @endforeach
+            </select>
+            @error('kecamatan_id')
+                <p class="text-sm text-rose-600">{{ $message }}</p>
+            @enderror
+        </div>
+        <div class="space-y-1">
+            <div class="flex items-center justify-between gap-2">
+                <label for="desa_id" class="text-sm font-medium text-zinc-700">Desa/Kelurahan <span
+                        class="text-red-500">*</span></label>
+                <p class="text-xs text-zinc-500">Hanya menampilkan desa sesuai kecamatan.</p>
+            </div>
+            <select id="desa_id" name="desa_id"
+                class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300 disabled:cursor-not-allowed disabled:bg-zinc-100"
+                data-desa-select @disabled(!$selectedKecamatanId) required>
+                <option value="">Pilih Desa</option>
+                @foreach ($desas as $desa)
+                    <option value="{{ $desa->id }}" data-kecamatan="{{ $desa->kecamatan_id }}"
+                        @selected((int) $selectedDesaId === $desa->id)>
+                        {{ $desa->nama }}
+                    </option>
                 @endforeach
             </select>
             @error('desa_id')
                 <p class="text-sm text-rose-600">{{ $message }}</p>
             @enderror
         </div>
-        <div class="space-y-1 col-span-1">
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+        <div class="space-y-1">
             <label for="kode_pos" class="text-sm font-medium text-zinc-700">Kode Pos</label>
             <input type="text" id="kode_pos" name="kode_pos"
                 value="{{ old('kode_pos', optional($tenagaKerja)->kode_pos) }}"
@@ -150,7 +171,7 @@
                 class="text-red-500">*</span></label>
         <textarea id="alamat_lengkap" name="alamat_lengkap" rows="3"
             class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-            placeholder="Nama jalan, RT/RW, dsb." required>{{ old('alamat_lengkap', optional($tenagaKerja)->alamat_lengkap) }}</textarea>
+            required>{{ old('alamat_lengkap', optional($tenagaKerja)->alamat_lengkap) }}</textarea>
         @error('alamat_lengkap')
             <p class="text-sm text-rose-600">{{ $message }}</p>
         @enderror
@@ -172,7 +193,7 @@
                 <option value="">Pilih Pendidikan</option>
                 @foreach ($pendidikans as $pendidikan)
                     <option value="{{ $pendidikan->id }}" @selected(old('pendidikan_id', optional($tenagaKerja)->pendidikan_id) == $pendidikan->id)>
-                        {{ $pendidikan->nama ?? $pendidikan->label }}
+                        {{ $pendidikan->nama }}
                     </option>
                 @endforeach
             </select>
@@ -185,10 +206,10 @@
                     class="text-red-500">*</span></label>
             <select id="perusahaan_id" name="perusahaan_id"
                 class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-                required>
+                data-perusahaan-select required>
                 <option value="">Pilih Perusahaan</option>
                 @foreach ($perusahaans as $perusahaan)
-                    <option value="{{ $perusahaan->id }}" @selected(old('perusahaan_id', optional($tenagaKerja)->perusahaan_id) == $perusahaan->id)>
+                    <option value="{{ $perusahaan->id }}" @selected((int) $selectedPerusahaanId === $perusahaan->id)>
                         {{ $perusahaan->nama }}
                     </option>
                 @endforeach
@@ -201,11 +222,12 @@
             <label for="agency_id" class="text-sm font-medium text-zinc-700">Agency Penempatan <span
                     class="text-red-500">*</span></label>
             <select id="agency_id" name="agency_id"
-                class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-                required>
+                class="w-full rounded border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300 disabled:cursor-not-allowed disabled:bg-zinc-100"
+                data-agency-select @disabled(!$selectedPerusahaanId) required>
                 <option value="">Pilih Agency</option>
                 @foreach ($agencies as $agency)
-                    <option value="{{ $agency->id }}" @selected(old('agency_id', optional($tenagaKerja)->agency_id) == $agency->id)>
+                    <option value="{{ $agency->id }}" data-perusahaan="{{ $agency->perusahaan_id }}"
+                        @selected((int) $selectedAgencyId === $agency->id)>
                         {{ $agency->nama }} | {{ $agency->lowongan }}
                     </option>
                 @endforeach
@@ -244,3 +266,88 @@
         {{ $submitLabel }}
     </button>
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const kecamatanSelect = document.querySelector('[data-kecamatan-select]');
+            const desaSelect = document.querySelector('[data-desa-select]');
+            const perusahaanSelect = document.querySelector('[data-perusahaan-select]');
+            const agencySelect = document.querySelector('[data-agency-select]');
+
+            const desaPlaceholder = desaSelect ? desaSelect.querySelector('option[value=""]') : null;
+            const desaOptions = desaSelect ? Array.from(desaSelect.options).filter(opt => opt.value !== '') : [];
+
+            const agencyPlaceholder = agencySelect ? agencySelect.querySelector('option[value=""]') : null;
+            const agencyOptions = agencySelect ? Array.from(agencySelect.options).filter(opt => opt.value !== '') : [];
+
+            function syncDesaOptions(kecamatanId) {
+                if (!desaSelect) return;
+
+                const hasKecamatan = Boolean(kecamatanId);
+                let hasMatch = false;
+
+                desaOptions.forEach(option => {
+                    const match = hasKecamatan && String(option.dataset.kecamatan) === String(kecamatanId);
+                    option.hidden = !match;
+                    option.disabled = !match;
+
+                    if (!match && option.selected) {
+                        option.selected = false;
+                    }
+
+                    if (match) {
+                        hasMatch = true;
+                    }
+                });
+
+                desaSelect.disabled = !hasKecamatan;
+
+                if ((!hasMatch || !hasKecamatan) && desaPlaceholder) {
+                    desaPlaceholder.selected = true;
+                }
+            }
+
+            function syncAgencyOptions(perusahaanId) {
+                if (!agencySelect) return;
+
+                const hasPerusahaan = Boolean(perusahaanId);
+                let hasMatch = false;
+
+                agencyOptions.forEach(option => {
+                    const match = hasPerusahaan && String(option.dataset.perusahaan) === String(perusahaanId);
+                    option.hidden = !match;
+                    option.disabled = !match;
+
+                    if (!match && option.selected) {
+                        option.selected = false;
+                    }
+
+                    if (match) {
+                        hasMatch = true;
+                    }
+                });
+
+                agencySelect.disabled = !hasPerusahaan;
+
+                if ((!hasMatch || !hasPerusahaan) && agencyPlaceholder) {
+                    agencyPlaceholder.selected = true;
+                }
+            }
+
+            if (kecamatanSelect) {
+                syncDesaOptions(kecamatanSelect.value);
+                kecamatanSelect.addEventListener('change', event => {
+                    syncDesaOptions(event.target.value);
+                });
+            }
+
+            if (perusahaanSelect) {
+                syncAgencyOptions(perusahaanSelect.value);
+                perusahaanSelect.addEventListener('change', event => {
+                    syncAgencyOptions(event.target.value);
+                });
+            }
+        });
+    </script>
+@endpush

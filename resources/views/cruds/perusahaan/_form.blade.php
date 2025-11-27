@@ -10,8 +10,7 @@
         </label>
         <input type="text" id="nama" name="nama" value="{{ old('nama', optional($perusahaan)->nama) }}"
             maxlength="100" required
-            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300"
-            placeholder="Contoh: PT Amanah Internasional">
+            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300">
         @error('nama')
             <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
         @enderror
@@ -19,30 +18,28 @@
 
     <div class="grid gap-6 md:grid-cols-2">
         <div>
-            <label for="pimpinan" class="block text-sm font-medium text-zinc-700">
-                Nama Pimpinan
-            </label>
-            <input type="text" id="pimpinan" name="pimpinan"
-                value="{{ old('pimpinan', optional($perusahaan)->pimpinan) }}" maxlength="100"
-                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300"
-                placeholder="Contoh: Budi Santoso">
-            @error('pimpinan')
-                <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
-            @enderror
-        </div>
+        <label for="pimpinan" class="block text-sm font-medium text-zinc-700">
+            Nama Pimpinan
+        </label>
+        <input type="text" id="pimpinan" name="pimpinan"
+            value="{{ old('pimpinan', optional($perusahaan)->pimpinan) }}" maxlength="100"
+            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300">
+        @error('pimpinan')
+            <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+        @enderror
+    </div>
 
         <div>
             <label for="email" class="block text-sm font-medium text-zinc-700">
                 Email Perusahaan
-            </label>
-            <input type="email" id="email" name="email" value="{{ old('email', optional($perusahaan)->email) }}"
-                maxlength="100"
-                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300"
-                placeholder="Contoh: hr@p3mi.co.id">
-            @error('email')
-                <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
-            @enderror
-        </div>
+        </label>
+        <input type="email" id="email" name="email" value="{{ old('email', optional($perusahaan)->email) }}"
+            maxlength="100"
+            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300">
+        @error('email')
+            <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+        @enderror
+    </div>
     </div>
 
     <div>
@@ -50,8 +47,7 @@
             Alamat Operasional
         </label>
         <textarea id="alamat" name="alamat" rows="4"
-            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300"
-            placeholder="Tuliskan alamat lengkap perusahaan.">{{ old('alamat', optional($perusahaan)->alamat) }}</textarea>
+            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300">{{ old('alamat', optional($perusahaan)->alamat) }}</textarea>
         @error('alamat')
             <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
         @enderror
@@ -71,7 +67,7 @@
         @enderror
 
         @if (optional($perusahaan)->gambar)
-            <div class="flex items-center gap-3 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-600">
+            <div class="flex items-center gap-3 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-700">
                 <x-heroicon-o-photo class="h-5 w-5 text-indigo-500" />
                 <span>File saat ini: {{ $perusahaan->gambar }}</span>
             </div>

@@ -17,7 +17,7 @@ class PendidikanController extends Controller
         $search = (string) $request->input('q', '');
 
         $pendidikans = Pendidikan::query()
-            ->select('id', 'nama', 'label', 'created_at')
+            ->select('id', 'nama', 'created_at')
             ->withCount('tenagaKerjas')
             ->when(
                 $search !== '',

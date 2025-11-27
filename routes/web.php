@@ -18,6 +18,7 @@ use App\Http\Controllers\RekomendasiController;
 use App\Http\Controllers\TenagaKerjaController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\TenagaKerjaExportController;
+use SebastianBergmann\CodeCoverage\Test\TestSize\TestSize;
 
 // Redirect root ke dashboard jika sudah login, jika belum ke halaman login
 Route::get('/', function () {
@@ -32,8 +33,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'createAuth'])->name('login.process');
 });
 
-// Logout hanya bisa dilakukan setelah login
-Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
+// Logout bisa diakses melalui POST (utama) atau GET (fallback) setelah login
+Route::match(['post', 'get'], '/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
 Route::middleware(['auth', 'activitylog'])->group(function () {
     // Semua rute aplikasi di bawah prefix /sirekap
@@ -59,13 +62,13 @@ Route::middleware(['auth', 'activitylog'])->group(function () {
             Route::get('/dashboard/chart/gender', [DashboardController::class, 'chartTenagaKerjaGender'])->name('dashboard.chart.gender');
         });
 
-        // Profil user untuk semua pengguna login
         Route::resource('/user/profile', UserProfileController::class)
             ->only(['index', 'edit', 'update'])
             ->names('user.profile')
             ->parameters(['profile' => 'user']);
+        Route::delete('/user/profile/{user}/photo', [UserProfileController::class, 'destroyPhoto'])
+            ->name('user.profile.photo.destroy');
 
-        // Manajemen user oleh admin (izin manage_users)
         Route::middleware('permission:manage_users')->group(function () {
             Route::resource('/users', UserController::class)->except(['show']);
         });
@@ -77,13 +80,13 @@ Route::middleware(['auth', 'activitylog'])->group(function () {
             Route::delete('/logs', [LogActivityController::class, 'clear'])->name('logs.clear');
         });
 
-        // Author khusus admin; akses rekomendasi juga dibuka untuk staf (manage_master)
         Route::middleware('permission:manage_rekomendasi')->group(function () {
             Route::resource('/author', AuthorController::class);
         });
 
         Route::prefix('/rekomendasi')->name('rekomendasi.')->middleware('permission:manage_rekomendasi|manage_master')->group(function () {
             Route::get('/', [RekomendasiController::class, 'index'])->name('index');
+            Route::get('/data', [RekomendasiController::class, 'data'])->name('data');
             Route::match(['get', 'post'], '/preview', [RekomendasiController::class, 'preview'])->name('preview');
             Route::post('/', [RekomendasiController::class, 'store'])->name('store');
             Route::get('/{rekomendasi}/export', [RekomendasiController::class, 'export'])->name('export');

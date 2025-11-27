@@ -16,6 +16,7 @@ return new class extends Migration
             $t->string('nama');
             $t->char('nip', 20)->unique();
             $t->string('jabatan');
+            $t->string('avatar')->nullable();
             $t->softDeletes();
             $t->timestamps();
         });

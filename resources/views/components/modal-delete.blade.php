@@ -37,7 +37,7 @@
                 <h2 class="text-lg font-semibold text-gray-900">{{ $title }}</h2>
             </div>
 
-            <div class="px-5 py-4">
+            <div class="px-5 items-start py-4">
                 <p class="text-md font-medium text-gray-700">{{ $message }}</p>
             </div>
 

@@ -2,122 +2,87 @@
 
 @section('pageTitle', 'Profil Pengguna')
 
+@section('titlePageContent', 'Profile')
+
+@php
+    $user = $user ?? auth()->user();
+    $roles = $user?->roles?->pluck('name')->join(', ') ?: '-';
+    $isActive = in_array($user?->is_active, ['active', 1, '1', true], true);
+    $avatar = $user?->gambar ? asset('storage/' . ltrim($user->gambar, '/')) : null;
+@endphp
+
 @section('content')
-    @php
-        $user = $user ?? auth()->user();
-        $roles = $user?->roles?->pluck('name')->join(', ') ?: '-';
-        $initials = strtoupper(substr($user->name ?? 'U', 0, 2));
-        $isActive = in_array($user?->is_active, ['active', 1, '1', true], true);
-        $avatar = $user?->gambar ? asset('storage/' . ltrim($user->gambar, '/')) : null;
-    @endphp
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+        <div class="col-span-1 lg:col-span-4 xl:col-span-3 border-[1.5px] h-[14rem] rounded-md p-6 bg-white">
+            <div class="grid space-y-4">
+                <div class="flex items-center gap-4 border-b pb-4">
+                    @if ($avatar)
+                        <div class="h-16 w-16 overflow-hidden rounded-full border">
+                            <img src="{{ $avatar }}" alt="Foto profil" class="h-full w-full object-cover">
+                        </div>
+                    @else
+                        <div class="flex h-16 w-16 items-center justify-center rounded-full border overflow-hidden">
+                            <img src="{{ asset('asset/images/default-profile.jpg') }}" alt="Provile"
+                                class="h-full w-full object-cover">
+                        </div>
+                    @endif
 
-    <section class="min-h-screen">
-        <div class="mx-auto max-w-6xl px-4">
-            <div>
-                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <h1 class="text-2xl font-semibold text-zinc-900">Pengaturan Akun</h1>
+                    <div class="grid space-y-2">
+                        <span class="font-semibold text-md">{{ $user->name }}</span>
+                        <span class="font-normal text-sm">{{ $user->email }}</span>
+                    </div>
                 </div>
-
-                <div class="mt-6 grid gap-6 lg:grid-cols-3">
-                    <div class="lg:col-span-1">
-                        <div class="overflow-hidden rounded-md border border-zinc-200 bg-white">
-                            <div class="px-6 pb-6 pt-12">
-                                <div class="flex items-center gap-2">
-                                    <div class="h-20 w-20 overflow-hidden rounded-md">
-                                        @if ($avatar)
-                                            <img src="{{ $avatar }}" alt="Foto profil"
-                                                class="h-full w-full object-cover">
-                                        @else
-                                            <div class="flex h-full w-full items-center justify-center">
-                                                {{ $initials }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <div class="grid space-y-1">
-                                        <div>
-                                            <div class="text-lg font-semibold text-zinc-900">{{ $user->name ?? '-' }}</div>
-                                            <div class="text-sm text-zinc-500">{{ $user->email ?? '-' }}</div>
-                                        </div>
-                                        <div class="mt-3 flex flex-wrap gap-2">
-                                            <span
-                                                class="inline-flex items-center rounded-sm bg-zinc-800 px-2 py-1 text-xs font-medium text-yellow-500 ring-1 ring-inset ring-yellow-400/20">{{ ucfirst($roles) }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div class="mt-5 space-y-2 text-sm text-zinc-600">
-                                    <p class="text-xs font-semibold text-zinc-500">NOMOR INDUK PEGAWAI</p>
-                                    <div
-                                        class="flex items-center gap-2 rounded-md border border-zinc-100 bg-zinc-50 px-3 py-3 font-mono">
-                                        <span>{{ $user->nip ?? '-' }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="mt-6">
-                                    <form action="{{ route('logout') }}" method="POST">
-                                        @csrf
-                                        <button type="submit"
-                                            class="flex w-full items-center justify-center gap-2 rounded-md border px-4 py-3 text-sm font-semibold text-white transition bg-red-500">
-                                            Logout
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-2 space-y-4">
-                        @if (session('success'))
-                            <div
-                                class="rounded-md border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-
-                        <div class="rounded-md border border-zinc-200 bg-white">
-                            <div class="flex items-start justify-between gap-4 border-b border-zinc-100 px-6 py-5">
-                                <div>
-                                    <h2 class="text-xl font-semibold text-zinc-900">Informasi Pengguna</h2>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <a href="{{ route('sirekap.user.profile.edit', $user->id ?? 0) }}"
-                                        class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-green-500 focus:outline-none">
-                                        <x-heroicon-o-pencil class="h-4 w-4" />
-                                        Edit Profil
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="grid gap-4 px-6 py-6 md:grid-cols-2">
-                                <div class="space-y-1">
-                                    <p class="text-xs font-semibold text-zinc-500">Nama Lengkap</p>
-                                    <p class="border-b border-zinc-300 px-3 py-2 text-sm text-zinc-800">
-                                        {{ $user->name ?? '-' }}
-                                    </p>
-                                </div>
-                                <div class="space-y-1">
-                                    <p class="text-xs font-semibold text-zinc-500">Email</p>
-                                    <p class="border-b border-zinc-300 px-3 py-2 text-sm text-zinc-800">
-                                        {{ $user->email ?? '-' }}
-                                    </p>
-                                </div>
-                                <div class="space-y-1">
-                                    <p class="text-xs font-semibold text-zinc-500">NIP</p>
-                                    <p class="border-b border-zinc-300 px-3 py-2 text-sm text-zinc-800">
-                                        {{ $user->nip ?? '-' }}
-                                    </p>
-                                </div>
-                                <div class="space-y-1">
-                                    <p class="text-xs font-semibold text-zinc-500">Role</p>
-                                    <p class="border-b border-zinc-300 px-3 py-2 text-sm text-zinc-800">
-                                        {{ $roles }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="grid space-y-2 items-center">
+                    <a href="{{ route('sirekap.user.profile.edit', $user) }}"
+                        class="flex justify-center items-center text-center w-full p-1.5 px-2 bg-emerald-600 text-white hover:bg-emerald-500 active:ring-1 font-medium rounded-md gap-2">
+                        Edit
+                    </a>
+                    <form action="{{ route('logout') }}" method="POST"
+                        class="text-center bg-red-600 py-1.5 px-2 rounded-md hover:bg-red-500 active:ring-1">
+                        @csrf
+                        <button type="submit" class="text-center text-white transition" aria-label="Logout">
+                            Keluar
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-    </section>
+        <div class="col-span-1 lg:col-span-8 xl:col-span-9 border-[1.5px] rounded-md bg-white">
+            <div class="text-zinc-900 px-8 py-6">
+                <div class="px-4 sm:px-0">
+                    <h3 class="text-base/7 font-semibold text-zinc-700">Informasi Akun</h3>
+                </div>
+                <div class="mt-6 border-t border-zinc-300">
+                    <dl class="divide-y divide-zinc-200">
+                        <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                            <dt class="text-sm/6 font-medium text-zinc-800">Nama Lengkap</dt>
+                            <dd class="mt-1 text-sm/6 text-zinc-800 sm:col-span-2 sm:mt-0">{{ $user->name }}</dd>
+                        </div>
+                        <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                            <dt class="text-sm/6 font-medium text-zinc-800">NIP</dt>
+                            <dd class="mt-1 text-sm/6 text-zinc-800 sm:col-span-2 sm:mt-0">{{ $user->nip }}</dd>
+                        </div>
+                        <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                            <dt class="text-sm/6 font-medium text-zinc-800">Email</dt>
+                            <dd class="mt-1 text-sm/6 text-zinc-800 sm:col-span-2 sm:mt-0">{{ $user->email }}</dd>
+                        </div>
+                        <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                            <dt class="text-sm/6 font-medium text-zinc-800">Role</dt>
+                            <dd class="mt-1 text-sm/6 text-zinc-800 sm:col-span-2 sm:mt-0">{{ $roles }}</dd>
+                        </div>
+                        <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                            <dt class="text-sm/6 font-medium text-zinc-800">Aktif</dt>
+                            <dd class="mt-1 text-sm/6 text-zinc-800 sm:col-span-2 sm:mt-0">
+                                <div class="inline-flex items-center gap-2 text-xs font-medium text-slate-700">
+                                    <span
+                                        class="h-2 w-2 rounded-full {{ $isActive ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                                    {{ $isActive ? 'Aktif' : 'Nonaktif' }}
+                                </div>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection

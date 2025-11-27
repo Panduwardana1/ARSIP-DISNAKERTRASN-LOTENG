@@ -13,7 +13,7 @@
             <h1 class="text-2xl font-semibold text-zinc-900">Perbarui Data Negara</h1>
         </div>
 
-        <form action="{{ route('sirekap.negara.update', $negara) }}" method="POST" enctype="multipart/form-data"
+        <form action="{{ route('sirekap.negara.update', $negara) }}" method="POST"
             class="space-y-6">
             @csrf
             @method('PUT')

@@ -12,7 +12,6 @@ class Pendidikan extends Model
 
     protected $fillable = [
         'nama',
-        'label',
     ];
 
     protected $casts = [

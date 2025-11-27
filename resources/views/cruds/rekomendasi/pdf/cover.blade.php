@@ -7,7 +7,7 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 20mm 30mm 25mm 30mm;
+            margin: 20mm 25mm 25mm 25mm;
         }
 
         @font-face {
@@ -62,8 +62,8 @@
         }
 
         .kop-logo img {
-            height: 75px;
-            width: 78px;
+            height: 78px;
+            width: 72px;
         }
 
         .kop-text {
@@ -72,8 +72,8 @@
         }
 
         .kop-title-1 {
-            font-size: 15pt;
-            font-weight: 400;
+            font-size: 12pt;
+            font-weight: 600;
             margin: 0;
             letter-spacing: -0.5px;
             font-family: 'Arial';
@@ -88,9 +88,16 @@
         }
 
         .kop-address {
-            font-size: 10pt;
+            font-size: 9pt;
             margin: 0;
             margin-top: 4px;
+            font-family: 'Arial';
+        }
+
+        .kop-email {
+            font-size: 9pt;
+            margin: 0;
+            margin-top: 2px;
             font-family: 'Arial';
         }
 
@@ -150,7 +157,7 @@
         }
 
         .signature-block {
-            width: 80%;
+            width: 78%;
             margin-left: 9rem;
             margin-top: 50px;
             font-weight: 400;
@@ -284,6 +291,9 @@
                     <div class="kop-address">
                         Alamat : Jl. S. Parman No. 5 Telepon (0370) 653130, Praya 83511
                     </div>
+                    <div class="kop-email">
+                        Email : <span style="color: blue; text-decoration: underline">disnakertrans@lomboktengahkab.go.id</span> Website: nakertrans.lomboktengahkab.go.id
+                    </div>
                 </td>
             </tr>
         </table>
@@ -357,7 +367,7 @@
 
             <p>
                 Sebagai bahan pertimbangan, kami sertakan dokumen PMI yang diperlukan. Demikian disampaikan, atas
-                perhatiannya dan kerja sama yang baik kami ucapkan terima kasih.
+                perhatian dan kerja sama yang baik kami ucapkan terima kasih.
             </p>
         </div>
 

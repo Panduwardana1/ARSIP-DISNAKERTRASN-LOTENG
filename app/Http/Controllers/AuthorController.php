@@ -7,6 +7,7 @@ use App\Models\Author;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class AuthorController extends Controller
@@ -16,7 +17,7 @@ class AuthorController extends Controller
         $search = trim((string) request('q', ''));
 
         $authors = Author::query()
-            ->select('id', 'nama', 'nip', 'jabatan', 'created_at')
+            ->select('id', 'nama', 'nip', 'jabatan', 'avatar', 'created_at')
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($builder) use ($search) {
                     $builder
@@ -41,6 +42,12 @@ class AuthorController extends Controller
         $data = $request->validated();
 
         try {
+            if ($request->hasFile('avatar')) {
+                $file = $request->file('avatar');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $data['avatar'] = $file->storeAs('authors', $fileName, 'public');
+            }
+
             Author::create($data);
         } catch (Throwable $e) {
             Log::error('Gagal menambahkan data pimpinan.',
@@ -69,6 +76,16 @@ class AuthorController extends Controller
         $data = $request->validated();
 
         try {
+            if ($request->hasFile('avatar')) {
+                $file = $request->file('avatar');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $data['avatar'] = $file->storeAs('authors', $fileName, 'public');
+
+                if ($author->avatar && Storage::disk('public')->exists($author->avatar)) {
+                    Storage::disk('public')->delete($author->avatar);
+                }
+            }
+
             $author->update($data);
         } catch (Throwable $e) {
             Log::error('Gagal memperbarui data.', [
@@ -89,6 +106,9 @@ class AuthorController extends Controller
     public function destroy(Author $author): RedirectResponse
     {
         try {
+            if ($author->avatar && Storage::disk('public')->exists($author->avatar)) {
+                Storage::disk('public')->delete($author->avatar);
+            }
             $author->delete();
         } catch (Throwable $e) {
             Log::error('Gagal menghapus author.', [

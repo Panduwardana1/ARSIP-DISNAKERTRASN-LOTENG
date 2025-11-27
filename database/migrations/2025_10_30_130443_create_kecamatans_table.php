@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('kecamatans', function (Blueprint $t) {
             $t->id();
             $t->string('nama');
-            $t->char('kode', 10)->nullable();
             $t->timestamps();
         });
     }

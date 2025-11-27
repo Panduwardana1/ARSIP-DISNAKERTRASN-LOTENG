@@ -19,10 +19,7 @@ class KecamatanController extends Controller
         $kecamatans = Kecamatan::query()
             ->withCount('desas')
             ->when($search, function ($query) use ($search) {
-                $query->where(function ($subQuery) use ($search) {
-                    $subQuery->where('nama', 'like', '%' . $search . '%')
-                        ->orWhere('kode', 'like', '%' . $search . '%');
-                });
+                $query->where('nama', 'like', '%' . $search . '%');
             })
             ->orderBy('nama')
             ->paginate(10)

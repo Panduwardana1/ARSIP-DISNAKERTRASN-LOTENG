@@ -18,12 +18,6 @@ class PendidikanRequest extends FormRequest
         $id = $this->route('pendidikan')?->id;
 
         return [
-            'label' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('pendidikans', 'label')->ignore($id),
-            ],
             'nama' => [
                 'required',
                 'string',
@@ -38,16 +32,12 @@ class PendidikanRequest extends FormRequest
             'nama.required' => 'Nama pendidikan harus diisi.',
             'nama.unique' => 'Nama pendidikan sudah digunakan.',
             'nama.max' => 'Nama pendidikan maksimal 10 karakter.',
-            'label.required' => 'Label pendidikan harus diisi.',
-            'label.max' => 'Label terlalu panjang.',
-            'label.unique' => 'Label pendidikan sudah digunakan.',
         ];
     }
 
     protected function prepareForValidation() : void {
         $this->merge([
             'nama' => $this->normalize($this->input('nama')),
-            'label' => $this->normalize($this->input('label')),
         ]);
     }
 
@@ -58,7 +48,6 @@ class PendidikanRequest extends FormRequest
     public function attributes() : array {
         return [
             'nama' => 'Nama',
-            'label' => 'Label',
         ];
     }
 }

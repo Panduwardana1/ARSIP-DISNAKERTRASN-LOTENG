@@ -64,7 +64,6 @@ class TenagaKerjaExport implements FromQuery, WithMapping, WithHeadings, ShouldA
             'Perusahaan',
             'Agency',
             'Negara Tujuan',
-            'Status',
             'Dibuat Pada',
         ];
     }
@@ -82,14 +81,13 @@ class TenagaKerjaExport implements FromQuery, WithMapping, WithHeadings, ShouldA
             $tenagaKerja->email,
             $tenagaKerja->no_telpon,
             $tenagaKerja->tempat_lahir,
-            $tenagaKerja->tanggal_lahir?->format('Y-m-d'),
+            $tenagaKerja->tanggal_lahir?->format('d-m-Y'),
             $tenagaKerja->alamat_lengkap,
             optional($tenagaKerja->desa?->kecamatan)->nama,
             optional($tenagaKerja->desa)->nama,
             optional($tenagaKerja->perusahaan)->nama,
             optional($tenagaKerja->agency)->nama,
             optional($tenagaKerja->negara)->nama,
-            $tenagaKerja->is_active,
             $tenagaKerja->created_at?->format('Y-m-d H:i:s'),
         ];
     }

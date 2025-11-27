@@ -23,7 +23,7 @@
 @section('content')
     <div class="space-y-6">
 
-        <div class="relative flex flex-col w-full rounded-lg border border-zinc-200 bg-white shadow-sm">
+        <div class="bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm">
             <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
                 <div>
                     <p class="text-sm font-semibold text-zinc-900">Daftar PMI</p>
@@ -34,42 +34,42 @@
                 </span>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left table-auto min-w-max">
-                    <thead class="bg-zinc-800 uppercase text-white text-xs">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-zinc-600 border-b border-zinc-200">
                         <tr>
-                            <th class="p-4 w-12">#</th>
-                            <th class="p-4">
-                                <p class="text-sm font-normal leading-none text-white">Nama</p>
+                            <th class="p-4 w-12 text-xs font-semibold text-zinc-100 uppercase tracking-wider">No</th>
+                            <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                Nama
                             </th>
-                            <th class="p-4">
-                                <p class="text-sm font-normal leading-none text-white">NIK</p>
+                            <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                NIK
                             </th>
-                            <th class="p-4">
-                                <p class="text-sm font-normal leading-none text-white">P3MI</p>
+                            <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                P3MI
                             </th>
-                            <th class="p-4">
-                                <p class="text-sm font-normal leading-none text-white">Agency</p>
+                            <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                Agency
                             </th>
-                            <th class="p-4">
-                                <p class="text-sm font-normal leading-none text-white">Pekerjaan</p>
+                            <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                Pekerjaan
                             </th>
-                            <th class="p-4">
-                                <p class="text-sm font-normal leading-none text-white">Penempatan</p>
+                            <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                Penempatan
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="border border-t-0 border-zinc-200 bg-white">
+                    <tbody class="divide-y divide-zinc-100">
                         @foreach ($tenagaKerjas as $i => $tk)
-                            <tr class="border-b border-zinc-200 bg-white transition hover:bg-zinc-50">
-                                <td class="p-4 text-sm text-zinc-600">{{ $i + 1 }}</td>
-                                <td class="p-4">
+                            <tr class="group hover:bg-zinc-50/80 transition-colors duration-200">
+                                <td class="p-4 align-middle text-center text-sm text-zinc-500">{{ $i + 1 }}</td>
+                                <td class="p-4 align-middle">
                                     <p class="text-sm font-semibold text-zinc-900">{{ $tk->nama }}</p>
                                 </td>
-                                <td class="p-4 text-sm text-zinc-800">{{ $tk->nik }}</td>
-                                <td class="p-4 text-sm text-zinc-800">{{ $tk->perusahaan->nama ?? '-' }}</td>
-                                <td class="p-4 text-sm text-zinc-800">{{ $tk->agency->nama ?? '-' }}</td>
-                                <td class="p-4 text-sm text-zinc-800">{{ $tk->agency->lowongan ?? 'Belum ditentukan' }}</td>
-                                <td class="p-4 text-sm text-zinc-800">{{ $tk->negara->nama ?? '-' }}</td>
+                                <td class="p-4 align-middle text-sm text-zinc-900">{{ $tk->nik }}</td>
+                                <td class="p-4 align-middle text-sm text-zinc-900">{{ $tk->perusahaan->nama ?? '-' }}</td>
+                                <td class="p-4 align-middle text-sm text-zinc-900">{{ $tk->agency->nama ?? '-' }}</td>
+                                <td class="p-4 align-middle text-sm text-zinc-900">{{ $tk->agency->lowongan ?? 'Belum ditentukan' }}</td>
+                                <td class="p-4 align-middle text-sm text-zinc-900">{{ $tk->negara->nama ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -78,7 +78,7 @@
         </div>
 
         <form method="POST" action="{{ route('sirekap.rekomendasi.store') }}"
-            class="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm" target="_blank">
+            class="space-y-4 rounded-md border border-zinc-200 bg-white p-6 shadow-sm" target="_blank">
             @csrf
             @foreach ($tenagaKerjas as $tk)
                 <input type="hidden" name="tenaga_kerja_ids[]" value="{{ $tk->id }}">
@@ -88,7 +88,7 @@
                 <div class="space-y-1">
                     <label class="text-sm font-medium text-zinc-700">Kode Rekomendasi</label>
                     <input type="text" name="kode" value="{{ old('kode', $kodeDefault) }}"
-                        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        class="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
                     <p class="text-xs text-zinc-500">Format umum: 562/NNNN/LTSA/{{ now()->year }}</p>
                     @error('kode')
                         <p class="text-xs text-rose-600">{{ $message }}</p>
@@ -97,7 +97,7 @@
                 <div class="space-y-1">
                     <label class="text-sm font-medium text-zinc-700">Tanggal</label>
                     <input type="date" name="tanggal" value="{{ old('tanggal', now()->toDateString()) }}"
-                        class="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        class="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
                     @error('tanggal')
                         <p class="text-xs text-rose-600">{{ $message }}</p>
                     @enderror
@@ -105,7 +105,7 @@
                 <div class="space-y-1">
                     <label class="text-sm font-medium text-zinc-700">Author (Kepala Dinas)</label>
                     <select name="author_id"
-                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        class="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
                         @foreach ($authors as $a)
                             <option value="{{ $a->id }}" @selected(old('author_id') == $a->id)>{{ $a->nama }}
                                 ({{ $a->nip }})
@@ -119,7 +119,7 @@
                 <div class="space-y-1">
                     <label class="text-sm font-medium text-zinc-700">Perusahaan (P3MI)</label>
                     <select name="perusahaan_id"
-                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        class="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value="" disabled {{ old('perusahaan_id', $defaultPerusahaanId) ? '' : 'selected' }}>
                             Pilih perusahaan
                         </option>
@@ -136,7 +136,7 @@
                 <div class="space-y-1">
                     <label class="text-sm font-medium text-zinc-700">Negara Tujuan</label>
                     <select name="negara_id"
-                        class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
+                        class="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value="" disabled {{ old('negara_id', $defaultNegaraId) ? '' : 'selected' }}>
                             Pilih negara tujuan
                         </option>
@@ -155,7 +155,7 @@
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <p class="text-sm text-zinc-500">Pastikan data sudah benar. Hasil PDF terbuka pada tab baru.</p>
                 <button name="action" value="print"
-                    class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-amber-700 transition">
+                    class="inline-flex items-center gap-2 rounded-md bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-amber-700 transition">
                     <x-heroicon-o-printer class="w-5 h-5" />
                     Cetak PDF
                 </button>

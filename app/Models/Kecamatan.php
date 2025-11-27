@@ -14,12 +14,10 @@ class Kecamatan extends Model
 
     protected $fillable = [
         'nama',
-        'kode',
     ];
 
     protected $casts = [
         'nama' => 'string',
-        'kode' => 'string',
     ];
 
     public function desas() {

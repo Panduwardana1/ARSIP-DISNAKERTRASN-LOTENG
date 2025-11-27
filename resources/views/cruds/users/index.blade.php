@@ -4,130 +4,158 @@
 @section('titlePageContent', 'Manajemen Pengguna')
 @section('description', 'Kelola akun login, role akses, dan status aktif/nonaktif.')
 
-@section('content')
-    @section('headerAction')
-        <div>
-            <form method="GET" action="{{ route('sirekap.users.index') }}" class="relative w-full max-w-sm font-inter">
-                <span class="absolute inset-y-0 left-3 flex items-center text-zinc-400">
-                    <x-heroicon-o-magnifying-glass class="w-5 h-5" />
-                </span>
+@section('headerAction')
+    <div class="flex flex-col sm:flex-row gap-3 items-center justify-between w-full">
+        {{-- Search Bar --}}
+        <form method="GET" action="{{ route('sirekap.users.index') }}" class="relative w-full sm:max-w-xs font-inter group">
+            <span class="absolute inset-y-0 left-3 flex items-center text-zinc-400 group-focus-within:text-blue-600">
+                <x-heroicon-o-magnifying-glass class="w-5 h-5" />
+            </span>
+            <input type="search" name="q" value="{{ $search }}" placeholder="Cari nama atau email..."
+                class="w-full pl-10 py-2 rounded-lg border border-zinc-200 bg-white text-zinc-700 placeholder-zinc-400 focus:ring-2 focus:ring-blue-100 transition-all duration-200 outline-none text-sm" />
+        </form>
 
-                <input type="search" name="q" value="{{ $search }}"
-                    placeholder="Search"
-                    class="w-full pl-10 py-1.5 rounded-md bg-white border border-zinc-300 text-zinc-700 placeholder-zinc-400 transition-all duration-200 outline-none" />
-            </form>
-        </div>
-
-        <div class="flex items-center">
+        {{-- Action Buttons --}}
+        <div class="flex items-center gap-3 w-full sm:w-auto">
             <a href="{{ route('sirekap.users.create') }}"
-                class="flex items-center px-3 gap-2 py-1.5 bg-green-600 text-white rounded-md border hover:bg-green-700">
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all shadow-sm w-full sm:w-auto">
                 <x-heroicon-o-plus class="w-5 h-5" />
                 Tambah
             </a>
         </div>
-    @endsection
+    </div>
+@endsection
+
+@section('content')
 
     @if ($errors->has('app'))
-        <div class="mb-4 rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div
+            class="mb-6 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex items-center gap-2">
+            <x-heroicon-o-exclamation-triangle class="w-5 h-5" />
             {{ $errors->first('app') }}
         </div>
     @endif
 
-    <div class="relative flex flex-col w-full h-full rounded-lg overflow-hidden">
-        <table class="w-full text-left table-auto min-w-max">
-            <thead class="bg-zinc-800 uppercase font-semibold">
-                <tr>
-                    <th class="p-4 w-12">
-                        <p class="text-sm font-normal leading-none text-white">No</p>
-                    </th>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-white">Nama & NIP</p>
-                    </th>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-white">Email</p>
-                    </th>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-white">Role</p>
-                    </th>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-white">Status</p>
-                    </th>
-                    <th class="p-4">
-                        <p class="text-sm font-normal leading-none text-white">Aksi</p>
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="border">
-                @forelse ($users as $user)
-                    @php
-                        $roleNames = $user->roles?->pluck('name')->join(', ') ?: '-';
-                        $isActive = $user->is_active === 'active';
-                    @endphp
-                    <tr class="border-zinc-300 hover:bg-zinc-100 bg-white border-b">
-                        <td class="p-4 align-top">
-                            <p class="text-sm text-zinc-800">
-                                {{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}
-                            </p>
-                        </td>
-                        <td class="p-4">
-                            <div class="flex items-center gap-2">
-                                <div
-                                    class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
-                                    {{ strtoupper(substr($user->name, 0, 2)) }}
-                                </div>
-                                <div class="grid">
-                                    <p class="text-sm font-semibold text-zinc-800">{{ $user->name }}</p>
-                                    <p class="text-xs font-medium text-zinc-600">{{ $user->nip }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="p-4 align-top">
-                            <p class="text-sm text-zinc-800">{{ $user->email }}</p>
-                        </td>
-                        <td class="p-4 align-top">
-                            <p class="text-sm text-zinc-800 capitalize">{{ $roleNames }}</p>
-                        </td>
-                        <td class="p-4 align-top">
-                            <span @class([
-                                'rounded-full px-3 py-1 text-xs font-semibold',
-                                'bg-emerald-100 text-emerald-700' => $isActive,
-                                'bg-rose-100 text-rose-700' => !$isActive,
-                            ])>
-                                {{ $isActive ? 'Aktif' : 'Nonaktif' }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-4 text-sm whitespace-nowrap align-top">
-                            <div class="flex items-center gap-x-4">
-                                <a href="{{ route('sirekap.users.edit', $user) }}"
-                                    class="text-zinc-600 transition-colors duration-200 hover:text-amber-500">
-                                    <span class="sr-only">Edit</span>
-                                    <x-heroicon-o-pencil class="w-5 h-5" />
-                                </a>
-
-                                @if (auth()->id() !== $user->id)
-                                    <x-modal-delete :action="route('sirekap.users.destroy', $user)" :title="'Hapus Pengguna'"
-                                        :message="'Akun ' . $user->name . ' akan dihapus permanen.'"
-                                        confirm-field="confirm_delete">
-                                        <button type="button" class="text-zinc-600 hover:text-rose-600">
-                                            <x-heroicon-o-trash class="h-5 w-5" />
-                                        </button>
-                                    </x-modal-delete>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                @empty
+    {{-- Main Table Card --}}
+    <div class="bg-white border border-zinc-200 rounded-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-zinc-600 border-b border-zinc-200">
                     <tr>
-                        <td colspan="6" class="p-6 text-center text-sm text-zinc-500">
-                            Belum ada data pengguna.
-                        </td>
+                        <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                            Nama Anggota
+                        </th>
+                        <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                            Role
+                        </th>
+                        <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="py-4 px-4 text-end text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                            Aksi
+                        </th>
                     </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody class="divide-y divide-zinc-100">
+                    @forelse ($users as $user)
+                        @php
+                            $roleNames = trim($user->roles?->pluck('name')->join(', ') ?? '');
+                            $primaryRole = strtolower($user->roles?->pluck('name')->first() ?? '');
+                            $hasRoles = $roleNames !== '';
+                            $isActive = in_array($user->is_active, ['active', 1, '1', true], true);
+                            $avatar = $user->gambar
+                                ? asset('storage/' . ltrim($user->gambar, '/'))
+                                : 'https://ui-avatars.com/api/?name=' .
+                                    urlencode($user->name) .
+                                    '&background=random&color=fff';
+                            $roleColor =
+                                $primaryRole === 'admin' ? 'emerald' : ($primaryRole === 'staf' ? 'blue' : 'zinc');
+                        @endphp
+                        <tr class="group hover:bg-zinc-50/80 transition-colors duration-200">
+                            {{-- Nama & Email --}}
+                            <td class="p-4 align-top">
+                                <div class="flex gap-3">
+                                    <div class="h-10 w-10 flex-shrink-0">
+                                        <img class="h-10 w-10 rounded-full object-cover border border-zinc-200"
+                                            src="{{ $avatar }}" alt="">
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="text-sm font-semibold text-zinc-900 transition-colors">{{ $user->name }}</span>
+                                        <span class="text-sm text-zinc-600">{{ $user->nip }}</span>
+                                    </div>
+                                </div>
+                            </td>
 
-    <div class="pt-6">
-        {{ $users->onEachSide(2)->links() }}
+                            {{-- Email --}}
+                            <td class="p-4 align-top">
+                                <span class="text-sm text-zinc-600">{{ $user->email ?? 'NIP tidak tersedia' }}</span>
+                            </td>
+
+                            <td class="p-4 align-top">
+                                <span @class([
+                                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium',
+                                    "bg-{$roleColor}-600 text-white" => $hasRoles,
+                                    'bg-blue-700 text-white' => !$hasRoles,
+                                ])>
+                                    {{ $hasRoles ? $roleNames : 'Belum ada role' }}
+                                </span>
+                            </td>
+
+                            <td class="p-4 align-top">
+                                <span @class([
+                                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border',
+                                    'bg-green-700 text-white border' => $isActive,
+                                    'bg-zinc-50 text-zinc-600 border-zinc-200' => !$isActive,
+                                ])>
+                                    {{ $isActive ? 'Aktif' : 'Nonaktif' }}
+                                </span>
+                            </td>
+
+                            {{-- Actions --}}
+                            <td class="p-4 align-top text-end">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('sirekap.users.edit', $user) }}"
+                                        class="p-1.5 text-zinc-500 hover:text-amber-700 transition-colors" title="Edit">
+                                        <x-heroicon-o-pencil class="w-5 h-5" />
+                                    </a>
+
+                                    @if (auth()->id() !== $user->id)
+                                        <x-modal-delete :action="route('sirekap.users.destroy', $user)" :title="'Hapus Data'" :message="'Data akan dihapus permanen.'"
+                                            confirm-field="confirm_delete">
+                                            <button type="button"
+                                                class="p-1.5 text-zinc-500 hover:text-rose-600 transition-colors"
+                                                title="Hapus">
+                                                <x-heroicon-o-trash class="h-5 w-5" />
+                                            </button>
+                                        </x-modal-delete>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="p-12 text-center">
+                                <div class="flex flex-col items-center justify-center text-zinc-500">
+                                    <x-heroicon-o-users class="w-12 h-12 text-zinc-300 mb-3" />
+                                    <p class="text-base font-medium">Belum ada data pengguna</p>
+                                    <p class="text-sm">Silakan tambahkan anggota baru untuk memulai.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Footer Pagination --}}
+        @if ($users->hasPages())
+            <div class="border-t border-zinc-200 bg-zinc-50 px-4 py-3 sm:px-6">
+                {{ $users->onEachSide(2)->links() }}
+            </div>
+        @endif
     </div>
 @endsection

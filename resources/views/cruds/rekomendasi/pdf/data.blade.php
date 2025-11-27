@@ -112,7 +112,7 @@
         }
 
         .signature-block {
-            width: 50%;
+            width: 48%;
             margin-left: 32rem;
             margin-top: 50px;
             font-weight: 400;
@@ -201,7 +201,7 @@
         <tr>
             <td class="meta-label">No. Rekomendasi Paspor</td>
             <td>:</td>
-            <td><span style="font-weight: 600;">{{ $rekomendasi->kode }}</span></td>
+            <td><span style="font-weight: 400;">{{ $rekomendasi->kode }}</span></td>
         </tr>
         <tr>
             <td class="meta-label">Tgl. Rekomendasi Paspor</td>

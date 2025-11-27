@@ -86,6 +86,36 @@ class RekomendasiController extends Controller
             ->header('Expires', '0');
     }
 
+    public function data(Request $request)
+    {
+        $search = trim((string) $request->get('q'));
+
+        $q = Rekomendasi::query()
+            ->with([
+                'author:id,nama',
+                'items.perusahaan:id,nama',
+                'items.negara:id,nama',
+                'tenagaKerjas.perusahaan:id,nama',
+                'tenagaKerjas.negara:id,nama',
+            ])
+            ->withCount('tenagaKerjas')
+            ->orderByDesc('created_at');
+
+        if ($search !== '') {
+            $q->where(function ($w) use ($search) {
+                $w->where('kode', 'like', "%{$search}%")
+                    ->orWhereHas('items.perusahaan', fn($q) => $q->where('nama', 'like', "%{$search}%"))
+                    ->orWhereHas('items.negara', fn($q) => $q->where('nama', 'like', "%{$search}%"))
+                    ->orWhereHas('tenagaKerjas.perusahaan', fn($q) => $q->where('nama', 'like', "%{$search}%"))
+                    ->orWhereHas('tenagaKerjas.negara', fn($q) => $q->where('nama', 'like', "%{$search}%"));
+            });
+        }
+
+        $rekomendasis = $q->paginate(15)->withQueryString();
+
+        return view('cruds.rekomendasi.data', compact('rekomendasis', 'search'));
+    }
+
     public function store(RekomendasiRequest $request)
     {
         $userId = $request->user()->id ?? null;
@@ -145,10 +175,11 @@ class RekomendasiController extends Controller
                 ->withInput();
         }
 
-        return $this->buildPdfResponse($rekomendasi);
+        // redirect ke route export agar refresh ulang tetap memuat PDF yang sama
+        return redirect()->route('sirekap.rekomendasi.export', $rekomendasi);
     }
 
-    public function pdf(Rekomendasi $rekomendasi): Response
+    public function export(Rekomendasi $rekomendasi): Response
     {
         $rekomendasi->load([
             'author',

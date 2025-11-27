@@ -16,13 +16,11 @@ class NegaraController extends Controller
         $search = (string) $request->input('q', '');
 
         $negara = Negara::query()
-            ->select('id', 'nama', 'kode_iso', 'created_at')
+            ->select('id', 'nama', 'created_at')
             ->when(
                 $search !== '',
                 fn ($query) => $query->where(function ($builder) use ($search) {
-                    $builder
-                        ->where('nama', 'like', '%' . $search . '%')
-                        ->orWhere('kode_iso', 'like', '%' . $search . '%');
+                    $builder->where('nama', 'like', '%' . $search . '%');
                 })
             )
             ->orderBy('nama')

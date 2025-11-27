@@ -36,7 +36,7 @@ class TenagaKerjaController extends Controller
                 'created_at',
             ])
             ->with([
-                'pendidikan:id,nama,label',
+                'pendidikan:id,nama',
                 'perusahaan:id,nama',
                 'agency:id,nama,lowongan',
                 'negara:id,nama',
@@ -150,8 +150,8 @@ class TenagaKerjaController extends Controller
             'perusahaans' => Perusahaan::query()->select('id', 'nama')->orderBy('nama')->get(),
             'kecamatans' => Kecamatan::query()->select('id', 'nama')->orderBy('nama')->get(),
             'desas' => Desa::query()->select('id', 'nama', 'kecamatan_id')->orderBy('nama')->get(),
-            'pendidikans' => Pendidikan::query()->select('id', 'nama', 'label')->orderBy('nama')->get(),
-            'agencies' => Agency::query()->select('id', 'nama', 'lowongan')->orderBy('nama')->get(),
+            'pendidikans' => Pendidikan::query()->select('id', 'nama')->orderBy('nama')->get(),
+            'agencies' => Agency::query()->select('id', 'nama', 'lowongan', 'perusahaan_id')->orderBy('nama')->get(),
             'negaras' => Negara::query()->select('id', 'nama')->orderBy('nama')->get(),
             'genders' => TenagaKerja::GENDERS,
         ];

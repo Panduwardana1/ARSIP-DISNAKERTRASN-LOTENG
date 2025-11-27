@@ -13,6 +13,7 @@ class Author extends Model
         'nama',
         'nip',
         'jabatan',
+        'avatar',
     ];
 
     public function rekomendasis()

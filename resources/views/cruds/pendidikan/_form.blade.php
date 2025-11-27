@@ -6,24 +6,11 @@
     <div class="grid gap-6">
         <div>
             <label for="nama" class="block text-sm font-medium text-zinc-700">
-                Kode Pendidikan <span class="text-rose-500">*</span>
+                Nama Pendidikan <span class="text-rose-500">*</span>
             </label>
             <input type="text" id="nama" name="nama" value="{{ old('nama', $pendidikan->nama ?? '') }}" maxlength="10" required
-                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm uppercase tracking-wide focus:outline-none focus:border-blue-300"
-                placeholder="Contoh: SD, SMP, SMA, S1">
+                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm uppercase tracking-wide focus:outline-none focus:border-blue-300">
             @error('nama')
-                <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="label" class="block text-sm font-medium text-zinc-700">
-                Label Pendidikan <span class="text-rose-500">*</span>
-            </label>
-            <input type="text" id="label" name="label" value="{{ old('label', $pendidikan->label ?? '') }}" maxlength="100" required
-                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-blue-300"
-                placeholder="Contoh: Sekolah Dasar / Sekolah Menengah Atas / Sarjana">
-            @error('label')
                 <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
             @enderror
         </div>

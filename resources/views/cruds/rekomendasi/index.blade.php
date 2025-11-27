@@ -4,27 +4,32 @@
 @section('titlePageContent', 'Rekomendasi Tenaga Kerja')
 @section('description', 'Pilih PMI yang akan disertakan dalam surat rekomendasi.')
 
+
+
 {{-- HEADER ACTION: SEARCH + BUTTON PREVIEW --}}
 @section('headerAction')
-    <div class="flex w-full items-end justify-between gap-4">
-
+    <div class="flex flex-col sm:flex-row gap-3 items-center justify-between w-full">
         {{-- FORM SEARCH (GET) --}}
-        <div class="w-full max-w-sm relative font-inter">
-            <form method="GET" action="{{ route('sirekap.rekomendasi.index') }}" class="w-full">
-                <span class="absolute inset-y-0 left-3 flex items-center text-zinc-400">
-                    <x-heroicon-o-magnifying-glass class="w-5 h-5" />
-                </span>
+        <form method="GET" action="{{ route('sirekap.rekomendasi.index') }}"
+            class="relative w-full sm:max-w-xs font-inter group">
+            <span class="absolute inset-y-0 left-3 flex items-center text-zinc-400 group-focus-within:text-blue-600">
+                <x-heroicon-o-magnifying-glass class="w-5 h-5" />
+            </span>
 
-                <input type="search" name="search" placeholder="Cari nama atau NIK..." value="{{ request('search') }}"
-                    class="w-full pl-10 py-1.5 rounded-md bg-white border border-zinc-300
-                           text-zinc-700 placeholder-zinc-400 transition-all duration-200 outline-none" />
-            </form>
-        </div>
+            <input type="search" name="search" placeholder="Cari nama atau NIK" value="{{ request('search') }}"
+                class="w-full pl-10 py-2 rounded-lg border border-zinc-200 bg-white text-zinc-700 placeholder-zinc-400 transition-all duration-200 outline-none text-sm" />
+        </form>
 
         {{-- TOMBOL PREVIEW (SUBMIT FORM POST DI BAWAH) --}}
-        <div class="flex flex-col items-end">
+        <div class="flex gap-2 w-full sm:w-auto justify-end">
+            <a href="{{ route('sirekap.rekomendasi.data') }}"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-zinc-200 text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-all shadow-sm">
+                <x-heroicon-o-document-text class="w-5 h-5" />
+                Data
+            </a>
             <button type="submit" form="rekomendasi-form"
-                class="rounded-md bg-amber-600 px-4 py-2 font-semibold text-white hover:bg-amber-700 transition">
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-all shadow-sm">
+                <x-heroicon-o-eye class="w-5 h-5" />
                 Preview
             </button>
         </div>
@@ -122,76 +127,87 @@
         <form id="rekomendasi-form" method="POST" action="{{ route('sirekap.rekomendasi.preview') }}">
             @csrf
 
-            <div class="relative flex flex-col w-full max-w-full rounded-lg border border-zinc-200 bg-white">
+            <div class="bg-white border border-zinc-200 rounded-md overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left table-auto min-w-max">
-                        <thead class="bg-zinc-800 uppercase text-white text-xs">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-zinc-600 border-b border-zinc-200">
                             <tr>
                                 <th class="p-4 w-12">
                                     <span class="sr-only">Pilih semua</span>
                                     <input type="checkbox" :checked="master" @click.prevent="toggleAllOnPage()"
                                         class="rounded border-blue-300 text-blue-600 focus:ring-blue-500">
                                 </th>
-                                <th class="p-4">
-                                    <p class="text-sm font-normal leading-none text-white">Identitas</p>
+                                <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                    Identitas
                                 </th>
-                                <th class="p-4">
-                                    <p class="text-sm font-normal leading-none text-white">P3MI</p>
+                                <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                    P3MI
                                 </th>
-                                <th class="p-4">
-                                    <p class="text-sm font-normal leading-none text-white">Agency</p>
+                                <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                    Agency
                                 </th>
-                                <th class="p-4">
-                                    <p class="text-sm font-normal leading-none text-white">Pekerjaan</p>
+                                <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                    Pekerjaan
                                 </th>
-                                <th class="p-4">
-                                    <p class="text-sm font-normal leading-none text-white">Destinasi</p>
+                                <th class="py-4 px-4 text-xs font-semibold text-zinc-100 uppercase tracking-wider">
+                                    Destinasi
                                 </th>
                             </tr>
                         </thead>
 
-                        <tbody class="border border-t-0 border-zinc-200 bg-white">
+                        <tbody class="divide-y divide-zinc-100">
                             @forelse ($tenagaKerjas as $tk)
-                                <tr class="border-b border-zinc-200 bg-white transition hover:bg-zinc-50">
-                                    <td class="p-4">
+                                <tr class="group hover:bg-zinc-50/80 transition-colors duration-200">
+                                    <td class="p-4 align-middle">
                                         <input type="checkbox"
                                             @change="toggle({{ $tk->id }}, @js($tk->nama), @js($tk->nik))"
                                             :checked="isSelected({{ $tk->id }})"
                                             class="rounded border-blue-300 text-blue-600 focus:ring-blue-500">
                                     </td>
-                                    <td class="p-4">
-                                        <div class="flex items-center gap-2">
+                                    <td class="p-4 align-middle">
+                                        <div class="flex items-center gap-3">
                                             <img src="{{ asset('asset/images/default-profile.jpg') }}" alt="Profile"
-                                                class="h-12 w-auto rounded-full border-[1.5px]">
+                                                class="h-12 w-12 rounded-full border border-zinc-200 object-cover">
                                             <span class="grid items-center">
-                                                <p class="text-sm font-semibold text-zinc-800">{{ $tk->nama }}</p>
+                                                <p class="text-sm font-semibold text-zinc-900">{{ $tk->nama }}</p>
                                                 <p class="text-xs font-medium text-zinc-600">{{ $tk->nik }}</p>
                                             </span>
                                         </div>
                                     </td>
-                                    <td class="p-4">
-                                        <p class="text-sm text-zinc-800">{{ $tk->perusahaan->nama ?? '-' }}</p>
+                                    <td class="p-4 align-middle">
+                                        <p class="text-sm text-zinc-900">{{ $tk->perusahaan->nama ?? '-' }}</p>
                                     </td>
-                                    <td class="p-4">
-                                        <p class="text-sm text-zinc-800">{{ $tk->agency->nama ?? '-' }}</p>
+                                    <td class="p-4 align-middle">
+                                        <p class="text-sm text-zinc-900">{{ $tk->agency->nama ?? '-' }}</p>
                                     </td>
-                                    <td class="p-4">
-                                        <p class="text-sm text-zinc-800">{{ $tk->agency->lowongan ?? '-' }}</p>
+                                    <td class="p-4 align-middle">
+                                        <p class="text-sm text-zinc-900">{{ $tk->agency->lowongan ?? '-' }}</p>
                                     </td>
-                                    <td class="p-4">
-                                        <p class="text-sm text-zinc-800">{{ $tk->negara->nama ?? '-' }}</p>
+                                    <td class="p-4 align-middle">
+                                        <p class="text-sm text-zinc-900">{{ $tk->negara->nama ?? '-' }}</p>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="p-6 text-center text-sm text-zinc-500">
-                                        Belum ada data PMI yang siap direkomendasikan.
+                                    <td colspan="6" class="p-12 text-center">
+                                        <div class="flex flex-col items-center justify-center text-zinc-500">
+                                            <x-heroicon-o-document-text class="w-12 h-12 text-zinc-300 mb-3" />
+                                            <p class="text-base font-medium">Belum ada data PMI</p>
+                                            <p class="text-sm">Tambah data tenaga kerja untuk direkomendasikan.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+
+                {{-- Footer Pagination --}}
+                @if ($tenagaKerjas->hasPages())
+                    <div class="border-t border-zinc-200 bg-zinc-50 px-4 py-3 sm:px-6">
+                        {{ $tenagaKerjas->onEachSide(2)->links() }}
+                    </div>
+                @endif
             </div>
 
             {{-- HIDDEN INPUT UNTUK DIKIRIM KE CONTROLLER --}}
@@ -200,8 +216,7 @@
             </template>
         </form>
 
-        <div class="mt-2 rounded-lg border p-4" x-show="selected.length"
-            x-transition>
+        <div class="mt-2 rounded-lg border p-4" x-show="selected.length" x-transition>
             <div class="flex items-center justify-between gap-2">
                 <p class="text-sm font-semibold">
                     Terpilih: <span x-text="selected.length"></span>
@@ -224,11 +239,6 @@
                     </li>
                 </template>
             </ul>
-        </div>
-
-        {{-- PAGINATION --}}
-        <div class="py-8">
-            {{ $tenagaKerjas->onEachSide(2)->links() }}
         </div>
 
     </div>

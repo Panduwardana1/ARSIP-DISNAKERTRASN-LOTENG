@@ -6,7 +6,7 @@
     <div class="max-w-xl mx-auto space-y-6 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
         <div>
             <h1 class="text-2xl font-semibold text-zinc-900">Perbarui Data Kecamatan</h1>
-            <p class="mt-1 text-sm text-zinc-600">Periksa kembali nama dan kode wilayah sebelum menyimpan.</p>
+            <p class="mt-1 text-sm text-zinc-600">Periksa kembali nama wilayah sebelum menyimpan.</p>
         </div>
 
         @if ($errors->has('derror'))

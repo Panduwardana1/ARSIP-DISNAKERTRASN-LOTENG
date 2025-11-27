@@ -8,9 +8,9 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div class="space-y-1">
                 <p class="text-sm font-medium text-indigo-600">Referensi Pendidikan</p>
-                <h1 class="text-3xl font-semibold text-zinc-900">{{ $pendidikan->label }}</h1>
+                <h1 class="text-3xl font-semibold text-zinc-900">{{ $pendidikan->nama }}</h1>
                 <p class="text-sm text-zinc-600">
-                    Ringkasan kode pendidikan beserta hubungan dengan data CPMI.
+                    Ringkasan pendidikan beserta hubungan dengan data CPMI.
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
@@ -32,14 +32,10 @@
                 <h2 class="text-lg font-semibold text-zinc-900">Informasi Pendidikan</h2>
                 <div class="mt-4 grid gap-6 text-sm text-zinc-600 md:grid-cols-2">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Kode</p>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Nama</p>
                         <p class="mt-1 inline-flex items-center rounded-md bg-zinc-100 px-3 py-1 text-base font-semibold uppercase tracking-wide text-zinc-900">
                             {{ $pendidikan->nama }}
                         </p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Label</p>
-                        <p class="mt-1 text-base text-zinc-900">{{ $pendidikan->label }}</p>
                     </div>
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500">Tanggal Dibuat</p>
@@ -83,7 +79,7 @@
                 </div>
                 <x-modal-delete
                     :action="route('sirekap.pendidikan.destroy', $pendidikan)"
-                    :title="'Hapus ' . $pendidikan->label"
+                    :title="'Hapus ' . $pendidikan->nama"
                     message="Data pendidikan akan dihapus permanen. Lanjutkan?"
                 >
                     <span class="inline-flex items-center rounded-md bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700">

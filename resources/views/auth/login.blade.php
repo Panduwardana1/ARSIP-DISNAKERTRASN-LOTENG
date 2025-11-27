@@ -16,26 +16,13 @@
     </style>
 </head>
 
-<body class="flex flex-col h-full bg-zinc-100 font-inter px-4 py-6 space-y-2 items-center justify-center">
-    <main class="grid grid-cols-12 px-[5rem] gap-10">
-        <div class="grid col-span-8">
-            <div class="">
-                <div class="fixed flex items-center top-4 left-14 z-20 my-4 mx-8 w-full">
-                    <img src="{{ asset('asset/logo/W-logo.png') }}" alt="Logo" class="h-10 w-auto">
-                </div>
-                <div class="block text-zinc-800 space-y-2">
-                    <h2 class="font-bold text-xl">Sirekap</h2>
-                    <h1 class="font-bold text-5xl">Solusi Digital untuk Manajemen Paspor CPMI</h1>
-                    <p class="font-semibold text-sm/6 w-[35rem]">Pantau seluruh proses pengajuan paspor CPMI secara
-                        realtime, aman, dan terstruktur dalam satu dashboard modern.</p>
-                </div>
-            </div>
-        </div>
-        <div class="grid col-span-4 rounded-sm bg-white border-[1.5px] px-6 py-4 shadow-sm max-w-sm">
+<body class="flex h-full bg-zinc-300 font-inter px-4 py-6 items-center justify-center">
+    <main class="space-y-4">
+        <div class="grid bg-white border p-8 w-[28rem] rounded-md">
             <div class="flex flex-col items-center justify-center space-y-2">
-                <img src="{{ asset('asset/logo/lombok_tengah2.png') }}" alt="Logo" class="h-12 w-auto">
-                <h1 class="text-xl font-medium text-center">Login akun Sirekap</h1>
+                <h1 class="font-semibold text-3xl">Selamat Datang</h1>
             </div>
+
             @if (session('success'))
                 <div class="rounded-sm border border-green-500 bg-green-50 p-3 text-sm text-green-700">
                     {{ session('success') }}
@@ -53,11 +40,13 @@
             <form action="{{ route('login.process') }}" method="POST" class="space-y-4">
                 @csrf
                 <div class="space-y-2">
-                    <label for="identifier" class="text-sm font-medium text-slate-900">Email / NIP</label>
+                    <label for="identifier" class="text-sm font-semibold text-slate-900">Email / NIP</label>
                     <div class="relative">
-                        <input id="identifier" name="identifier" type="text" autocomplete="username" required
-                            value="{{ old('identifier') }}"
-                            class="w-full py-2 px-2 border rounded-sm focus:outline-none" />
+                        <input id="identifier" name="identifier" type="text" required value="{{ old('identifier') }}"
+                            inputmode="text" autocomplete="username" pattern="(?:[0-9]{18}|[^@\s]+@[^@\s]+\.[^@\s]+)"
+                            title="Masukkan email atau NIP 18 digit"
+                            class="w-full py-3 px-4 border-[1.5px] rounded-md focus:outline-none"
+                            placeholder="Email atau NIP 18 digit" />
                         <div class="absolute inset-y-0 right-2 flex items-center text-slate-500">
                             <x-heroicon-o-at-symbol class="h-5 w-5" />
                         </div>
@@ -66,12 +55,13 @@
 
                 <div class="space-y-2">
                     <div class="flex items-center justify-between text-md">
-                        <label for="password" class="text-sm font-medium text-slate-900">Password</label>
+                        <label for="password" class="text-sm font-semibold text-slate-900">Password</label>
                     </div>
                     <div class="relative" x-data="{ showPassword: false }">
                         <input id="password" name="password" type="password"
                             x-bind:type="showPassword ? 'text' : 'password'" autocomplete="current-password" required
-                            class="w-full py-2 px-2 pr-12 border rounded-sm focus:outline-none" />
+                            class="w-full py-3 px-4 pr-12 border-[1.5px] rounded-md focus:outline-none"
+                            placeholder="Password" />
                         <button type="button"
                             class="absolute inset-y-0 right-2 flex items-center text-slate-500 focus:outline-none"
                             @click="showPassword = !showPassword" aria-label="Tampilkan password"
@@ -80,6 +70,11 @@
                             <x-heroicon-o-eye-slash x-show="showPassword" x-cloak class="h-5 w-5" />
                         </button>
                     </div>
+                    <dic class="flex gap-2">
+                        <x-heroicon-s-exclamation-circle class="h-4 w-4 text-zinc-400" />
+                        <span class="text-xs font-medium text-zinc-400">Gunakan minimal 6 karakter, dengan kombinasi
+                            huruf besar, huruf kecil, dan angka.</span>
+                    </dic>
                 </div>
 
                 <div class="flex items-center justify-between">
@@ -94,12 +89,12 @@
                     class="flex w-full items-center justify-center gap-2 rounded-sm bg-green-500 p-3 font-semibold text-black transition-all hover:bg-green-400 focus:outline-none">
                     Login
                 </button>
-
-                <div class="text-sm">
-                    Sistem Informasi Rekapitulasi Data dan Manajemen Internal yang terintegrasi.
-                    </p>
-                </div>
             </form>
+        </div>
+        <div class="flex items-center justify-center gap-4 p-4 border rounded-md bg-white">
+            <img src="{{ asset('asset/logo/lombok_tengah2.png') }}" alt="Logo-sirekap" class="h-6 w-auto">
+            <img src="{{ asset('asset/logo/kominfo.png') }}" alt="Logo-sirekap" class="h-6 w-auto">
+            <img src="{{ asset('asset/logo/primary.png') }}" alt="Logo-sirekap" class="h-6 w-auto">
         </div>
     </main>
 </body>

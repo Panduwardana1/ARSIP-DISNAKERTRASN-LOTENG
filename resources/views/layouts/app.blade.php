@@ -32,218 +32,19 @@
         <x-alert type="warning" message="{{ session('warning') }}" />
     @endif
 
-    {{-- * header  --}}
-    <header
-        class="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between bg-zinc-800 px-4 shadow-sm backdrop-blur">
-        <div class="flex items-center gap-3">
-            <button type="button" class="rounded-md border border-amber-600/50 p-1 text-amber-50 lg:hidden"
-                @click="sidebarOpen = true">
-                <x-heroicon-o-bars-3 class="h-6 w-6" />
-            </button>
-            <img src="{{ asset('asset/logo/W-logo.png') }}" alt="Logo" class="h-9 w-auto">
-        </div>
-        <div class="flex items-center gap-3 text-xs font-medium text-amber-100/80 sm:text-sm">
-            <button type="button" @click="exportOpen = true"
-                class="flex items-center gap-2 bg-amber-600 rounded-md py-1.5 px-2 text-amber-50 transition hover:bg-amber-500 focus:outline-none">
-                <x-heroicon-o-document-arrow-up class="h-5 w-5" />
-                <span>Export</span>
-            </button>
-            <a href="{{ route('sirekap.user.profile.index') }}"
-                class="bg-white hover:bg-zinc-100 text-zinc-700 border rounded-md py-1.5 px-2">
-                <div class="flex items-center gap-2">
-                    <x-heroicon-s-user-circle class="h-5 w-5" />
-                    Profile
-                </div>
-            </a>
-        </div>
-    </header>
-
-    <div class="flex pt-14">
-        <div x-cloak x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-30 bg-white lg:hidden"
+    <div class="flex">
+        <div x-cloak x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-20 bg-white lg:hidden"
             @click="sidebarOpen = false"></div>
 
         {{-- todo sidebar --}}
-        <aside id="sidebar-multi-level-sidebar"
-            class="fixed left-0 top-14 z-40 flex h-[calc(100vh-3.5rem)] w-60 flex-col border-r bg-zinc-100 px-4 py-4 backdrop-blur transition-transform duration-300 lg:translate-x-0"
-            aria-label="Sidebar" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:-translate-x-0'">
-
-            <div class="flex-1 overflow-y-auto">
-                <ul class="space-y-2 font-medium">
-                    @can('view_dashboard')
-                        <li>
-                            <x-nav-link :active="request()->routeIs('sirekap.dashboard.index')" href="{{ route('sirekap.dashboard.index') }}">
-                                <div class="flex items-center rounded-md gap-2 transition-all duration-200">
-                                    <x-heroicon-o-home class="h-5 w-5 shrink-0" />
-                                    <span class="text-sm font-semibold">Dashboard</span>
-                                </div>
-                            </x-nav-link>
-                        </li>
-                    @endcan
-
-                    @can('manage_users')
-                        <li>
-                            <x-nav-link :active="request()->routeIs('sirekap.users.*')" href="{{ route('sirekap.users.index') }}">
-                                <div class="flex items-center rounded-md gap-2 transition-all duration-200">
-                                    <x-heroicon-o-users class="h-5 w-5 shrink-0" />
-                                    <span class="text-sm font-semibold">User</span>
-                                </div>
-                            </x-nav-link>
-                        </li>
-                    @endcan
-
-                    <li x-data>
-                        <button type="button"
-                            class="flex items-center w-full justify-between rounded-md px-2 py-2 text-sm text-body transition hover:bg-neutral-tertiary hover:text-fg-brand"
-                            @click="$store.sidebar.toggle('master')">
-
-                            <span class="inline-flex items-center gap-2">
-                                <x-heroicon-o-folder-open class="h-5 w-5 shrink-0" />
-                                <span class="font-semibold">Master</span>
-                            </span>
-
-                            <span class="transition-transform duration-200"
-                                x-bind:class="$store.sidebar.state.master ? 'rotate-180' : ''">
-                                <x-heroicon-s-chevron-down class="w-5 h-5" />
-                            </span>
-                        </button>
-
-                        <ul x-show="$store.sidebar.state.master" x-collapse x-cloak
-                            class="space-y-2 border-l border-zinc-200 pl-4">
-                            <li class="ml-4">
-                                <x-nav-link :active="request()->routeIs('sirekap.tenaga-kerja.index')" href="{{ route('sirekap.tenaga-kerja.index') }}">
-                                    <div class="flex items-center gap-2 transition-all duration-200">
-                                        <span class="text-sm font-medium">CPMI</span>
-                                    </div>
-                                </x-nav-link>
-                            </li>
-                            <li class="ml-4">
-                                <x-nav-link :active="request()->routeIs('sirekap.perusahaan.index')" href="{{ route('sirekap.perusahaan.index') }}">
-                                    <div class="flex items-center gap-2 transition-all duration-200">
-                                        <span class="text-sm font-medium">P3MI</span>
-                                    </div>
-                                </x-nav-link>
-                            </li>
-                            <li class="ml-4">
-                                <x-nav-link :active="request()->routeIs('sirekap.agency.index')" href="{{ route('sirekap.agency.index') }}">
-                                    <div class="flex items-center gap-2 transition-all duration-200">
-                                        <span class="text-sm font-medium">Agency</span>
-                                    </div>
-                                </x-nav-link>
-                            </li>
-                            <li class="ml-4">
-                                <x-nav-link :active="request()->routeIs('sirekap.pendidikan.index')" href="{{ route('sirekap.pendidikan.index') }}">
-                                    <div class="flex items-center gap-2 transition-all duration-200">
-                                        <span class="text-sm font-medium">Pendidikan</span>
-                                    </div>
-                                </x-nav-link>
-                            </li>
-                            <li class="ml-4">
-                                <x-nav-link :active="request()->routeIs('sirekap.negara.index')" href="{{ route('sirekap.negara.index') }}">
-                                    <div class="flex items-center gap-2 transition-all duration-200">
-                                        <span class="text-sm font-medium">Destinasi</span>
-                                    </div>
-                                </x-nav-link>
-                            </li>
-                        </ul>
-                    </li>
-
-                    @canany(['manage_rekomendasi', 'manage_master'])
-                        {{-- rekomendasi --}}
-                        <li x-data>
-                            <button @click="$store.sidebar.toggle('rekomendasi')"
-                                class="flex items-center w-full justify-between rounded-md px-2 py-2 text-sm text-body transition hover:bg-neutral-tertiary hover:text-fg-brand">
-
-                                <span class="inline-flex items-center gap-2">
-                                    <x-heroicon-o-document-text class="h-5 w-5" />
-                                    <span class="font-semibold">Rekomendasi</span>
-                                </span>
-
-                                <span class="transition-transform duration-200"
-                                    x-bind:class="$store.sidebar.state.rekomendasi ? 'rotate-180' : ''">
-                                    <x-heroicon-s-chevron-down class="w-5 h-5" />
-                                </span>
-                            </button>
-
-                            <ul x-show="$store.sidebar.state.rekomendasi" x-collapse x-cloak
-                                class="space-y-2 border-l border-zinc-200 pl-4">
-                                @can('manage_rekomendasi')
-                                    <li class="ml-4">
-                                        <x-nav-link :active="request()->routeIs('sirekap.author.index')" href="{{ route('sirekap.author.index') }}">
-                                            <div class="flex items-center gap-2 transition-all duration-200">
-                                                <span class="text-sm font-medium">Author</span>
-                                            </div>
-                                        </x-nav-link>
-                                    </li>
-                                @endcan
-                                @canany(['manage_rekomendasi', 'manage_master'])
-                                    <li class="ml-4">
-                                        <x-nav-link :active="request()->routeIs('sirekap.rekomendasi.index')" href="{{ route('sirekap.rekomendasi.index') }}">
-                                            <div class="flex items-center gap-2 transition-all duration-200">
-                                                <span class="text-sm font-medium">Rekom</span>
-                                            </div>
-                                        </x-nav-link>
-                                    </li>
-                                @endcanany
-                            </ul>
-                        </li>
-                    @endcanany
-
-                    <li x-data>
-                        <button @click="$store.sidebar.toggle('wilayah')"
-                            class="flex items-center w-full justify-between rounded-md px-2 py-2 text-sm text-body transition hover:bg-neutral-tertiary hover:text-fg-brand">
-
-                            <span class="inline-flex items-center gap-2">
-                                <x-heroicon-o-map-pin class="h-5 w-5" />
-                                <span class="font-semibold">Wilayah</span>
-                            </span>
-
-                            <span class="transition-transform duration-200"
-                                x-bind:class="$store.sidebar.state.wilayah ? 'rotate-180' : ''">
-                                <x-heroicon-s-chevron-down class="w-5 h-5" />
-                            </span>
-                        </button>
-
-                        <ul x-show="$store.sidebar.state.wilayah" x-collapse x-cloak
-                            class="space-y-2 border-l border-zinc-200 pl-4">
-                            <li class="ml-4">
-                                <x-nav-link :active="request()->routeIs('sirekap.kecamatan.index')" href="{{ route('sirekap.kecamatan.index') }}">
-                                    <div class="flex items-center gap-2 transition-all duration-200">
-                                        <span class="text-sm font-medium">Kecamatan</span>
-                                    </div>
-                                </x-nav-link>
-                            </li>
-                            <li class="ml-4">
-                                <x-nav-link :active="request()->routeIs('sirekap.desa.index')" href="{{ route('sirekap.desa.index') }}">
-                                    <div class="flex items-center gap-2 transition-all duration-200">
-                                        <span class="text-sm font-medium">Desa</span>
-                                    </div>
-                                </x-nav-link>
-                            </li>
-                        </ul>
-                    </li>
-
-                    {{-- ! logs --}}
-                    @can('view_activity_log')
-                        <li>
-                            <x-nav-link :active="request()->routeIs('sirekap.logs.index')" href="{{ route('sirekap.logs.index') }}">
-                                <div class="flex items-center rounded-md gap-2 transition-all duration-200">
-                                    <x-heroicon-o-clipboard-document-list class="h-5 w-5 shrink-0" />
-                                    <span class="text-sm font-semibold">Log Aktivitas</span>
-                                </div>
-                            </x-nav-link>
-                        </li>
-                    @endcan
-                </ul>
-            </div>
-        </aside>
+        <x-sidebar />
 
         {{-- MAIN CONTENT --}}
-        <main
-            class="ml-0 h-[calc(100vh-3.5rem)] w-full flex-1 overflow-y-auto border-zinc-200 bg-white py-6 px-4 sm:px-6 lg:ml-60">
+        <main class="ml-0 h-screen w-full flex-1 overflow-y-auto bg-zinc-100 py-4 px-4 sm:px-6 lg:ml-60">
             {{-- todo Header action --}}
             <div class="flex items-center justify-between w-full pb-4 space-y-4 font-inter">
                 <span>
-                    <h2 class="text-3xl font-medium">@yield('titlePageContent', '')</h2>
+                    <h2 class="text-2xl font-medium">@yield('titlePageContent', '')</h2>
                     <p class="text-sm">@yield('description', '')</p>
                 </span>
                 <div class="flex items-center justify-between gap-2">
@@ -251,7 +52,7 @@
                 </div>
             </div>
 
-            <div class="rounded-base">
+            <div>
                 @yield('content')
             </div>
         </main>

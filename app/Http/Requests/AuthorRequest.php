@@ -28,6 +28,11 @@ class AuthorRequest extends FormRequest
                 Rule::unique('authors', 'nip')->ignore($id),
             ],
             'jabatan' => ['required', 'string', 'max:150'],
+            'avatar' => [
+                'nullable',
+                'image',
+                'max:2048',
+            ],
         ];
     }
 
@@ -46,6 +51,7 @@ class AuthorRequest extends FormRequest
             'nama' => 'Nama',
             'nip' => 'NIP',
             'jabatan' => 'Jabatan',
+            'avatar' => 'Avatar',
         ];
     }
 
@@ -54,6 +60,8 @@ class AuthorRequest extends FormRequest
             'nama' => 'Nama',
             'nip' => 'NIP',
             'jabatan' => 'Jabatan',
+            'avatar.image' => 'Avatar harus berupa file gambar.',
+            'avatar.max' => 'Avatar maksimal 2MB.',
         ];
     }
 }

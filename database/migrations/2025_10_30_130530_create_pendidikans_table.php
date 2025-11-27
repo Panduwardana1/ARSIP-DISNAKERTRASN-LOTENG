@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('pendidikans', function (Blueprint $t) {
             $t->id();
             $t->string('nama',10)->unique()->index();
-            $t->string('label')->unique();
             $t->timestamps();
         });
     }

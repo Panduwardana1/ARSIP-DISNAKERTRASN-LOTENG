@@ -11,8 +11,7 @@
         </label>
         <input type="text" name="nama" id="nama" value="{{ old('nama', optional($agency)->nama) }}"
             maxlength="100" required
-            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300"
-            placeholder="Contoh: Japan Placement Agency">
+            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300">
         @error('nama')
             <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
         @enderror
@@ -43,8 +42,7 @@
             </label>
             <input type="text" name="lowongan" id="lowongan"
                 value="{{ old('lowongan', optional($agency)->lowongan) }}" maxlength="100"
-                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300"
-                placeholder="Contoh: Caregiver, Manufacturing">
+                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300">
             @error('lowongan')
                 <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
             @enderror
@@ -54,7 +52,7 @@
             <label for="keterangan" class="block text-sm font-medium text-zinc-700">
                 Keterangan Tambahan
             </label>
-            <textarea name="keterangan" id="keterangan" rows="4" placeholder="Masukkan catatan penting mengenai agency."
+            <textarea name="keterangan" id="keterangan" rows="4"
                 class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-blue-300">{{ old('keterangan', optional($agency)->keterangan) }}</textarea>
             @error('keterangan')
                 <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>

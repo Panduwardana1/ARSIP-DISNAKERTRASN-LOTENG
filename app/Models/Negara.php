@@ -10,11 +10,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Negara extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $fillable = [
         'nama',
-        'kode_iso',
     ];
 
     protected $casts = [

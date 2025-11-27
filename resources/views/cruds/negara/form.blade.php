@@ -17,18 +17,6 @@
             @enderror
         </div>
 
-        <div>
-            <label for="kode_iso" class="block text-sm font-medium text-zinc-700">
-                Kode ISO <span class="text-red-500">*</span>
-            </label>
-            <input type="text" id="kode_iso" name="kode_iso" value="{{ old('kode_iso', $negara->kode_iso ?? '') }}"
-                maxlength="5"
-                class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 uppercase tracking-wide focus:outline-none focus:border-blue-300"
-                placeholder="Contoh: IDN">
-            @error('kode_iso')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
     </div>
 
     {{-- todo button --}}

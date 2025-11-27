@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserProfileController extends Controller
@@ -59,14 +60,16 @@ class UserProfileController extends Controller
         ]);
 
         if ($canChangePassword && !empty($validated['password'])) {
-            $user->password = $validated['password'];
+            // Hash secara eksplisit untuk menghindari password tersimpan plain-text jika cast berubah
+            $user->password = Hash::make($validated['password']);
         }
 
         if ($request->hasFile('gambar')) {
             $path = $request->file('gambar')->store('profiles', 'public');
 
-            if ($user->gambar && Storage::disk('public')->exists($user->gambar)) {
-                Storage::disk('public')->delete($user->gambar);
+            $oldImage = $user->gambar ? ltrim(str_replace('storage/', '', $user->gambar), '/') : null;
+            if ($oldImage && Storage::disk('public')->exists($oldImage)) {
+                Storage::disk('public')->delete($oldImage);
             }
 
             $user->gambar = $path;
@@ -77,5 +80,27 @@ class UserProfileController extends Controller
         return redirect()
             ->route('sirekap.user.profile.index')
             ->with('success', 'Profil berhasil diperbarui.');
+    }
+
+    public function destroyPhoto(Request $request, string $id)
+    {
+        $user = $request->user();
+
+        if (!$user || (int) $id !== (int) $user?->id) {
+            abort(403, 'Anda tidak dapat mengubah profil pengguna lain.');
+        }
+
+        $imagePath = $user->gambar ? ltrim(str_replace('storage/', '', $user->gambar), '/') : null;
+
+        if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+            Storage::disk('public')->delete($imagePath);
+        }
+
+        $user->gambar = null;
+        $user->save();
+
+        return redirect()
+            ->route('sirekap.user.profile.edit', $user)
+            ->with('success', 'Foto profil berhasil dihapus.');
     }
 }

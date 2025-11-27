@@ -12,10 +12,6 @@
                     <dd class="mt-1 text-base font-medium text-slate-800">{{ $kecamatan->nama }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-semibold text-slate-500">Kode Kecamatan</dt>
-                    <dd class="mt-1 text-base font-medium text-slate-800">{{ $kecamatan->kode }}</dd>
-                </div>
-                <div>
                     <dt class="text-sm font-semibold text-slate-500">Dibuat</dt>
                     <dd class="mt-1 text-base text-slate-700">{{ optional($kecamatan->created_at)->format('d/m/Y H:i') }}</dd>
                 </div>

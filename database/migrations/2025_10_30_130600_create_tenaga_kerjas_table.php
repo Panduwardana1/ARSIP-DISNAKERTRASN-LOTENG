@@ -24,12 +24,12 @@ return new class extends Migration
             $t->foreignId('desa_id')
                 ->constrained('desas')
                 ->cascadeOnDelete()
-                ->cascadeOnUpdate();;
+                ->cascadeOnUpdate();
             $t->string('kode_pos', 10)->nullable();
             $t->foreignId('pendidikan_id')
                 ->constrained('pendidikans')
                 ->cascadeOnDelete()
-                ->cascadeOnUpdate();;
+                ->cascadeOnUpdate();
             $t->foreignId('perusahaan_id')
                 ->constrained('perusahaans')
                 ->cascadeOnDelete()
