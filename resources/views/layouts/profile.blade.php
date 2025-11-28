@@ -12,8 +12,8 @@
 @endphp
 
 @section('content')
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
-        <div class="col-span-1 lg:col-span-4 xl:col-span-3 border-[1.5px] h-[14rem] rounded-md p-6 bg-white">
+    <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-8">
+        <div class="col-span-1 lg:col-span-4 xl:col-span-3 border-[1.5px] rounded-md p-6 bg-white">
             <div class="grid space-y-4">
                 <div class="flex items-center gap-4 border-b pb-4">
                     @if ($avatar)

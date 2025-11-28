@@ -8,7 +8,7 @@
     <title>@yield('title')</title>
 </head>
 
-<body class="min-h-screen font-inter bg-red-600 text-zinc-800 font-outfit">
+<body class="min-h-screen font-inter bg-orange-600 text-zinc-800 font-outfit">
     <div role="main" class="grid min-h-full h-screen place-items-center px-6 py-24 sm:py-32 lg:px-8">
         <div class="text-center">
             <p class="text-base font-semibold text-white">@yield('code')</p>

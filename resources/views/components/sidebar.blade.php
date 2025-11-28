@@ -1,29 +1,16 @@
-<aside id="sidebar-multi-level-sidebar"
-    class="fixed left-0 top-0 z-40 flex h-[calc(100vh)] w-60 flex-col border-r-[1.5px] bg-white px-4 py-4 space-y-4 backdrop-blur transition-transform duration-300 lg:translate-x-0"
+<aside id="sidebar-multi-level-sidebar" x-cloak
+    class="fixed left-0 top-0 z-40 flex h-screen w-[82vw] max-w-md flex-col border-r-[1.5px] bg-white px-4 py-4 space-y-4 pb-4 transition-transform duration-300 -translate-x-full lg:w-64 lg:translate-x-0"
     aria-label="Sidebar" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:-translate-x-0'">
-    <div class="flex items-center justify-between">
-        <img src="{{ asset('asset/logo/Logo-Disnaker.png') }}" alt="Logo" class="h-9 w-auto">
+    <div class="flex items-center justify-between gap-3">
+        <img src="{{ asset('asset/logo/primary.png') }}" alt="Logo" class="h-9 w-auto">
+        <button type="button" @click="sidebarOpen = false"
+            class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 text-zinc-600 transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 lg:hidden"
+            aria-label="Tutup menu navigasi">
+            <x-heroicon-o-x-mark class="h-5 w-5" />
+        </button>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 border-t-[1.5px]">
-        <a href="{{ route('sirekap.user.profile.index') }}"
-            class="flex items-center gap-3 200 bg-white px-3 py-3">
-            @php
-                $authUser = auth()->user();
-                $avatarPath = $authUser?->gambar
-                    ? asset('storage/' . $authUser->gambar)
-                    : asset('asset/images/default-profile.jpg');
-            @endphp
-            <img src="{{ $avatarPath }}" alt="Profil {{ $authUser?->name ?? 'User' }}"
-                class="h-10 w-10 rounded-full border border-zinc-200 object-cover"
-                onerror="this.src='{{ asset('asset/images/default-profile.jpg') }}'">
-            <div class="min-w-0">
-                <p class="truncate text-sm font-semibold text-zinc-900">{{ $authUser?->name ?? 'User' }}</p>
-                <p class="truncate text-xs text-zinc-500">{{ $authUser?->email ?? '-' }}</p>
-            </div>
-        </a>
-    </div>
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto pr-1">
         <ul class="space-y-2 font-medium">
             @can('view_dashboard')
                 <li>
@@ -111,7 +98,7 @@
 
                         <span class="inline-flex items-center gap-2">
                             <x-heroicon-o-document-text class="h-5 w-5" />
-                            <span class="font-semibold">Kelola Rekomendasi</span>
+                            <span class="font-semibold">Kelola Rekom</span>
                         </span>
 
                         <span class="transition-transform duration-200"
@@ -190,5 +177,23 @@
                 </li>
             @endcan
         </ul>
+    </div>
+
+    <div class="mt-4 border-t-[1.5px] pt-3">
+        <a href="{{ route('sirekap.user.profile.index') }}" class="flex items-center gap-3 bg-white px-3 py-3">
+            @php
+                $authUser = auth()->user();
+                $avatarPath = $authUser?->gambar
+                    ? asset('storage/' . $authUser->gambar)
+                    : asset('asset/images/default-profile.jpg');
+            @endphp
+            <img src="{{ $avatarPath }}" alt="Profil {{ $authUser?->name ?? 'User' }}"
+                class="h-10 w-10 rounded-full border border-zinc-200 object-cover"
+                onerror="this.src='{{ asset('asset/images/default-profile.jpg') }}'">
+            <div class="min-w-0">
+                <p class="truncate text-sm font-semibold text-zinc-900">{{ $authUser?->name ?? 'User' }}</p>
+                <p class="truncate text-xs text-zinc-500">{{ $authUser?->email ?? '-' }}</p>
+            </div>
+        </a>
     </div>
 </aside>

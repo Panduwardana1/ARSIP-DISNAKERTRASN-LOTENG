@@ -127,9 +127,9 @@
         <form id="rekomendasi-form" method="POST" action="{{ route('sirekap.rekomendasi.preview') }}">
             @csrf
 
-            <div class="bg-white border border-zinc-200 rounded-md overflow-hidden">
+            <div class="bg-white border border-zinc-200 rounded-md overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="min-w-[900px] w-full text-left border-collapse">
                         <thead class="bg-zinc-600 border-b border-zinc-200">
                             <tr>
                                 <th class="p-4 w-12">

@@ -99,7 +99,7 @@
                                 <span @class([
                                     'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium',
                                     "bg-{$roleColor}-600 text-white" => $hasRoles,
-                                    'bg-blue-700 text-white' => !$hasRoles,
+                                    'bg-blue-700 text-black' => !$hasRoles,
                                 ])>
                                     {{ $hasRoles ? $roleNames : 'Belum ada role' }}
                                 </span>

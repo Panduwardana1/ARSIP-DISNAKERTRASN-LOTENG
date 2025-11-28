@@ -27,8 +27,8 @@
             </li>
         </ol>
     </div>
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
-        <div class="col-span-1 lg:col-span-4 xl:col-span-3 border-[1.5px] h-[8rem] rounded-md p-6 bg-white">
+    <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-8">
+        <div class="col-span-1 lg:col-span-4 xl:col-span-3 border-[1.5px] rounded-md p-6 bg-white">
             <div class="grid space-y-4">
                 <div class="flex items-center gap-4 pb-4">
                     @if ($avatar)
@@ -91,7 +91,7 @@
                                     (NIP)</label>
                                 <input id="nip" name="nip" type="text" inputmode="numeric" minlength="18"
                                     maxlength="18" required
-                                    class="w-full max-w-xs border-b bg-zinc-50 border-zinc-300 px-4 py-2.5 text-sm focus:border-green-500 focus:outline-none"
+                                    class="w-full max-w-md border-b bg-zinc-50 border-zinc-300 px-4 py-2.5 text-sm focus:border-green-500 focus:outline-none"
                                     value="{{ old('nip', $user->nip) }}">
                             </div>
 

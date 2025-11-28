@@ -32,28 +32,38 @@
         <x-alert type="warning" message="{{ session('warning') }}" />
     @endif
 
-    <div class="flex">
-        <div x-cloak x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-20 bg-white lg:hidden"
-            @click="sidebarOpen = false"></div>
+    <div class="flex min-h-screen">
+        <div x-cloak x-show="sidebarOpen" x-transition.opacity
+            class="fixed inset-0 z-20 bg-black/30 backdrop-blur-sm lg:hidden" @click="sidebarOpen = false"></div>
 
         {{-- todo sidebar --}}
         <x-sidebar />
 
         {{-- MAIN CONTENT --}}
-        <main class="ml-0 h-screen w-full flex-1 overflow-y-auto bg-zinc-100 py-4 px-4 sm:px-6 lg:ml-60">
-            {{-- todo Header action --}}
-            <div class="flex items-center justify-between w-full pb-4 space-y-4 font-inter">
-                <span>
-                    <h2 class="text-2xl font-medium">@yield('titlePageContent', '')</h2>
-                    <p class="text-sm">@yield('description', '')</p>
-                </span>
-                <div class="flex items-center justify-between gap-2">
-                    @yield('headerAction')
+        <main class="ml-0 flex-1 bg-zinc-100 lg:ml-60">
+            <div class="sticky top-0 z-30 border-b border-zinc-200 bg-white px-4 py-3 text-sm backdrop-blur sm:px-6">
+                <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between font-inter">
+                    <div class="flex flex-1 items-start gap-3">
+                        <button type="button"
+                            class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 lg:hidden"
+                            @click="sidebarOpen = true" aria-label="Buka menu navigasi">
+                            <x-heroicon-o-bars-3 class="h-5 w-5" />
+                        </button>
+                        <div class="min-w-0">
+                            <h2 class="truncate text-2xl font-semibold text-zinc-900">@yield('titlePageContent', '')</h2>
+                            <p class="text-sm text-zinc-600">@yield('description', '')</p>
+                        </div>
+                    </div>
+                    <div class="flex w-full flex-wrap items-center gap-2 md:w-auto md:justify-end">
+                        @yield('headerAction')
+                    </div>
                 </div>
             </div>
 
-            <div>
-                @yield('content')
+            <div class="px-4 pb-6 pt-4 sm:px-6">
+                <div class="mx-auto w-full max-w-7xl space-y-4">
+                    @yield('content')
+                </div>
             </div>
         </main>
     </div>

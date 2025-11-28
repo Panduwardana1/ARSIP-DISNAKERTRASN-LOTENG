@@ -1,4 +1,6 @@
 @extends('layouts.app')
+@section('pageTitle', 'Dashboard')
+<link rel="icon" href="{{ asset('asset/logo/icon.png') }}">
 
 @push('head')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
@@ -23,53 +25,81 @@
         {{-- Ringkasan Angka (Stats Cards) --}}
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {{-- Card 1: Total CPMI --}}
-            <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-zinc-500">Total CPMI</p>
-                        <p class="mt-2 text-3xl font-bold text-zinc-900">{{ $cast['totalTenagaKerja'] }}</p>
+            <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4">
+                <div class="grid space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1">
+                            <div class="text-emerald-600">
+                                <x-heroicon-s-users class="h-5 w-5" />
+                            </div>
+                            <span class="font-semibold">Total PMI</span>
+                        </div>
+                        <a href="{{ route('sirekap.tenaga-kerja.index') }}" class="p-1 hover:bg-zinc-200 rounded-md">
+                            <x-heroicon-o-arrow-up-right class="h-5 w-5" />
+                        </a>
                     </div>
-                    <div class="rounded-lg bg-blue-50 p-3 text-blue-600">
-                        <x-heroicon-o-user-circle class="h-6 w-6" />
-                    </div>
-                </div>
-            </div>
-
-            {{-- Card 2: Total Agency --}}
-            <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-zinc-500">Total Agency</p>
-                        <p class="mt-2 text-3xl font-bold text-zinc-900">{{ $cast['totalAgency'] }}</p>
-                    </div>
-                    <div class="rounded-lg bg-emerald-50 p-3 text-emerald-600">
-                        <x-heroicon-o-building-library class="h-6 w-6" />
+                    <div class="text-center">
+                        <p class="mt-2 text-3xl font-bold text-zinc-900">{{ $cast['totalTenagaKerja'] ?? '-' }}</p>
                     </div>
                 </div>
             </div>
 
-            {{-- Card 3: Total P3MI --}}
-            <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-zinc-500">Total P3MI</p>
-                        <p class="mt-2 text-3xl font-bold text-zinc-900">{{ $cast['totalPerusahaan'] }}</p>
+            {{-- Total perusahaan --}}
+            <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4">
+                <div class="grid space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1">
+                            <div class="text-emerald-600">
+                                <x-heroicon-s-building-office class="h-5 w-5" />
+                            </div>
+                            <span class="font-semibold">Total Perusahaan</span>
+                        </div>
+                        <a href="{{ route('sirekap.perusahaan.index') }}" class="p-1 hover:bg-zinc-200 rounded-md">
+                            <x-heroicon-o-arrow-up-right class="h-5 w-5" />
+                        </a>
                     </div>
-                    <div class="rounded-lg bg-orange-50 p-3 text-orange-600">
-                        <x-heroicon-o-building-office class="h-6 w-6" />
+                    <div class="text-center">
+                        <p class="mt-2 text-3xl font-bold text-zinc-900">{{ $cast['totalPerusahaan'] ?? '-' }}</p>
                     </div>
                 </div>
             </div>
 
-            {{-- Card 4: Total Rekomendasi --}}
-            <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-zinc-500">Total Rekomendasi</p>
-                        <p class="mt-2 text-3xl font-bold text-zinc-900">{{ $cast['totalRekomendasi'] }}</p>
+            {{-- Total agency --}}
+            <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4">
+                <div class="grid space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1">
+                            <div class="text-emerald-600">
+                                <x-heroicon-s-building-library class="h-5 w-5" />
+                            </div>
+                            <span class="font-semibold">Total Agency</span>
+                        </div>
+                        <a href="{{ route('sirekap.agency.index') }}" class="p-1 hover:bg-zinc-200 rounded-md">
+                            <x-heroicon-o-arrow-up-right class="h-5 w-5" />
+                        </a>
                     </div>
-                    <div class="rounded-lg bg-purple-50 p-3 text-purple-600">
-                        <x-heroicon-o-document-text class="h-6 w-6" />
+                    <div class="text-center">
+                        <p class="mt-2 text-3xl font-bold text-zinc-900">{{ $cast['totalAgency'] ?? '-' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Total agency --}}
+            <div class="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4">
+                <div class="grid space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1">
+                            <div class="text-emerald-600">
+                                <x-heroicon-s-document-text class="h-5 w-5" />
+                            </div>
+                            <span class="font-semibold">Total Rekomendasi</span>
+                        </div>
+                        <a href="{{ route('sirekap.rekomendasi.index') }}" class="p-1 hover:bg-zinc-200 rounded-md">
+                            <x-heroicon-o-arrow-up-right class="h-5 w-5" />
+                        </a>
+                    </div>
+                    <div class="text-center">
+                        <p class="mt-2 text-3xl font-bold text-zinc-900">{{ $cast['totalRekomendasi'] ?? '-' }}</p>
                     </div>
                 </div>
             </div>

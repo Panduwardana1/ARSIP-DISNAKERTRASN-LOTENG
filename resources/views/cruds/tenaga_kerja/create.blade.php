@@ -43,7 +43,7 @@
         @endif
 
         <div class="mx-auto w-full max-w-6xl">
-            <form action="{{ route('sirekap.tenaga-kerja.store') }}" method="POST" class="space-y-2 border">
+            <form action="{{ route('sirekap.tenaga-kerja.store') }}" method="POST" class="space-y-2">
                 @csrf
 
                 @include('cruds.tenaga_kerja._form')

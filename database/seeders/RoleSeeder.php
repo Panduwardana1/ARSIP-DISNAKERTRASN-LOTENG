@@ -42,7 +42,7 @@ class RoleSeeder extends Seeder
         $user = User::updateOrCreate(
             ['nip' => '198201182002121001'],
             [
-                'name' => 'Admin',
+                'name' => 'Admin Diasnaker',
                 'email' => 'disnaker@gmail.com',
                 'password' => Hash::make('#admin123'),
                 'is_active' => 'active',
