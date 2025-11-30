@@ -12,23 +12,8 @@
         $avatar = $user?->gambar ? asset('storage/' . ltrim($user->gambar, '/')) : null;
     @endphp
 
-    <div aria-label="breadcrumb" class="col-span-full pb-4">
-        <ol class="flex w-full flex-wrap items-center py-1.5">
-            <li
-                class="flex cursor-pointer items-center text-sm text-zinc-500 transition-colors duration-300 hover:text-zinc-800">
-                <a href="{{ route('sirekap.user.profile.index') }}">Profile</a>
-                <span class="pointer-events-none mx-2 text-zinc-800">
-                    /
-                </span>
-            </li>
-            <li
-                class="flex cursor-pointer items-center text-sm text-zinc-500 transition-colors duration-300 hover:text-zinc-800">
-                <a href="{{ route('sirekap.user.profile.edit', $user) }}">Edit profile</a>
-            </li>
-        </ol>
-    </div>
-    <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-8">
-        <div class="col-span-1 lg:col-span-4 xl:col-span-3 border-[1.5px] rounded-md p-6 bg-white">
+    <div class="grid grid-cols-1 gap-4 sm:gap-4 lg:grid-cols-12 lg:gap-6">
+        <div class="col-span-1 lg:col-span-4 xl:col-span-3 border-[1.5px] h-[7rem] rounded-md p-6 bg-white">
             <div class="grid space-y-4">
                 <div class="flex items-center gap-4 pb-4">
                     @if ($avatar)

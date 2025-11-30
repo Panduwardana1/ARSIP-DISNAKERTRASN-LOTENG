@@ -90,8 +90,6 @@
                                 Pengguna</th>
                             <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide">
                                 Aktivitas</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide">IP
-                            </th>
                             <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide">Aksi
                             </th>
                         </tr>
@@ -115,7 +113,7 @@
                                     $payload['nama'] ??
                                     ($payload['name'] ?? ($payload['title'] ?? ($payload['kode'] ?? null)));
                                 $actionLabels = [
-                                    'POST' => 'Menambahkan',
+                                    'POST' => 'Membuat',
                                     'PUT' => 'Memperbarui',
                                     'PATCH' => 'Memperbarui',
                                     'DELETE' => 'Menghapus',
@@ -126,7 +124,6 @@
                                 $summary = $subject
                                     ? trim($actionText . ' ' . $subject)
                                     : $activity->description ?? 'Aktivitas';
-                                $ip = $props['ip'] ?? '-';
                             @endphp
                             <tr class="hover:bg-zinc-50/50">
                                 <td class="px-4 py-4 align-top">
@@ -147,9 +144,6 @@
                                     <div class="space-y-1 text-xs text-zinc-700">
                                         <p class="font-semibold text-zinc-900">{{ $summary ?: '-' }}</p>
                                     </div>
-                                </td>
-                                <td class="px-4 py-4 align-top">
-                                    <p class="text-xs font-medium text-zinc-900">{{ $ip }}</p>
                                 </td>
                                 <td class="px-4 py-4 align-top">
                                     <form action="{{ route('sirekap.logs.destroy', $activity) }}" method="POST"

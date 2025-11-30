@@ -35,9 +35,12 @@ class UserController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $roles = Role::query()->orderBy('name')->pluck('name');
+
         return view('cruds.users.index', [
             'users' => $users,
             'search' => $search,
+            'roles' => $roles,
         ]);
     }
 

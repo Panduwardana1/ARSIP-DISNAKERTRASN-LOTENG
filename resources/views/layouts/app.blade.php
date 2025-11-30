@@ -43,7 +43,7 @@
         <main class="ml-0 flex-1 bg-zinc-100 lg:ml-60">
             <div class="sticky top-0 z-30 border-b border-zinc-200 bg-white px-4 py-3 text-sm backdrop-blur sm:px-6">
                 <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between font-inter">
-                    <div class="flex flex-1 items-start gap-3">
+                    <div class="flex flex-1 items-start gap-3 z-50">
                         <button type="button"
                             class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 lg:hidden"
                             @click="sidebarOpen = true" aria-label="Buka menu navigasi">

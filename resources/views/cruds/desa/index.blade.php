@@ -16,17 +16,36 @@
         </form>
 
         {{-- Action Button --}}
-        <div class="w-full sm:w-auto">
-            <a href="{{ route('sirekap.desa.create') }}"
+        <div class="w-full sm:w-auto" x-data>
+            <button type="button" @click="$dispatch('desa-modal:create')"
                 class="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all shadow-sm w-full sm:w-auto">
                 <x-heroicon-o-plus class="w-5 h-5" />
                 Tambah
-            </a>
+            </button>
         </div>
     </div>
 @endsection
 
 @section('content')
+    @php
+        $oldFormData = [
+            'mode' => old('form_mode'),
+            'id' => old('desa_id'),
+            'nama' => old('nama'),
+            'kecamatan_id' => old('kecamatan_id'),
+        ];
+
+        $modalDesas = $desas
+            ->map(fn($desa) => [
+                'id' => $desa->id,
+                'nama' => $desa->nama,
+                'kecamatan_id' => $desa->kecamatan_id,
+            ])
+            ->values();
+    @endphp
+
+    <div x-data="desaModal({ desas: @js($modalDesas), oldForm: @js($oldFormData) })" x-init="init()"
+        x-on:desa-modal:create.window="openCreate()" class="space-y-4">
     {{-- Error Alert --}}
     @error('error')
         <div class="mb-6 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex items-center gap-2">
@@ -92,11 +111,18 @@
                             {{-- Actions --}}
                             <td class="p-4 align-middle text-end">
                                 <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ route('sirekap.desa.edit', $items) }}"
+                                    @php
+                                        $payload = [
+                                            'id' => $items->id,
+                                            'nama' => $items->nama,
+                                            'kecamatan_id' => $items->kecamatan_id,
+                                        ];
+                                    @endphp
+                                    <button type="button" @click="openEdit(@js($payload))"
                                         class="p-1.5 text-zinc-500 hover:text-amber-700 transition-colors"
                                         title="Edit">
                                         <x-heroicon-o-pencil class="w-5 h-5" />
-                                    </a>
+                                    </button>
 
                                     <x-modal-delete :action="route('sirekap.desa.destroy', $items)" :title="'Hapus Data'"
                                         :message="'Data akan dihapus permanen.'" confirm-field="confirm_delete">
@@ -131,4 +157,145 @@
             </div>
         @endif
     </div>
+
+    {{-- Modal Create/Update --}}
+    <div x-cloak x-show="open" x-transition.opacity.duration.200ms x-on:keydown.escape.window="close()"
+        class="fixed inset-0 z-30 flex items-center justify-center bg-zinc-200/50 px-4 py-6">
+        <div x-show="open" x-transition.scale.duration.200ms
+            class="w-full max-w-xl rounded-2xl bg-white shadow-2xl ring-1 ring-black/5">
+            <div class="flex items-start justify-between border-b px-5 py-4">
+                <div class="space-y-0.5">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600"
+                        x-text="mode === 'create' ? 'Tambah' : 'Perbarui'"></p>
+                    <h2 class="text-lg font-semibold text-zinc-900"
+                        x-text="mode === 'create' ? 'Tambah Desa' : 'Ubah Data Desa'"></h2>
+                    <p class="text-sm text-zinc-500">Kelola data desa atau kelurahan langsung di halaman ini.</p>
+                </div>
+                <button type="button" @click="close()"
+                    class="rounded-full bg-zinc-100 p-2 text-zinc-500 transition hover:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    aria-label="Tutup">
+                    <x-heroicon-o-x-mark class="h-5 w-5" />
+                </button>
+            </div>
+
+            <form :action="formAction" method="POST" class="space-y-5 p-5">
+                @csrf
+                <template x-if="mode === 'edit'">
+                    <input type="hidden" name="_method" value="PUT">
+                </template>
+                <input type="hidden" name="form_mode" :value="mode">
+                <input type="hidden" name="desa_id" :value="form.id">
+
+                @if ($errors->has('app') || $errors->has('db') || $errors->has('error'))
+                    <div
+                        class="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 flex items-center gap-2">
+                        <x-heroicon-o-exclamation-triangle class="w-5 h-5" />
+                        {{ $errors->first('app') ?? $errors->first('db') ?? $errors->first('error') }}
+                    </div>
+                @endif
+
+                <div class="space-y-6">
+                    <div class="space-y-1">
+                        <label for="nama" class="block text-sm font-medium text-zinc-700">
+                            Nama Desa <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" name="nama" id="nama" x-model="form.nama" maxlength="100" required
+                            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-emerald-400"
+                            placeholder="Contoh: Desa Sukamakmur">
+                        @error('nama')
+                            <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="space-y-1">
+                        <label for="kecamatan_id" class="block text-sm font-medium text-zinc-700">
+                            Kecamatan Induk <span class="text-rose-500">*</span>
+                        </label>
+                        <select name="kecamatan_id" id="kecamatan_id" x-model="form.kecamatan_id" required
+                            class="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:border-emerald-400">
+                            <option value="">Pilih kecamatan...</option>
+                            @foreach ($kecamatans as $kecamatan)
+                                <option value="{{ $kecamatan->id }}" :selected="String(form.kecamatan_id) === '{{ $kecamatan->id }}'">
+                                    {{ $kecamatan->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('kecamatan_id')
+                            <p class="mt-1 text-sm text-rose-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-2 border-t border-zinc-100">
+                    <button type="button" @click="close()"
+                        class="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1">
+                        <span x-text="mode === 'create' ? 'Simpan' : 'Update'"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
 @endsection
+
+@push('scripts')
+    <script>
+        function desaModal(config) {
+            return {
+                open: false,
+                mode: 'create',
+                form: {
+                    id: null,
+                    nama: '',
+                    kecamatan_id: '',
+                },
+                desas: config?.desas || [],
+                oldForm: config?.oldForm || {},
+                updateBase: '{{ url('/sirekap/desa') }}',
+                get formAction() {
+                    return this.mode === 'create'
+                        ? '{{ route('sirekap.desa.store') }}'
+                        : `${this.updateBase}/${this.form.id}`;
+                },
+                openCreate() {
+                    this.mode = 'create';
+                    this.resetForm();
+                    this.open = true;
+                },
+                openEdit(item) {
+                    this.mode = 'edit';
+                    this.resetForm();
+                    this.form = { ...this.form, ...item };
+                    this.open = true;
+                },
+                close() {
+                    this.open = false;
+                    this.resetForm();
+                },
+                resetForm() {
+                    this.form = { id: null, nama: '', kecamatan_id: '' };
+                },
+                init() {
+                    if (this.oldForm?.mode === 'create') {
+                        this.mode = 'create';
+                        this.form = { ...this.form, ...this.oldForm };
+                        this.open = true;
+                    }
+
+                    if (this.oldForm?.mode === 'edit' && this.oldForm?.id) {
+                        const fallback = this.desas.find((item) => String(item.id) === String(this.oldForm.id)) || {
+                            id: this.oldForm.id
+                        };
+                        this.mode = 'edit';
+                        this.form = { ...this.form, ...fallback, ...this.oldForm };
+                        this.open = true;
+                    }
+                },
+            };
+        }
+    </script>
+@endpush

@@ -33,7 +33,9 @@ class AgencyController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('cruds.agency.index', compact('agencies', 'search'));
+        $perusahaans = $this->perusahaanOptions();
+
+        return view('cruds.agency.index', compact('agencies', 'search', 'perusahaans'));
     }
 
     /**

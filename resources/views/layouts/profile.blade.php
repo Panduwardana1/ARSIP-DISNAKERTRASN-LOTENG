@@ -13,7 +13,7 @@
 
 @section('content')
     <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12 lg:gap-8">
-        <div class="col-span-1 lg:col-span-4 xl:col-span-3 border-[1.5px] rounded-md p-6 bg-white">
+        <div class="col-span-1 lg:col-span-4 xl:col-span-3 border-[1.5px] h-[14rem] rounded-md p-6 bg-white">
             <div class="grid space-y-4">
                 <div class="flex items-center gap-4 border-b pb-4">
                     @if ($avatar)
@@ -37,10 +37,11 @@
                         class="flex justify-center items-center text-center w-full p-1.5 px-2 bg-emerald-600 text-white hover:bg-emerald-500 active:ring-1 font-medium rounded-md gap-2">
                         Edit
                     </a>
-                    <form action="{{ route('logout') }}" method="POST"
-                        class="text-center bg-red-600 py-1.5 px-2 rounded-md hover:bg-red-500 active:ring-1">
+                    <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="text-center text-white transition" aria-label="Logout">
+                        <button type="submit"
+                            class="text-center bg-red-600 py-1.5 px-2 rounded-md hover:bg-red-500 active:ring-1 w-full text-white"
+                            aria-label="Logout">
                             Keluar
                         </button>
                     </form>

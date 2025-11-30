@@ -29,7 +29,12 @@ class DesaController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('cruds.desa.index', compact('desas', 'search'));
+        $kecamatans = Kecamatan::query()
+            ->select('id', 'nama')
+            ->orderBy('nama')
+            ->get();
+
+        return view('cruds.desa.index', compact('desas', 'search', 'kecamatans'));
     }
 
     public function create()
