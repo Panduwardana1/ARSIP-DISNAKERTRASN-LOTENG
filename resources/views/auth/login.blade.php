@@ -9,6 +9,7 @@
     <title>Sirekap Pasmi | Auth Login</title>
     @vite('resources/css/app.css')
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         [x-cloak] {
             display: none !important;
@@ -16,25 +17,22 @@
     </style>
 </head>
 
-<body class="flex h-full bg-zinc-300 font-inter px-4 py-6 items-center justify-center">
+<body class="flex h-full bg-amber-600 font-inter px-4 py-4 items-center justify-center">
     <main class="space-y-4">
-        <div class="grid bg-white border p-8 w-[28rem] rounded-md">
+        <div class="grid bg-white border p-8 w-[28rem] rounded-sm space-y-2">
+            <div class="flex flex-col justify-center items-center">
+                <img src="{{ asset('asset/logo/primary.png') }}" alt="Logo" class="h-10 w-auto">
+            </div>
             <div class="flex flex-col items-center justify-center space-y-2">
                 <h1 class="font-semibold text-3xl">Selamat Datang</h1>
             </div>
 
             @if (session('success'))
-                <div class="rounded-sm border border-green-500 bg-green-50 p-3 text-sm text-green-700">
-                    {{ session('success') }}
-                </div>
+                <x-alert type="success" message="{{ session('success') }}" />
             @endif
 
-            @if ($errors->any())
-                <div class="rounded-sm border border-red-500 bg-red-50 p-3 text-sm text-red-700 space-y-1">
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
+            @if (session('error'))
+                <x-alert type="error" message="{{ session('error') }}" />
             @endif
 
             <form action="{{ route('login.process') }}" method="POST" class="space-y-4">
@@ -70,11 +68,6 @@
                             <x-heroicon-o-eye-slash x-show="showPassword" x-cloak class="h-5 w-5" />
                         </button>
                     </div>
-                    <dic class="flex gap-2">
-                        <x-heroicon-s-exclamation-circle class="h-4 w-4 text-zinc-400" />
-                        <span class="text-xs font-medium text-zinc-400">Gunakan minimal 6 karakter, dengan kombinasi
-                            huruf besar, huruf kecil, dan angka.</span>
-                    </dic>
                 </div>
 
                 <div class="flex items-center justify-between">
@@ -85,16 +78,20 @@
                     </label>
                 </div>
 
+                <div class="mt-4">
+                    <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.key') }}"></div>
+
+                    {{-- Error validasi captcha jika tidak dicentang --}}
+                    @error('g-recaptcha-response')
+                        <span class="text-red-500 text-sm font-bold">{{ $message }}</span>
+                    @enderror
+                </div>
+
                 <button type="submit"
                     class="flex w-full items-center justify-center gap-2 rounded-sm bg-green-500 p-3 font-semibold text-black transition-all hover:bg-green-400 focus:outline-none">
                     Login
                 </button>
             </form>
-        </div>
-        <div class="flex items-center justify-center gap-4 p-4 border rounded-md bg-white">
-            <img src="{{ asset('asset/logo/lombok_tengah2.png') }}" alt="Logo-sirekap" class="h-6 w-auto">
-            <img src="{{ asset('asset/logo/kominfo.png') }}" alt="Logo-sirekap" class="h-6 w-auto">
-            <img src="{{ asset('asset/logo/primary.png') }}" alt="Logo-sirekap" class="h-6 w-auto">
         </div>
     </main>
 </body>

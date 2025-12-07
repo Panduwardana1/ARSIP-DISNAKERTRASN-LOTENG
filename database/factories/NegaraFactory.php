@@ -16,8 +16,11 @@ class NegaraFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = fake('id_ID');
+
         return [
-            'nama' => fake()->country(),
+            // unique untuk hindari bentrok dengan constraint nama unik
+            'nama' => $faker->unique()->country(),
         ];
     }
 }

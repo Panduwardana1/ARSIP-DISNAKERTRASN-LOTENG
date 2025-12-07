@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Recaptcha;
 use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
@@ -36,6 +37,7 @@ class LoginRequest extends FormRequest
                 },
             ],
             'password' => ['required', 'string', 'min:6'],
+            'g-recaptcha-response' => ['required', new Recaptcha],
         ];
     }
 
@@ -50,6 +52,7 @@ class LoginRequest extends FormRequest
         return [
             'identifier.required' => 'NIP atau Email wajib diisi',
             'password.required' => 'Password wajib diisi',
+            'g-recaptcha-response.required' => 'Verifikasi reCAPTCHA wajib.'
         ];
     }
 }

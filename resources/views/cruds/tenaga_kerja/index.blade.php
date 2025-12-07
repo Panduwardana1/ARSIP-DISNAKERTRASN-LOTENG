@@ -7,7 +7,8 @@
 @section('headerAction')
     <div class="flex flex-col sm:flex-row gap-3 items-center justify-between w-full">
         {{-- Search Bar --}}
-        <form method="GET" action="{{ route('sirekap.tenaga-kerja.index') }}" class="relative w-full sm:max-w-xs font-inter group">
+        <form method="GET" action="{{ route('sirekap.tenaga-kerja.index') }}"
+            class="relative w-full sm:max-w-xs font-inter group">
             <span class="absolute inset-y-0 left-3 flex items-center text-zinc-400 group-focus-within:text-blue-600">
                 <x-heroicon-o-magnifying-glass class="w-5 h-5" />
             </span>
@@ -81,8 +82,7 @@
                             <td class="p-4 align-middle">
                                 <div class="flex items-center gap-3">
                                     <a href="{{ route('sirekap.tenaga-kerja.show', $items) }}">
-                                        <img src="{{ asset('asset/images/default-profile.jpg') }}" alt="Profile"
-                                            class="h-12 w-12 rounded-full border border-zinc-200 object-cover">
+                                        <x-heroicon-o-user-circle class="h-10 w-10 text-zinc-400" />
                                     </a>
                                     <span class="grid items-center">
                                         <p class="text-sm font-semibold text-zinc-900">{{ $items->nama }}</p>
@@ -130,13 +130,12 @@
                             <td class="p-4 align-middle text-end">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="{{ route('sirekap.tenaga-kerja.edit', $items) }}"
-                                        class="p-1.5 text-zinc-500 hover:text-amber-700 transition-colors"
-                                        title="Edit">
+                                        class="p-1.5 text-zinc-500 hover:text-amber-700 transition-colors" title="Edit">
                                         <x-heroicon-o-pencil class="w-5 h-5" />
                                     </a>
 
-                                    <x-modal-delete :action="route('sirekap.tenaga-kerja.destroy', $items)" :title="'Hapus Data'"
-                                        :message="'Data ' . $items->nama . ' akan dihapus permanen.'" confirm-field="confirm_delete">
+                                    <x-modal-delete :action="route('sirekap.tenaga-kerja.destroy', $items)" :title="'Hapus Data'" :message="'Data ' . $items->nama . ' akan dihapus permanen.'"
+                                        confirm-field="confirm_delete">
                                         <button type="button"
                                             class="p-1.5 text-zinc-500 hover:text-rose-600 transition-colors"
                                             title="Hapus">
